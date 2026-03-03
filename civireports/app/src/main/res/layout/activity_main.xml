@@ -63,13 +63,11 @@
 
                 <!-- Logo -->
                 <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_width="125dp"
+                    android:layout_height="125dp"
                     android:adjustViewBounds="true"
-                    android:maxHeight="110dp"
                     android:scaleType="fitCenter"
-                    android:src="@mipmap/ic_launcher" />
+                    android:src="@drawable/brgy" />
 
 
                 <LinearLayout
@@ -131,17 +129,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="22dp"
+                android:layout_marginEnd="22dp"
                 android:orientation="vertical">
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="0dp"
                     app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="15dp"
-                    app:cardElevation="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
                     app:cardUseCompatPadding="true">
 
                     <EditText
@@ -170,17 +168,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
+                android:layout_marginStart="22dp"
+                android:layout_marginEnd="22dp"
                 android:orientation="vertical">
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="0dp"
                     app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="15dp"
-                    app:cardElevation="2dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
                     app:cardUseCompatPadding="true">
 
                     <EditText
@@ -236,7 +234,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     app:backgroundTint="#0047AB"
-                    app:cornerRadius="32dp" />
+                    app:cornerRadius="12dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -278,7 +276,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     app:backgroundTint="#C8102E"
-                    app:cornerRadius="32dp" />
+                    app:cornerRadius="12dp" />
 
             </LinearLayout>
 
