@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:paddingTop="100dp"
+            android:paddingTop="125dp"
             android:paddingBottom="24dp">
 
             <!-- Header -->
@@ -83,7 +83,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="0dp"
-                        android:fontFamily="sans-serif-black"
                         android:text="CiviReport:"
                         android:textColor="@color/black"
                         android:textSize="22sp"
@@ -93,7 +92,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:fontFamily="sans-serif-black"
                         android:text="Barangay Issue"
                         android:textColor="@color/black"
                         android:textSize="22sp"
@@ -103,7 +101,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:fontFamily="sans-serif-black"
                         android:text="Tracking"
                         android:textColor="@color/black"
                         android:textSize="22sp"
@@ -113,7 +110,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="0dp"
-                        android:fontFamily="sans-serif-black"
                         android:text="Platform"
                         android:textColor="@color/black"
                         android:textSize="22sp"
@@ -220,7 +216,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
+                android:layout_marginTop="18dp"
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="32dp"
                 android:gravity="center_horizontal"
@@ -229,7 +225,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/login_button"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="52dp"
                     android:text="LOG IN"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
@@ -270,8 +266,8 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/register_button"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="12dp"
                     android:text="REGISTER"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"

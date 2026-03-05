@@ -35,8 +35,8 @@
 
                 <!-- Flag / Logo placeholder -->
                 <FrameLayout
-                    android:layout_width="45dp"
-                    android:layout_height="45dp">
+                    android:layout_width="30dp"
+                    android:layout_height="30dp">
 
                     <ImageView
                         android:layout_width="match_parent"
@@ -50,24 +50,18 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginStart="5dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CiviReport: Barangay Issue"
+                        android:text="CiviReport: Barangay Issue Tracking Platform"
                         android:textColor="#1A1A2E"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tracking Platform"
-                        android:textColor="#666666"
-                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -100,8 +94,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@android:color/white"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="4dp">
+                    app:cardCornerRadius="14dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -109,7 +102,8 @@
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingTop="18dp"
-                        android:paddingBottom="18dp">
+                        android:paddingBottom="18dp"
+                        app:cardElevation="1dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -145,7 +139,7 @@
                     android:layout_weight="1"
                     app:cardBackgroundColor="#FDECEA"
                     app:cardCornerRadius="14dp"
-                    app:cardElevation="4dp">
+                    app:cardElevation="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -167,7 +161,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="001"
-                            android:textColor="#C0392B"
+                            android:textColor="#1A1A2E"
                             android:textSize="52sp"
                             android:textStyle="bold"
                             android:lineSpacingMultiplier="0.9" />
@@ -267,9 +261,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="18dp"
                 android:layout_marginEnd="16dp"
-                app:cardBackgroundColor="@android:color/white"
+                app:cardBackgroundColor="#FFDBDA"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="4dp">
+                app:cardElevation="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -347,44 +341,12 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <!-- Emergency alert button -->
-                    <androidx.cardview.widget.CardView
+                    <!-- Custom Swipe Button -->
+                    <com.example.civireports.SwipeButton
+                        android:id="@+id/swipeEmergency"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        app:cardBackgroundColor="#C0392B"
-                        app:cardCornerRadius="30dp"
-                        app:cardElevation="0dp">
-
-                        <LinearLayout
-                            android:id="@+id/btnEmergencyAlert"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingTop="14dp"
-                            android:paddingBottom="14dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackground">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_marginEnd="10dp"
-                                android:src="@android:drawable/ic_menu_call"
-                                android:contentDescription="Emergency Call"
-                                app:tint="@android:color/white" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Slide to send emergency alert"
-                                android:textColor="@android:color/white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                        android:layout_height="60dp"
+                        android:layout_marginTop="20dp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -396,7 +358,7 @@
     <LinearLayout
         android:id="@+id/bottomNavBar"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:background="#1A3A6B"
         android:orientation="horizontal"
@@ -408,15 +370,16 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="bottom|center_horizontal"
+            android:paddingBottom="10dp"
             android:orientation="vertical"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:src="@drawable/home"
                 app:tint="@android:color/white"
                 android:scaleType="fitCenter"
@@ -436,15 +399,16 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="bottom|center_horizontal"
+            android:paddingBottom="10dp"
             android:orientation="vertical"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:src="@drawable/hotline"
                 app:tint="@android:color/white"
                 android:scaleType="fitCenter"
@@ -464,15 +428,17 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="center_horizontal"
+            android:paddingTop="5dp"
+            android:paddingBottom="10dp"
             android:orientation="vertical"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:src="@drawable/notif"
                 app:tint="@android:color/white"
                 android:scaleType="fitCenter"
@@ -492,19 +458,21 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="center_horizontal"
+            android:paddingTop="1dp"
+            android:paddingBottom="5dp"
             android:orientation="vertical"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/profile"
+                android:layout_width="48dp"
+                android:layout_height="50dp"
+                android:contentDescription="Profile"
                 android:scaleType="centerCrop"
-                app:tint="@android:color/white"
-                android:contentDescription="Profile" />
+                android:src="@drawable/profile"
+                app:tint="@android:color/white" />
 
             <TextView
                 android:layout_width="wrap_content"

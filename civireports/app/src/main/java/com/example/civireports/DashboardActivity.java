@@ -1,7 +1,6 @@
 package com.example.civireports;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,7 +17,7 @@ public class DashboardActivity extends AppCompatActivity {
     // Action buttons
     private LinearLayout btnFileReport;
     private LinearLayout btnCheckStatus;
-    private LinearLayout btnEmergencyAlert;
+    private SwipeButton swipeEmergency;
 
     // Bottom navigation
     private LinearLayout navHome;
@@ -42,7 +41,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         btnFileReport     = findViewById(R.id.btnFileReport);
         btnCheckStatus    = findViewById(R.id.btnCheckStatus);
-        btnEmergencyAlert = findViewById(R.id.btnEmergencyAlert);
+        swipeEmergency    = findViewById(R.id.swipeEmergency);
 
         navHome         = findViewById(R.id.navHome);
         navHotlines     = findViewById(R.id.navHotlines);
@@ -63,37 +62,30 @@ public class DashboardActivity extends AppCompatActivity {
 
         // File a Report
         btnFileReport.setOnClickListener(v -> {
-            // TODO: Replace with your actual FileReportActivity
             Toast.makeText(this, "Opening: File a Report or Complaint", Toast.LENGTH_SHORT).show();
-            // startActivity(new Intent(this, FileReportActivity.class));
         });
 
         // Check Report Status
         btnCheckStatus.setOnClickListener(v -> {
-            // TODO: Replace with your actual ReportStatusActivity
             Toast.makeText(this, "Opening: Check Report Status", Toast.LENGTH_SHORT).show();
-            // startActivity(new Intent(this, ReportStatusActivity.class));
         });
 
-        // Emergency Alert — confirm before sending
-        btnEmergencyAlert.setOnClickListener(v -> showEmergencyConfirmDialog());
+        // Emergency Alert — custom SwipeButton
+        swipeEmergency.setOnSwipeCompleteListener(() -> showEmergencyConfirmDialog());
 
         // Bottom Navigation
         navHome.setOnClickListener(v ->
                 Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show());
 
         navHotlines.setOnClickListener(v -> {
-            // TODO: startActivity(new Intent(this, HotlinesActivity.class));
             Toast.makeText(this, "Hotlines", Toast.LENGTH_SHORT).show();
         });
 
         navNotification.setOnClickListener(v -> {
-            // TODO: startActivity(new Intent(this, NotificationActivity.class));
             Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
         });
 
         navProfile.setOnClickListener(v -> {
-            // TODO: startActivity(new Intent(this, ProfileActivity.class));
             Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show();
         });
     }
@@ -112,10 +104,8 @@ public class DashboardActivity extends AppCompatActivity {
 
     /**
      * Handles the actual emergency alert logic.
-     * Plug in your API call, SMS, or push notification here.
      */
     private void sendEmergencyAlert() {
-        // TODO: Implement real emergency alert (API call, SMS, FCM push, etc.)
         Toast.makeText(this, "Emergency alert sent to Barangay officials!", Toast.LENGTH_LONG).show();
 
         // Refresh emergency count after sending
