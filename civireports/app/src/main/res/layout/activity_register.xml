@@ -155,7 +155,7 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="4dp">
+                            app:cardElevation="1dp">
 
                             <EditText
                                 android:id="@+id/first_name_input"
@@ -197,7 +197,7 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="4dp">
+                            app:cardElevation="1dp">
 
                             <EditText
                                 android:id="@+id/last_name_input"
@@ -248,7 +248,7 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="4dp">
+                            app:cardElevation="1dp">
 
                             <EditText
                                 android:id="@+id/middle_name_input"
@@ -279,7 +279,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Suffix"
+                            android:text="Suffix (Optional)"
                             android:textColor="#1B2F5B"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -290,7 +290,7 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="4dp">
+                            app:cardElevation="1dp">
 
                             <EditText
                                 android:id="@+id/suffix_input"
@@ -298,7 +298,7 @@
                                 android:layout_height="wrap_content"
                                 android:background="@android:color/transparent"
                                 android:textColor="#1B2F5B"
-                                android:hint="Optional"
+                                android:hint="Jr,Sr,II"
                                 android:textColorHint="#A3A3A3"
                                 android:inputType="textPersonName"
                                 android:paddingTop="10dp"
@@ -334,7 +334,7 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
+                        app:cardElevation="1dp">
 
                         <EditText
                             android:id="@+id/email_input"
@@ -376,7 +376,7 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
+                        app:cardElevation="1dp">
 
                         <EditText
                             android:id="@+id/contact_input"
@@ -418,7 +418,7 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
+                        app:cardElevation="1dp">
 
                         <EditText
                             android:id="@+id/address_input"
@@ -460,7 +460,7 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
+                        app:cardElevation="1dp">
 
                         <EditText
                             android:id="@+id/password_input"
@@ -502,7 +502,7 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
+                        app:cardElevation="1dp">
 
                         <EditText
                             android:id="@+id/confirm_password_input"
