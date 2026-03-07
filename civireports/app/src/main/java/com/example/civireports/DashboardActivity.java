@@ -1,6 +1,7 @@
 package com.example.civireports;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,10 +50,6 @@ public class DashboardActivity extends AppCompatActivity {
         navProfile      = findViewById(R.id.navProfile);
     }
 
-    /**
-     * Load or refresh dashboard counts.
-     * Replace this with a real API/database call as needed.
-     */
     private void loadDashboardData() {
         tvReportCount.setText("004");
         tvEmergencyCount.setText("001");
@@ -60,29 +57,27 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
 
-        // File a Report
         btnFileReport.setOnClickListener(v -> {
             Toast.makeText(this, "Opening: File a Report or Complaint", Toast.LENGTH_SHORT).show();
         });
 
-        // Check Report Status
         btnCheckStatus.setOnClickListener(v -> {
             Toast.makeText(this, "Opening: Check Report Status", Toast.LENGTH_SHORT).show();
         });
 
-        // Emergency Alert — custom SwipeButton
         swipeEmergency.setOnSwipeCompleteListener(() -> showEmergencyConfirmDialog());
 
         // Bottom Navigation
-        navHome.setOnClickListener(v ->
-                Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show());
+        navHome.setOnClickListener(v -> {
+            // Already on home
+        });
 
         navHotlines.setOnClickListener(v -> {
-            Toast.makeText(this, "Hotlines", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, hotlines.class));
         });
 
         navNotification.setOnClickListener(v -> {
-            Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, Notification.class));
         });
 
         navProfile.setOnClickListener(v -> {
@@ -90,9 +85,6 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Shows a confirmation dialog before sending the emergency alert.
-     */
     private void showEmergencyConfirmDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("⚠ Send Emergency Alert?")
@@ -102,13 +94,9 @@ public class DashboardActivity extends AppCompatActivity {
                 .show();
     }
 
-    /**
-     * Handles the actual emergency alert logic.
-     */
     private void sendEmergencyAlert() {
         Toast.makeText(this, "Emergency alert sent to Barangay officials!", Toast.LENGTH_LONG).show();
 
-        // Refresh emergency count after sending
         int current = Integer.parseInt(tvEmergencyCount.getText().toString());
         tvEmergencyCount.setText(String.format("%03d", current + 1));
     }

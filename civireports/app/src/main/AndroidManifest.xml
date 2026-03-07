@@ -32,6 +32,14 @@
             android:name=".RegisterActivity"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".Notification"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".hotlines"
+            android:exported="true">
+        </activity>
     </application>
 
 </manifest>

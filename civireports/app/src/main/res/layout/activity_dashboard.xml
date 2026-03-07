@@ -35,8 +35,8 @@
 
                 <!-- Flag / Logo placeholder -->
                 <FrameLayout
-                    android:layout_width="30dp"
-                    android:layout_height="30dp">
+                    android:layout_width="45dp"
+                    android:layout_height="45dp">
 
                     <ImageView
                         android:layout_width="match_parent"
@@ -50,18 +50,24 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
+                    android:layout_marginStart="12dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CiviReport: Barangay Issue Tracking Platform"
+                        android:text="CiviReport: Barangay Issue"
                         android:textColor="#1A1A2E"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tracking Platform"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -93,8 +99,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="@android:color/white"
-                    app:cardCornerRadius="14dp">
+                    app:cardBackgroundColor="#D9D9D9"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="4dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -103,7 +110,8 @@
                         android:orientation="vertical"
                         android:paddingTop="18dp"
                         android:paddingBottom="18dp"
-                        app:cardElevation="1dp">
+                        android:background="@drawable/bg_border_black"
+                        >
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -139,7 +147,7 @@
                     android:layout_weight="1"
                     app:cardBackgroundColor="#FDECEA"
                     app:cardCornerRadius="14dp"
-                    app:cardElevation="1dp">
+                    app:cardElevation="4dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -147,7 +155,8 @@
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingTop="18dp"
-                        android:paddingBottom="18dp">
+                        android:paddingBottom="18dp"
+                        android:background="@drawable/bg_border_red">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -161,7 +170,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="001"
-                            android:textColor="#1A1A2E"
+                            android:textColor="#C0392B"
                             android:textSize="52sp"
                             android:textStyle="bold"
                             android:lineSpacingMultiplier="0.9" />
@@ -261,15 +270,16 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="18dp"
                 android:layout_marginEnd="16dp"
-                app:cardBackgroundColor="#FFDBDA"
+                app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="14dp"
-                app:cardElevation="1dp">
+                app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:background="#FFDBDA">
 
                     <!-- Red top accent -->
                     <View
@@ -341,7 +351,7 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <!-- Custom Swipe Button -->
+                    <!-- Slider Emergency alert button -->
                     <com.example.civireports.SwipeButton
                         android:id="@+id/swipeEmergency"
                         android:layout_width="match_parent"
