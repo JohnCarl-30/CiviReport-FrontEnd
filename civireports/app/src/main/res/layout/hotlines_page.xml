@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F2F4F7">
+    android:background="#E8F0FF">
 
     <!-- TOP HEADER -->
     <LinearLayout
@@ -56,7 +56,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="#FFDBDA"
                 app:cardCornerRadius="30dp"
-                app:cardElevation="0dp">
+                app:cardElevation="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -452,7 +452,7 @@
     <LinearLayout
         android:id="@+id/bottomNavBar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="64dp"
         android:layout_alignParentBottom="true"
         android:background="#1A3A6B"
         android:orientation="horizontal"
@@ -465,6 +465,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="bottom|center_horizontal"
+            android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:orientation="vertical"
             android:clickable="true"
@@ -494,6 +495,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="bottom|center_horizontal"
+            android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:orientation="vertical"
             android:clickable="true"
@@ -523,7 +525,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="5dp"
+            android:paddingTop="8dp"
             android:paddingBottom="10dp"
             android:orientation="vertical"
             android:clickable="true"
@@ -553,7 +555,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="1dp"
+            android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:orientation="vertical"
             android:clickable="true"

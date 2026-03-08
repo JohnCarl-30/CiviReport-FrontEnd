@@ -21,7 +21,7 @@ public class hotlines extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.hotlines);
+        setContentView(R.layout.hotlines_page);
 
         // Navigation
         navHome         = findViewById(R.id.navHome);

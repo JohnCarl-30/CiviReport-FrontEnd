@@ -43,42 +43,20 @@ public class SwipeButton extends FrameLayout {
     }
 
     private void init(Context context) {
-        // Create the background (track)
+        // Inflate the XML layout
+        LayoutInflater.from(context).inflate(R.layout.layout_swipe_button, this, true);
+
+        // Set the background track
         setBackground(ContextCompat.getDrawable(context, R.drawable.bg_slider_track));
 
-        // Create the thumb
-        slidingThumb = new ImageView(context);
-        slidingThumb.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bg_slider_thumb));
-        slidingThumb.setPadding(10, 10, 10, 10);
+        slidingThumb = findViewById(R.id.slidingThumb);
+        centerText = findViewById(R.id.centerText);
+
+        // Use the CombinedDrawable to overlay the icon on the pink thumb background
+        Drawable thumbBg = ContextCompat.getDrawable(context, R.drawable.bg_slider_thumb);
+        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_emergency_alert);
         
-        // Add phone icon inside thumb
-        Drawable phoneIcon = ContextCompat.getDrawable(context, R.drawable.ic_phone_red);
-        slidingThumb.setImageDrawable(new CombinedDrawable(
-                ContextCompat.getDrawable(context, R.drawable.bg_slider_thumb),
-                phoneIcon
-        ));
-
-        LayoutParams thumbParams = new LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        );
-        slidingThumb.setLayoutParams(thumbParams);
-        addView(slidingThumb);
-
-        // Create the text
-        centerText = new TextView(context);
-        centerText.setText("Slide to send emergency alert");
-        centerText.setTextColor(ContextCompat.getColor(context, android.R.color.white));
-        centerText.setGravity(android.view.Gravity.CENTER);
-        centerText.setTextSize(14);
-        centerText.setTypeface(null, android.graphics.Typeface.BOLD);
-
-        LayoutParams textParams = new LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        );
-        centerText.setLayoutParams(textParams);
-        addView(centerText);
+        slidingThumb.setImageDrawable(new CombinedDrawable(thumbBg, icon));
 
         setupTouchListener();
     }
@@ -92,11 +70,14 @@ public class SwipeButton extends FrameLayout {
 
                 case MotionEvent.ACTION_MOVE:
                     float newX = event.getRawX() - initialX - getLeft();
-                    if (newX > 0 && newX + slidingThumb.getWidth() < getWidth()) {
+                    float maxSlide = getWidth() - slidingThumb.getWidth();
+                    
+                    if (newX > 0 && newX < maxSlide) {
                         slidingThumb.setX(newX);
-                        centerText.setAlpha(1 - (newX / (getWidth() - slidingThumb.getWidth())));
+                        centerText.setAlpha(1 - (newX / maxSlide));
                     }
-                    if (newX + slidingThumb.getWidth() >= getWidth() && !isActivated) {
+                    
+                    if (newX >= maxSlide && !isActivated) {
                         isActivated = true;
                         if (listener != null) listener.onSwipeComplete();
                         reset();
@@ -123,11 +104,10 @@ public class SwipeButton extends FrameLayout {
         this.listener = listener;
     }
 
-    // Helper class to overlay phone icon on thumb background
     private static class CombinedDrawable extends android.graphics.drawable.LayerDrawable {
         public CombinedDrawable(Drawable background, Drawable foreground) {
             super(new Drawable[]{background, foreground});
-            int inset = 35; // Adjust this to center the icon properly
+            int inset = 30; // Centering the icon inside the thumb
             setLayerInset(1, inset, inset, inset, inset);
         }
     }

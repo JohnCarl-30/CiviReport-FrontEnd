@@ -35,7 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.registration_page);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.register_main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -98,7 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showTermsDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_terms, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.terms_and_services, null);
         ScrollView scrollView = dialogView.findViewById(R.id.terms_scrollview);
         CheckBox cbAccept = dialogView.findViewById(R.id.cb_accept_terms);
         ImageView btnBack = dialogView.findViewById(R.id.btn_back);
@@ -139,7 +139,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showPrivacyPolicyDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_privacy_policy, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.privacy_and_policy_dialog, null);
         ScrollView scrollView = dialogView.findViewById(R.id.privacy_scrollview);
         CheckBox cbAccept = dialogView.findViewById(R.id.cb_accept_privacy);
         ImageView btnBack = dialogView.findViewById(R.id.btn_back_privacy);
@@ -180,7 +180,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showRegistrationSuccessDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_registration_success, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.register_success_dialog, null);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
