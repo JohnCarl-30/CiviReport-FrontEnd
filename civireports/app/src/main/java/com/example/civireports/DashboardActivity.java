@@ -58,11 +58,11 @@ public class DashboardActivity extends AppCompatActivity {
     private void setupClickListeners() {
 
         btnFileReport.setOnClickListener(v -> {
-            Toast.makeText(this, "Opening: File a Report or Complaint", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, Report.class));
         });
 
         btnCheckStatus.setOnClickListener(v -> {
-            Toast.makeText(this, "Opening: Check Report Status", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, StatusReport.class));
         });
 
         swipeEmergency.setOnSwipeCompleteListener(() -> showEmergencyConfirmDialog());
