@@ -11,6 +11,7 @@ import java.util.List;
 public class ReportDataStore {
     private static ReportDataStore instance;
     private final List<ReportItem> reports = new ArrayList<>();
+    private int emergencyCount = 0; // Changed to 0 for a clean start
 
     private ReportDataStore() {}
 
@@ -31,6 +32,18 @@ public class ReportDataStore {
 
     public boolean hasReports() {
         return !reports.isEmpty();
+    }
+    
+    public int getReportCount() {
+        return reports.size();
+    }
+    
+    public void incrementEmergencyCount() {
+        emergencyCount++;
+    }
+    
+    public int getEmergencyCount() {
+        return emergencyCount;
     }
 
     /**

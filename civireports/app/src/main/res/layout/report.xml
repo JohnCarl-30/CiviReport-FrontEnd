@@ -130,31 +130,51 @@
                         android:letterSpacing="0.08"
                         android:layout_marginBottom="6dp"/>
 
-                    <!-- Specific Issue Spinner with arrow -->
-                    <RelativeLayout
+                    <!-- Specific Issue Spinner or Custom Input Container -->
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginBottom="16dp"
-                        android:background="@drawable/bg_spinner">
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-                        <Spinner
-                            android:id="@+id/spinnerSpecificIssue"
+                        <RelativeLayout
+                            android:id="@+id/layoutSpinnerSpecificIssue"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@android:color/transparent"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="40dp" />
+                            android:layout_height="48dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@drawable/bg_spinner">
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="12dp"
-                            android:src="@android:drawable/arrow_down_float"
-                            android:tint="#555555"
-                            android:contentDescription="dropdown" />
-                    </RelativeLayout>
+                            <Spinner
+                                android:id="@+id/spinnerSpecificIssue"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/transparent"
+                                android:paddingStart="12dp"
+                                android:paddingEnd="40dp" />
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="12dp"
+                                android:src="@android:drawable/arrow_down_float"
+                                android:tint="#555555"
+                                android:contentDescription="dropdown" />
+                        </RelativeLayout>
+
+                        <EditText
+                            android:id="@+id/etCustomSpecificIssue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_spinner"
+                            android:hint="Please specify your issue..."
+                            android:textColorHint="#AAAAAA"
+                            android:textColor="#1A1A2E"
+                            android:textSize="13sp"
+                            android:padding="12dp"
+                            android:visibility="gone"
+                            android:layout_marginBottom="16dp" />
+                    </LinearLayout>
 
                     <!-- ADDRESS / LOCATION -->
                     <TextView

@@ -32,8 +32,14 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         initViews();
-        loadDashboardData();
         setupClickListeners();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh counts whenever user returns to dashboard
+        loadDashboardData();
     }
 
     private void initViews() {
@@ -51,8 +57,11 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadDashboardData() {
-        tvReportCount.setText("004");
-        tvEmergencyCount.setText("001");
+        ReportDataStore store = ReportDataStore.getInstance();
+        
+        // Format to 3 digits like the design (001, 002, etc.)
+        tvReportCount.setText(String.format("%03d", store.getReportCount()));
+        tvEmergencyCount.setText(String.format("%03d", store.getEmergencyCount()));
     }
 
     private void setupClickListeners() {
@@ -95,9 +104,8 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void sendEmergencyAlert() {
+        ReportDataStore.getInstance().incrementEmergencyCount();
+        loadDashboardData(); // Update the UI immediately
         Toast.makeText(this, "Emergency alert sent to Barangay officials!", Toast.LENGTH_LONG).show();
-
-        int current = Integer.parseInt(tvEmergencyCount.getText().toString());
-        tvEmergencyCount.setText(String.format("%03d", current + 1));
     }
 }

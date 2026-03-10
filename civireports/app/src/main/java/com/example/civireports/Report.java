@@ -43,6 +43,8 @@ public class Report extends AppCompatActivity {
 
     private Spinner spinnerCategory;
     private Spinner spinnerSpecificIssue;
+    private View layoutSpinnerSpecificIssue;
+    private EditText etCustomSpecificIssue;
     private CheckBox checkboxCertify;
     private Button btnCancel;
     private Button btnSubmit;
@@ -112,6 +114,8 @@ public class Report extends AppCompatActivity {
     private void initViews() {
         spinnerCategory     = findViewById(R.id.spinnerCategory);
         spinnerSpecificIssue = findViewById(R.id.spinnerSpecificIssue);
+        layoutSpinnerSpecificIssue = findViewById(R.id.layoutSpinnerSpecificIssue);
+        etCustomSpecificIssue = findViewById(R.id.etCustomSpecificIssue);
         checkboxCertify     = findViewById(R.id.checkboxCertify);
         btnCancel           = findViewById(R.id.btnCancel);
         btnSubmit           = findViewById(R.id.btnSubmit);
@@ -158,6 +162,7 @@ public class Report extends AppCompatActivity {
         List<String> categories = new ArrayList<>();
         categories.add("Select Type of Complaint");
         categories.addAll(issueMap.keySet());
+        categories.add("Other");
 
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -167,8 +172,20 @@ public class Report extends AppCompatActivity {
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) updateSpecificIssueSpinner(null);
-                else updateSpecificIssueSpinner(categories.get(position));
+                String selectedCategory = categories.get(position);
+                
+                if (position == 0) {
+                    updateSpecificIssueSpinner(null);
+                    layoutSpinnerSpecificIssue.setVisibility(View.VISIBLE);
+                    etCustomSpecificIssue.setVisibility(View.GONE);
+                } else if (selectedCategory.equals("Other")) {
+                    layoutSpinnerSpecificIssue.setVisibility(View.GONE);
+                    etCustomSpecificIssue.setVisibility(View.VISIBLE);
+                } else {
+                    updateSpecificIssueSpinner(selectedCategory);
+                    layoutSpinnerSpecificIssue.setVisibility(View.VISIBLE);
+                    etCustomSpecificIssue.setVisibility(View.GONE);
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
@@ -207,10 +224,24 @@ public class Report extends AppCompatActivity {
                 Toast.makeText(this, "Please select a type of complaint.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (spinnerSpecificIssue.getSelectedItemPosition() == 0) {
-                Toast.makeText(this, "Please select a specific issue.", Toast.LENGTH_SHORT).show();
-                return;
+
+            String selectedCategory = spinnerCategory.getSelectedItem().toString();
+            String specificIssue = "";
+
+            if (selectedCategory.equals("Other")) {
+                specificIssue = etCustomSpecificIssue.getText().toString().trim();
+                if (specificIssue.isEmpty()) {
+                    Toast.makeText(this, "Please specify your issue.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                if (spinnerSpecificIssue.getSelectedItemPosition() == 0) {
+                    Toast.makeText(this, "Please select a specific issue.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                specificIssue = spinnerSpecificIssue.getSelectedItem().toString();
             }
+
             if (etAddress.getText().toString().trim().isEmpty()) {
                 Toast.makeText(this, "Please enter the address/location.", Toast.LENGTH_SHORT).show();
                 return;
@@ -232,8 +263,8 @@ public class Report extends AppCompatActivity {
             ReportDataStore.ReportItem newItem = new ReportDataStore.ReportItem(
                 queueNum,
                 "PENDING",
-                spinnerCategory.getSelectedItem().toString(),
-                spinnerSpecificIssue.getSelectedItem().toString(),
+                selectedCategory,
+                specificIssue,
                 etAddress.getText().toString().trim(),
                 etNotes.getText().toString().trim(),
                 dateStr,
@@ -299,11 +330,12 @@ public class Report extends AppCompatActivity {
     private boolean hasProgress() {
         boolean categorySelected  = spinnerCategory.getSelectedItemPosition() > 0;
         boolean issueSelected     = spinnerSpecificIssue.getSelectedItemPosition() > 0;
+        boolean customIssueFilled = etCustomSpecificIssue != null && !etCustomSpecificIssue.getText().toString().trim().isEmpty();
         boolean addressFilled     = etAddress != null && !etAddress.getText().toString().trim().isEmpty();
         boolean notesFilled       = etNotes != null && !etNotes.getText().toString().trim().isEmpty();
         boolean fileSelected      = selectedFileUri != null;
         
-        return categorySelected || issueSelected || addressFilled || notesFilled || fileSelected;
+        return categorySelected || issueSelected || customIssueFilled || addressFilled || notesFilled || fileSelected;
     }
 
     private void showDiscardDialog() {
