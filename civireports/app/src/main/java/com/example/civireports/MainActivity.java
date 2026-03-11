@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (!allGranted) {
-                    Toast.makeText(this, "Some features may be limited without permissions.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Notifications are disabled. You might miss important updates.", Toast.LENGTH_SHORT).show();
                 }
             }
     );
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login_page);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Request permissions on startup, but don't block the user
-        requestAppPermissions();
+        // Request only essential permissions on startup
+        requestInitialPermissions();
 
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(v -> {
@@ -75,23 +75,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void requestAppPermissions() {
+    private void requestInitialPermissions() {
         List<String> permissionsNeeded = new ArrayList<>();
         
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            permissionsNeeded.add(Manifest.permission.CAMERA);
-        }
-        
+        // Network access (INTERNET) is a normal permission and is granted automatically.
+        // We only need to request POST_NOTIFICATIONS at runtime for Android 13+.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.READ_MEDIA_IMAGES);
-            }
-        } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         }
 

@@ -25,7 +25,7 @@ public class StatusReport extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.status_report);
+        setContentView(R.layout.activity_status_report);
 
         initViews();
 

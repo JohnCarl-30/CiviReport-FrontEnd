@@ -1,14 +1,12 @@
 package com.example.civireports;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -103,7 +101,7 @@ public class Report extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.report);
+        setContentView(R.layout.activity_report_page);
 
         initViews();
         buildIssueMap();
@@ -341,7 +339,7 @@ public class Report extends AppCompatActivity {
     private void showDiscardDialog() {
         android.app.Dialog dialog = new android.app.Dialog(this);
         dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.discard_report);
+        dialog.setContentView(R.layout.activity_discard_report);
 
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(

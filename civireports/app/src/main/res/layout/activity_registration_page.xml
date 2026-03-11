@@ -5,7 +5,7 @@
     android:id="@+id/register_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E8F0FF"
+    android:background="#F1F6FF"
     tools:context=".RegisterActivity">
 
     <!-- Footer -->
@@ -544,7 +544,7 @@
                         android:layout_weight="1"
                         android:textSize="13sp"
                         android:textColor="@android:color/black"
-                        android:text="I agree to the Terms and Service and Privacy Policy" />
+                        android:text="By proceeding, I agree to the Service and Privacy Policy" />
 
                 </LinearLayout>
 
