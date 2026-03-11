@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:cardBackgroundColor="#E8F0FF"
+        app:cardBackgroundColor="#F1F6FF"
         app:cardElevation="0dp"
         app:cardMaxElevation="0dp">
 
@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="© 2026 Barangay Issue Tracking Platform"
-                android:textColor="#000"
+                android:textColor="#777777"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="2"
