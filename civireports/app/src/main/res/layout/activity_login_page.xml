@@ -43,14 +43,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/footer"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:isScrollContainer="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:paddingTop="125dp"
+            android:paddingTop="80dp"
             android:paddingBottom="24dp">
 
             <!-- Header -->
@@ -137,14 +138,14 @@
                     android:layout_marginTop="0dp"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp"
+                    app:cardElevation="4dp"
                     app:cardUseCompatPadding="true">
 
                     <EditText
                         android:id="@+id/editTextTextEmailAddress"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
+                        android:background="@drawable/selector_edittext_outline"
                         android:hint="Email"
                         android:inputType="textEmailAddress"
                         android:paddingTop="12dp"
@@ -153,7 +154,7 @@
                         android:paddingEnd="12dp"
                         android:textColor="#1B2F5B"
                         android:textColorHint="#1B2F5B"
-                        android:textCursorDrawable="@null"
+                        android:textCursorDrawable="@drawable/cursor"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -177,25 +178,43 @@
                     android:layout_marginTop="0dp"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp"
+                    app:cardElevation="4dp"
                     app:cardUseCompatPadding="true">
 
-                    <EditText
-                        android:id="@+id/editTextTextPassword"
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:hint="Password"
-                        android:textColor="#1B2F5B"
-                        android:textColorHint="#1B2F5B"
-                        android:textCursorDrawable="@null"
-                        android:inputType="textPassword"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:paddingStart="24dp"
-                        android:paddingEnd="12dp"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/editTextTextPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/selector_edittext_outline"
+                            android:hint="Password"
+                            android:textColor="#1B2F5B"
+                            android:textColorHint="#1B2F5B"
+                            android:inputType="textPassword"
+                            android:paddingTop="12dp"
+                            android:paddingBottom="12dp"
+                            android:paddingStart="24dp"
+                            android:paddingEnd="48dp"
+                            android:textCursorDrawable="@drawable/cursor"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:id="@+id/show_password_button"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="16dp"
+                            android:src="@android:drawable/ic_menu_view"
+                            android:alpha="0.5"
+                            android:contentDescription="Show Password"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                    </RelativeLayout>
 
                 </androidx.cardview.widget.CardView>
 

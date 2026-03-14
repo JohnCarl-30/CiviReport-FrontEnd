@@ -14,9 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:cardBackgroundColor="#F1F6FF"
-        app:cardElevation="0dp"
-        app:cardMaxElevation="0dp">
+        app:cardBackgroundColor="#0047AB">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="© 2026 Barangay Issue Tracking Platform"
-                android:textColor="#777777"
+                android:textColor="@android:color/white"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="2"
@@ -157,17 +155,18 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="1dp">
+                            app:cardElevation="4dp"
+                            app:cardUseCompatPadding="true">
 
                             <EditText
                                 android:id="@+id/first_name_input"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
+                                android:background="@drawable/selector_edittext_outline"
                                 android:textColor="#1B2F5B"
                                 android:hint="Juan"
                                 android:textColorHint="#A3A3A3"
-                                android:textCursorDrawable="@null"
+                                android:textCursorDrawable="@drawable/cursor"
                                 android:inputType="textPersonName"
                                 android:paddingTop="10dp"
                                 android:paddingBottom="10dp"
@@ -200,17 +199,18 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="1dp">
+                            app:cardElevation="4dp"
+                            app:cardUseCompatPadding="true">
 
                             <EditText
                                 android:id="@+id/last_name_input"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
+                                android:background="@drawable/selector_edittext_outline"
                                 android:textColor="#1B2F5B"
                                 android:hint="Cruz"
                                 android:textColorHint="#A3A3A3"
-                                android:textCursorDrawable="@null"
+                                android:textCursorDrawable="@drawable/cursor"
                                 android:inputType="textPersonName"
                                 android:paddingTop="10dp"
                                 android:paddingBottom="10dp"
@@ -252,17 +252,18 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="1dp">
+                            app:cardElevation="4dp"
+                            app:cardUseCompatPadding="true">
 
                             <EditText
                                 android:id="@+id/middle_name_input"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
+                                android:background="@drawable/selector_edittext_outline"
                                 android:textColor="#1B2F5B"
                                 android:hint="Dela "
                                 android:textColorHint="#A3A3A3"
-                                android:textCursorDrawable="@null"
+                                android:textCursorDrawable="@drawable/cursor"
                                 android:inputType="textPersonName"
                                 android:paddingTop="10dp"
                                 android:paddingBottom="10dp"
@@ -295,17 +296,18 @@
                             android:layout_marginTop="4dp"
                             app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="1dp">
+                            app:cardElevation="4dp"
+                            app:cardUseCompatPadding="true">
 
                             <EditText
                                 android:id="@+id/suffix_input"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
+                                android:background="@drawable/selector_edittext_outline"
                                 android:textColor="#1B2F5B"
                                 android:hint="Jr,Sr,II"
                                 android:textColorHint="#A3A3A3"
-                                android:textCursorDrawable="@null"
+                                android:textCursorDrawable="@drawable/cursor"
                                 android:inputType="textPersonName"
                                 android:paddingTop="10dp"
                                 android:paddingBottom="10dp"
@@ -340,17 +342,18 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="1dp">
+                        app:cardElevation="4dp"
+                        app:cardUseCompatPadding="true">
 
                         <EditText
                             android:id="@+id/email_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
+                            android:background="@drawable/selector_edittext_outline"
                             android:textColor="#1B2F5B"
                             android:hint="JuanDelaCruz@email.com"
                             android:textColorHint="#A3A3A3"
-                            android:textCursorDrawable="@null"
+                            android:textCursorDrawable="@drawable/cursor"
                             android:inputType="textEmailAddress"
                             android:paddingTop="10dp"
                             android:paddingBottom="10dp"
@@ -383,17 +386,18 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="1dp">
+                        app:cardElevation="4dp"
+                        app:cardUseCompatPadding="true">
 
                         <EditText
                             android:id="@+id/contact_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
+                            android:background="@drawable/selector_edittext_outline"
                             android:textColor="#1B2F5B"
                             android:hint="09123456789"
                             android:textColorHint="#A3A3A3"
-                            android:textCursorDrawable="@null"
+                            android:textCursorDrawable="@drawable/cursor"
                             android:inputType="phone"
                             android:paddingTop="10dp"
                             android:paddingBottom="10dp"
@@ -426,17 +430,18 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="1dp">
+                        app:cardElevation="4dp"
+                        app:cardUseCompatPadding="true">
 
                         <EditText
                             android:id="@+id/address_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
+                            android:background="@drawable/selector_edittext_outline"
                             android:textColor="#1B2F5B"
                             android:hint="Street, Barangay, City, Province"
                             android:textColorHint="#A3A3A3"
-                            android:textCursorDrawable="@null"
+                            android:textCursorDrawable="@drawable/cursor"
                             android:inputType="textPostalAddress"
                             android:paddingTop="10dp"
                             android:paddingBottom="10dp"
@@ -469,17 +474,18 @@
                         android:layout_marginTop="4dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="1dp">
+                        app:cardElevation="4dp"
+                        app:cardUseCompatPadding="true">
 
                         <EditText
                             android:id="@+id/password_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
+                            android:background="@drawable/selector_edittext_outline"
                             android:textColor="#1B2F5B"
                             android:hint="Password"
                             android:textColorHint="#A3A3A3"
-                            android:textCursorDrawable="@null"
+                            android:textCursorDrawable="@drawable/cursor"
                             android:inputType="textPassword"
                             android:paddingTop="10dp"
                             android:paddingBottom="10dp"
@@ -510,19 +516,21 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
+                        android:layout_marginBottom="30dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="1dp">
+                        app:cardElevation="4dp"
+                        app:cardUseCompatPadding="true">
 
                         <EditText
                             android:id="@+id/confirm_password_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
+                            android:background="@drawable/selector_edittext_outline"
                             android:textColor="#1B2F5B"
                             android:hint="Confirm password"
                             android:textColorHint="#A3A3A3"
-                            android:textCursorDrawable="@null"
+                            android:textCursorDrawable="@drawable/cursor"
                             android:inputType="textPassword"
                             android:paddingTop="10dp"
                             android:paddingBottom="10dp"
@@ -544,11 +552,8 @@
 
                     <CheckBox
                         android:id="@+id/terms_checkbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:button="@drawable/selector_checkbox_circle"
-                        android:minWidth="32dp"
-                        android:minHeight="32dp" />
+                        android:layout_width="31dp"
+                        android:layout_height="38dp" />
 
                     <TextView
                         android:id="@+id/terms_text"

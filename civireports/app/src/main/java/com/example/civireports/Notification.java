@@ -43,7 +43,8 @@ public class Notification extends AppCompatActivity {
             // Already on this screen
         });
 
-        navProfile.setOnClickListener(v ->
-                Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show());
+        navProfile.setOnClickListener(v -> {
+            startActivity(new Intent(this, Profile.class));
+        });
     }
 }

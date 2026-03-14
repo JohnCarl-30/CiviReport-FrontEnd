@@ -81,7 +81,8 @@
         android:layout_alignParentBottom="true"
         android:background="#1A3A6B"
         android:orientation="horizontal"
-        android:weightSum="4">
+        android:weightSum="4"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:id="@+id/navHome"
@@ -149,28 +150,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="10dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="13dp"
             android:orientation="vertical"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/notif"
+                android:layout_width="27dp"
+                android:layout_height="27dp"
+                android:src="@drawable/anouncement"
                 app:tint="@android:color/white"
                 android:scaleType="fitCenter"
                 android:contentDescription="Notification" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Notification"
-                android:textColor="@android:color/white"
-                android:textSize="11sp" />
         </LinearLayout>
 
         <LinearLayout

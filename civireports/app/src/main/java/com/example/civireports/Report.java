@@ -150,32 +150,32 @@ public class Report extends AppCompatActivity {
         issueMap.put("Peace and Order / Safety", Arrays.asList(
                 "Select Specific Issue", "Theft (Nakawan)", "Robbery (Holdap)", "Burglary",
                 "Physical Assault (Bugbugan)", "Domestic Violence", "Vandalism",
-                "Public Disturbance", "Suspicious Person", "Drug Related Activity", "Illegal Gambling"
+                "Public Disturbance", "Suspicious Person", "Drug Related Activity", "Illegal Gambling", "Other"
         ));
         issueMap.put("Sanitation and Waste Management", Arrays.asList(
                 "Select Specific Issue", "Illegal Dumping", "Uncollected Garbage",
                 "Improper Waste Segregation", "Clogged Drainage", "Septic Leak / Foul Odor",
-                "Open Burning of Trash", "Dead Animal Disposal"
+                "Open Burning of Trash", "Dead Animal Disposal", "Other"
         ));
         issueMap.put("Flooding and Drainage", Arrays.asList(
                 "Select Specific Issue", "Flooded Area", "Blocked Canal", "Overflowing Drain",
-                "Water Stagnation", "Erosion"
+                "Water Stagnation", "Erosion", "Other"
         ));
         issueMap.put("Traffic and Road Concerns", Arrays.asList(
                 "Select Specific Issue", "Road Obstruction", "Illegal Parking",
-                "Potholes / Damaged Road", "Broken Street Light", "Sidewalk Obstruction"
+                "Potholes / Damaged Road", "Broken Street Light", "Sidewalk Obstruction", "Other"
         ));
         issueMap.put("Animal-Related Concerns", Arrays.asList(
                 "Select Specific Issue", "Aggressive Animal", "Animal Cruelty",
-                "Pet Noise Complaint", "Improper Disposal of Animal Waste"
+                "Pet Noise Complaint", "Improper Disposal of Animal Waste", "Other"
         ));
         issueMap.put("Community and Social Issues", Arrays.asList(
                 "Select Specific Issue", "Boundary Dispute", "Family Dispute",
-                "Youth Violence", "Harassment", "Substance Abuse", "Elderly Neglect"
+                "Youth Violence", "Harassment", "Substance Abuse", "Elderly Neglect", "Other"
         ));
         issueMap.put("Health & Safety", Arrays.asList(
                 "Select Specific Issue", "Dengue Risk Area", "Rabies Case",
-                "Unsanitary Food Vendor", "Public Health Violation"
+                "Unsanitary Food Vendor", "Public Health Violation", "Other"
         ));
     }
 
@@ -183,7 +183,6 @@ public class Report extends AppCompatActivity {
         List<String> categories = new ArrayList<>();
         categories.add("Select Type of Complaint");
         categories.addAll(issueMap.keySet());
-        categories.add("Other");
 
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -193,20 +192,12 @@ public class Report extends AppCompatActivity {
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedCategory = categories.get(position);
-                
                 if (position == 0) {
                     updateSpecificIssueSpinner(null);
-                    layoutSpinnerSpecificIssue.setVisibility(View.VISIBLE);
-                    etCustomSpecificIssue.setVisibility(View.GONE);
-                } else if (selectedCategory.equals("Other")) {
-                    layoutSpinnerSpecificIssue.setVisibility(View.GONE);
-                    etCustomSpecificIssue.setVisibility(View.VISIBLE);
                 } else {
-                    updateSpecificIssueSpinner(selectedCategory);
-                    layoutSpinnerSpecificIssue.setVisibility(View.VISIBLE);
-                    etCustomSpecificIssue.setVisibility(View.GONE);
+                    updateSpecificIssueSpinner(categories.get(position));
                 }
+                etCustomSpecificIssue.setVisibility(View.GONE);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
@@ -215,12 +206,29 @@ public class Report extends AppCompatActivity {
 
     private void updateSpecificIssueSpinner(String category) {
         List<String> issues = new ArrayList<>();
-        if (category == null || !issueMap.containsKey(category)) issues.add("Select Specific Issue");
-        else issues.addAll(issueMap.get(category));
+        if (category == null || !issueMap.containsKey(category)) {
+            issues.add("Select Specific Issue");
+        } else {
+            issues.addAll(issueMap.get(category));
+        }
 
         ArrayAdapter<String> issueAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, issues);
         issueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSpecificIssue.setAdapter(issueAdapter);
+
+        spinnerSpecificIssue.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedIssue = issues.get(position);
+                if (selectedIssue.equals("Other")) {
+                    etCustomSpecificIssue.setVisibility(View.VISIBLE);
+                } else {
+                    etCustomSpecificIssue.setVisibility(View.GONE);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
     }
 
     private void setupButtons() {
@@ -249,7 +257,7 @@ public class Report extends AppCompatActivity {
             String selectedCategory = spinnerCategory.getSelectedItem().toString();
             String specificIssue = "";
 
-            if (selectedCategory.equals("Other")) {
+            if (spinnerSpecificIssue.getSelectedItem().toString().equals("Other")) {
                 specificIssue = etCustomSpecificIssue.getText().toString().trim();
                 if (specificIssue.isEmpty()) {
                     Toast.makeText(this, "Please specify your issue.", Toast.LENGTH_SHORT).show();

@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    private boolean isPasswordVisible = false;
 
     private final ActivityResultLauncher<String[]> permissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(),
@@ -61,10 +65,25 @@ public class MainActivity extends AppCompatActivity {
         // Initialize EditTexts
         EditText emailInput = findViewById(R.id.editTextTextEmailAddress);
         EditText passwordInput = findViewById(R.id.editTextTextPassword);
+        ImageView showPasswordBtn = findViewById(R.id.show_password_button);
 
-        // Setup placeholder behavior
-        setupPlaceholderBehavior(emailInput);
-        setupPlaceholderBehavior(passwordInput);
+        // Show/Hide Password Toggle
+        showPasswordBtn.setOnClickListener(v -> {
+            if (isPasswordVisible) {
+                // Hide password
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view); 
+                showPasswordBtn.setAlpha(0.5f);
+            } else {
+                // Show password
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
+                showPasswordBtn.setAlpha(1.0f);
+            }
+            isPasswordVisible = !isPasswordVisible;
+            // Move cursor to end
+            passwordInput.setSelection(passwordInput.getText().length());
+        });
 
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(v -> {
@@ -85,33 +104,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
-     */
-    private void setupPlaceholderBehavior(EditText editText) {
-        if (editText == null) return;
-        
-        final CharSequence originalHint = editText.getHint();
-        editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                editText.setHint("");
-            } else {
-                editText.setHint(originalHint);
-            }
-        });
-    }
-
     private void requestInitialPermissions() {
         List<String> permissionsNeeded = new ArrayList<>();
-        
-        // Network access (INTERNET) is a normal permission and is granted automatically.
-        // We only need to request POST_NOTIFICATIONS at runtime for Android 13+.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
-
         if (!permissionsNeeded.isEmpty()) {
             permissionLauncher.launch(permissionsNeeded.toArray(new String[0]));
         }

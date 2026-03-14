@@ -8,8 +8,9 @@
         <item name="colorSecondary">@color/my_secondary</item>
         <item name="android:statusBarColor">@color/my_primary</item>
 
-        <!-- Ensure text cursor is visible -->
-        <item name="colorControlActivated">#1B2F5B</item>
+        <!-- Force visible blinking cursor/caret -->
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
+        <item name="colorControlActivated">#0047AB</item>
     </style>
 
     <style name="Theme.Civireport" parent="Base.Theme.Civireport" />

@@ -84,6 +84,7 @@ END OF POLICY. PLEASE SCROLL TO THE BOTTOM TO ACCEPT."
                             android:textColor="#444444"
                             android:textSize="14sp" />
 
+                        <!-- FIXED: changed visibility from "gone" to "visible" -->
                         <CheckBox
                             android:id="@+id/cb_accept_privacy"
                             android:layout_width="wrap_content"
@@ -92,7 +93,8 @@ END OF POLICY. PLEASE SCROLL TO THE BOTTOM TO ACCEPT."
                             android:text="I have read and agree to the Privacy Policy"
                             android:textColor="#1B2F5B"
                             android:textStyle="bold"
-                            android:visibility="gone" />
+                            android:visibility="visible" />
+
                     </LinearLayout>
                 </ScrollView>
             </LinearLayout>

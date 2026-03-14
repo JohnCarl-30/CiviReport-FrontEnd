@@ -57,8 +57,9 @@ public class hotlines extends AppCompatActivity {
             startActivity(new Intent(this, Notification.class));
         });
 
-        navProfile.setOnClickListener(v ->
-                Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show());
+        navProfile.setOnClickListener(v -> {
+            startActivity(new Intent(this, Profile.class));
+        });
 
         // Hotline Click Actions
         cardEmergency.setOnClickListener(v -> makeCall("911"));

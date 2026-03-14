@@ -23,7 +23,8 @@
         android:theme="@style/Theme.Civireport">
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,7 +37,8 @@
         </activity>
         <activity
             android:name=".ForgotPasswordActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
             android:name=".VerifyCodeActivity"
@@ -48,11 +50,13 @@
         </activity>
         <activity
             android:name=".ChangePasswordActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
             android:name=".RegisterActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
             android:name=".Notification"
@@ -64,12 +68,14 @@
         </activity>
         <activity
             android:name=".Report"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
             android:name=".StatusReport"
             android:exported="true">
         </activity>
+        <activity android:name=".Profile" />
     </application>
 
 </manifest>

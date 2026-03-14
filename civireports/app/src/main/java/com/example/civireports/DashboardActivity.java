@@ -104,7 +104,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         navProfile.setOnClickListener(v -> {
-            Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, Profile.class));
         });
     }
 

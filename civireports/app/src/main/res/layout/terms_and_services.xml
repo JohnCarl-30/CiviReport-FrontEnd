@@ -52,7 +52,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="600dp"
                     android:background="#FFFFFF"
-                    android:padding="8dp">
+                    android:padding="8dp"
+                    android:fillViewport="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -74,6 +75,7 @@
                             android:textColor="#1B2F5B"
                             android:textSize="14sp" />
 
+                        <!-- FIXED: changed visibility from "gone" to "visible" -->
                         <CheckBox
                             android:id="@+id/cb_accept_terms"
                             android:layout_width="wrap_content"
@@ -82,7 +84,8 @@
                             android:text="I have read and agree to the Terms and Conditions"
                             android:textColor="#1B2F5B"
                             android:textStyle="bold"
-                            android:visibility="gone" />
+                            android:visibility="visible" />
+
                     </LinearLayout>
                 </ScrollView>
             </LinearLayout>
