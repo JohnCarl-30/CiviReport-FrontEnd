@@ -2,7 +2,14 @@ package com.example.civireports;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +26,7 @@ public class DashboardActivity extends AppCompatActivity {
     private LinearLayout btnFileReport;
     private LinearLayout btnCheckStatus;
     private SwipeButton swipeEmergency;
+    private ImageView btnNotificationHeader;
 
     // Bottom navigation
     private LinearLayout navHome;
@@ -33,6 +41,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         initViews();
         setupClickListeners();
+        checkFirstLogin();
     }
 
     @Override
@@ -49,6 +58,7 @@ public class DashboardActivity extends AppCompatActivity {
         btnFileReport     = findViewById(R.id.btnFileReport);
         btnCheckStatus    = findViewById(R.id.btnCheckStatus);
         swipeEmergency    = findViewById(R.id.swipeEmergency);
+        btnNotificationHeader = findViewById(R.id.btnNotificationHeader);
 
         navHome         = findViewById(R.id.navHome);
         navHotlines     = findViewById(R.id.navHotlines);
@@ -76,6 +86,10 @@ public class DashboardActivity extends AppCompatActivity {
 
         swipeEmergency.setOnSwipeCompleteListener(() -> showEmergencyConfirmDialog());
 
+        btnNotificationHeader.setOnClickListener(v -> {
+            startActivity(new Intent(this, Notification.class));
+        });
+
         // Bottom Navigation
         navHome.setOnClickListener(v -> {
             // Already on home
@@ -92,6 +106,36 @@ public class DashboardActivity extends AppCompatActivity {
         navProfile.setOnClickListener(v -> {
             Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void checkFirstLogin() {
+        SharedPreferences prefs = getSharedPreferences("CiviReportPrefs", MODE_PRIVATE);
+        boolean isFirstLogin = prefs.getBoolean("isFirstLogin", true);
+
+        if (isFirstLogin) {
+            showWelcomeDialog();
+            // Set flag to false so it doesn't show again
+            prefs.edit().putBoolean("isFirstLogin", false).apply();
+        }
+    }
+
+    private void showWelcomeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_welcome, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        
+        // Make background transparent to show card corners
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        Button btnGetStarted = dialogView.findViewById(R.id.btn_get_started);
+        btnGetStarted.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void showEmergencyConfirmDialog() {

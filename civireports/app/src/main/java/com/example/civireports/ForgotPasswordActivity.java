@@ -30,6 +30,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         tvResend = findViewById(R.id.tvResend);
         btnSendOTP = findViewById(R.id.btnSendOTP);
 
+        // Setup placeholder behavior
+        setupPlaceholderBehavior(etIdentifier);
+
         // Back button listener
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +83,22 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(ForgotPasswordActivity.this, "Resending code...", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
+     */
+    private void setupPlaceholderBehavior(EditText editText) {
+        if (editText == null) return;
+        
+        final CharSequence originalHint = editText.getHint();
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                editText.setHint("");
+            } else {
+                editText.setHint(originalHint);
             }
         });
     }

@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
         // Request only essential permissions on startup
         requestInitialPermissions();
 
+        // Initialize EditTexts
+        EditText emailInput = findViewById(R.id.editTextTextEmailAddress);
+        EditText passwordInput = findViewById(R.id.editTextTextPassword);
+
+        // Setup placeholder behavior
+        setupPlaceholderBehavior(emailInput);
+        setupPlaceholderBehavior(passwordInput);
+
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
@@ -72,6 +82,22 @@ public class MainActivity extends AppCompatActivity {
         registerButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
             startActivity(intent);
+        });
+    }
+
+    /**
+     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
+     */
+    private void setupPlaceholderBehavior(EditText editText) {
+        if (editText == null) return;
+        
+        final CharSequence originalHint = editText.getHint();
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                editText.setHint("");
+            } else {
+                editText.setHint(originalHint);
+            }
         });
     }
 

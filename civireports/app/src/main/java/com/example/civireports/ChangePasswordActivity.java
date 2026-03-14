@@ -28,6 +28,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         btnChangePassword = findViewById(R.id.btnChangePassword);
 
+        // Setup placeholder behavior
+        setupPlaceholderBehavior(etNewPassword);
+        setupPlaceholderBehavior(etConfirmPassword);
+
         // Back button listener
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,6 +66,22 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
+            }
+        });
+    }
+
+    /**
+     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
+     */
+    private void setupPlaceholderBehavior(EditText editText) {
+        if (editText == null) return;
+        
+        final CharSequence originalHint = editText.getHint();
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                editText.setHint("");
+            } else {
+                editText.setHint(originalHint);
             }
         });
     }

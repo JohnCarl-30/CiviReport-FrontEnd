@@ -107,6 +107,7 @@ public class Report extends AppCompatActivity {
         buildIssueMap();
         setupCategorySpinner();
         setupButtons();
+        setupPlaceholderBehaviors();
     }
 
     private void initViews() {
@@ -121,6 +122,28 @@ public class Report extends AppCompatActivity {
         tvUploadStatus      = findViewById(R.id.tvUploadStatus);
         etAddress           = findViewById(R.id.etAddress);
         etNotes             = findViewById(R.id.etNotes);
+    }
+
+    private void setupPlaceholderBehaviors() {
+        setupPlaceholderBehavior(etCustomSpecificIssue);
+        setupPlaceholderBehavior(etAddress);
+        setupPlaceholderBehavior(etNotes);
+    }
+
+    /**
+     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
+     */
+    private void setupPlaceholderBehavior(EditText editText) {
+        if (editText == null) return;
+        
+        final CharSequence originalHint = editText.getHint();
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                editText.setHint("");
+            } else {
+                editText.setHint(originalHint);
+            }
+        });
     }
 
     private void buildIssueMap() {

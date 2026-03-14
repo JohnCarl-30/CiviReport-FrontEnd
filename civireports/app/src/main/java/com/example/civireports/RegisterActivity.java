@@ -66,6 +66,17 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
         termsCheckbox = findViewById(R.id.terms_checkbox);
         
+        // Setup placeholder behavior for all inputs
+        setupPlaceholderBehavior(firstNameInput);
+        setupPlaceholderBehavior(lastNameInput);
+        setupPlaceholderBehavior(middleNameInput);
+        setupPlaceholderBehavior(suffixInput);
+        setupPlaceholderBehavior(emailInput);
+        setupPlaceholderBehavior(contactInput);
+        setupPlaceholderBehavior(addressInput);
+        setupPlaceholderBehavior(passwordInput);
+        setupPlaceholderBehavior(confirmPasswordInput);
+
         // Make the main checkbox read-only so it can only be checked via the dialogs
         termsCheckbox.setClickable(false);
         
@@ -78,6 +89,22 @@ public class RegisterActivity extends AppCompatActivity {
         registerSubmitButton.setOnClickListener(v -> {
             if (validateInputs()) {
                 showRegistrationSuccessDialog();
+            }
+        });
+    }
+
+    /**
+     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
+     */
+    private void setupPlaceholderBehavior(EditText editText) {
+        if (editText == null) return;
+        
+        final CharSequence originalHint = editText.getHint();
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                editText.setHint("");
+            } else {
+                editText.setHint(originalHint);
             }
         });
     }
