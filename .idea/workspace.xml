@@ -114,7 +114,11 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+<<<<<<< Updated upstream
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$/civireports" gradleHome="$PROJECT_DIR$/../.gradle/wrapper/dists/gradle-9.2.1-bin/2t0n5ozlw9xmuyvbp7dnzaxug/gradle-9.2.1" javaHome="$APPLICATION_HOME_DIR$/jbr/Contents/Home" gradleVersion="9.2.1" />
+=======
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$/civireports" gradleHome="C:\Users\JmPuno\.gradle\wrapper\dists\gradle-9.2.1-bin\2t0n5ozlw9xmuyvbp7dnzaxug\gradle-9.2.1" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="9.2.1" />
+>>>>>>> Stashed changes
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="ProjectErrors" />
   </component>
@@ -126,6 +130,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< Updated upstream
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Android App.app.executor&quot;: &quot;Run&quot;,
@@ -142,6 +147,22 @@
     &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;emulator&quot;
+=======
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Android App.app.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "backup-branch-frontend",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/JmPuno/OneDrive/Documents/School Files/civireport_mobile",
+    "project.structure.last.edited": "Variables",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2"
+>>>>>>> Stashed changes
   }
 }</component>
   <component name="RecentsManager">
