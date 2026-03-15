@@ -3,7 +3,6 @@ package com.example.civireports;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -12,7 +11,6 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -30,18 +28,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText firstNameInput, lastNameInput, middleNameInput, suffixInput, emailInput, contactInput, passwordInput, confirmPasswordInput;
+    private EditText firstNameInput, lastNameInput, emailInput, contactInput, passwordInput, confirmPasswordInput;
     private CheckBox termsCheckbox;
     private boolean isTermsAccepted = false;
     private boolean isPrivacyAccepted = false;
-
-    // Suffix list for validation
-    private final List<String> VALID_SUFFIXES = Arrays.asList("Jr.", "Sr.", "II", "III", "IV", "V", "VI", "Jr", "Sr");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,18 +42,20 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_registration_page);
 
         View mainLayout = findViewById(R.id.register_main);
-        LinearLayout formContainer = null; // We'll find this inside ScrollView
+        LinearLayout formContainer = null;
         
         // Find the inner LinearLayout of the ScrollView to adjust its padding
         ScrollView scrollView = null;
-        for (int i = 0; i < ((android.view.ViewGroup)mainLayout).getChildCount(); i++) {
-            View child = ((android.view.ViewGroup)mainLayout).getChildAt(i);
-            if (child instanceof ScrollView) {
-                scrollView = (ScrollView) child;
-                if (scrollView.getChildAt(0) instanceof LinearLayout) {
-                    formContainer = (LinearLayout) scrollView.getChildAt(0);
+        if (mainLayout instanceof android.view.ViewGroup) {
+            for (int i = 0; i < ((android.view.ViewGroup)mainLayout).getChildCount(); i++) {
+                View child = ((android.view.ViewGroup)mainLayout).getChildAt(i);
+                if (child instanceof ScrollView) {
+                    scrollView = (ScrollView) child;
+                    if (scrollView.getChildAt(0) instanceof LinearLayout) {
+                        formContainer = (LinearLayout) scrollView.getChildAt(0);
+                    }
+                    break;
                 }
-                break;
             }
         }
 
@@ -71,19 +65,14 @@ public class RegisterActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             
-            // System bars padding
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             
-            // Dynamic padding based on keyboard (IME) visibility
             if (finalFormContainer != null) {
                 int bottomPadding;
+                float density = getResources().getDisplayMetrics().density;
                 if (ime.bottom > 0) {
-                    // Keyboard is visible, add 130dp allowance
-                    float density = getResources().getDisplayMetrics().density;
                     bottomPadding = (int) (130 * density);
                 } else {
-                    // Keyboard is hidden, back to normal (30dp)
-                    float density = getResources().getDisplayMetrics().density;
                     bottomPadding = (int) (30 * density);
                 }
                 finalFormContainer.setPadding(
@@ -100,17 +89,15 @@ public class RegisterActivity extends AppCompatActivity {
         // Initialize views
         firstNameInput = findViewById(R.id.first_name_input);
         lastNameInput = findViewById(R.id.last_name_input);
-        middleNameInput = findViewById(R.id.middle_name_input);
-        suffixInput = findViewById(R.id.suffix_input);
         emailInput = findViewById(R.id.email_input);
         contactInput = findViewById(R.id.contact_input);
         passwordInput = findViewById(R.id.password_input);
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
         termsCheckbox = findViewById(R.id.terms_checkbox);
         
-        // Main checkbox is read-only so it can only be checked via the dialogs
+        // Disable main checkbox until terms and privacy are accepted in their dialogs
         if (termsCheckbox != null) {
-            termsCheckbox.setClickable(false);
+            termsCheckbox.setEnabled(false);
         }
         
         setupTermsAndService();
@@ -147,7 +134,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (contact.isEmpty() || !contact.matches("^09\\d{9}$")) { contactInput.setError("Valid 11-digit contact number is required"); isValid = false; if (firstErrorView == null) firstErrorView = contactInput; }
         if (password.isEmpty() || password.length() < 8) { passwordInput.setError("Password must be at least 8 characters"); isValid = false; if (firstErrorView == null) firstErrorView = passwordInput; }
         if (!password.equals(confirmPassword)) { confirmPasswordInput.setError("Passwords do not match"); isValid = false; if (firstErrorView == null) firstErrorView = confirmPasswordInput; }
-        if (termsCheckbox != null && !termsCheckbox.isChecked()) { Toast.makeText(this, "Please read and agree to the Terms and Privacy Policy", Toast.LENGTH_SHORT).show(); isValid = false; }
+        if (termsCheckbox != null && !termsCheckbox.isChecked()) { Toast.makeText(this, "Please read and agree to the Terms and Privacy Policy by clicking the links", Toast.LENGTH_SHORT).show(); isValid = false; }
 
         if (firstErrorView != null) {
             firstErrorView.requestFocus();
@@ -186,23 +173,72 @@ public class RegisterActivity extends AppCompatActivity {
 
         termsText.setText(ss);
         termsText.setMovementMethod(LinkMovementMethod.getInstance());
+        termsText.setHighlightColor(Color.TRANSPARENT);
     }
 
     private void updateMainCheckbox() {
         if (termsCheckbox != null) {
-            termsCheckbox.setChecked(isTermsAccepted && isPrivacyAccepted);
+            boolean bothAccepted = isTermsAccepted && isPrivacyAccepted;
+            termsCheckbox.setEnabled(bothAccepted);
+            termsCheckbox.setChecked(bothAccepted);
         }
     }
 
     private void showTermsDialog() {
-        // Implementation remains same
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.terms_and_services, null);
+        if (dialogView == null) return;
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        ImageView btnBack = dialogView.findViewById(R.id.btn_back);
+        CheckBox cbAccept = dialogView.findViewById(R.id.cb_accept_terms);
+
+        if (btnBack != null) btnBack.setOnClickListener(v -> dialog.dismiss());
+        if (cbAccept != null) {
+            cbAccept.setChecked(isTermsAccepted);
+            cbAccept.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                isTermsAccepted = isChecked;
+                updateMainCheckbox();
+            });
+        }
+
+        dialog.show();
     }
 
     private void showPrivacyPolicyDialog() {
-        // Implementation remains same
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.privacy_and_policy_dialog, null);
+        if (dialogView == null) return;
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        ImageView btnBack = dialogView.findViewById(R.id.btn_back_privacy);
+        CheckBox cbAccept = dialogView.findViewById(R.id.cb_accept_privacy);
+
+        if (btnBack != null) btnBack.setOnClickListener(v -> dialog.dismiss());
+        if (cbAccept != null) {
+            cbAccept.setChecked(isPrivacyAccepted);
+            cbAccept.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                isPrivacyAccepted = isChecked;
+                updateMainCheckbox();
+            });
+        }
+
+        dialog.show();
     }
 
     private void showRegistrationSuccessDialog() {
-        // Implementation remains same
+        Toast.makeText(this, "Registration Successful!", Toast.LENGTH_LONG).show();
     }
 }

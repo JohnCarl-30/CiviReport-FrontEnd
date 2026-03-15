@@ -84,7 +84,13 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(new Intent(this, StatusReport.class));
         });
 
-        swipeEmergency.setOnSwipeCompleteListener(() -> showEmergencyConfirmDialog());
+        swipeEmergency.setOnSwipeCompleteListener(() -> {
+            sendEmergencyAlert();
+            // Go direct to hotlines with a flag to show the popup
+            Intent intent = new Intent(this, hotlines.class);
+            intent.putExtra("show_emergency_popup", true);
+            startActivity(intent);
+        });
 
         btnNotificationHeader.setOnClickListener(v -> {
             startActivity(new Intent(this, Notification.class));
@@ -138,18 +144,10 @@ public class DashboardActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showEmergencyConfirmDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("⚠ Send Emergency Alert?")
-                .setMessage("This will immediately notify Barangay officials. Are you sure?")
-                .setPositiveButton("Yes, Send Now", (dialog, which) -> sendEmergencyAlert())
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
     private void sendEmergencyAlert() {
         ReportDataStore.getInstance().incrementEmergencyCount();
         loadDashboardData(); // Update the UI immediately
-        Toast.makeText(this, "Emergency alert sent to Barangay officials!", Toast.LENGTH_LONG).show();
+        // Here you would normally add the logic to notify the admin side (API call, etc.)
+        Toast.makeText(this, "Emergency alert sent to admin!", Toast.LENGTH_SHORT).show();
     }
 }

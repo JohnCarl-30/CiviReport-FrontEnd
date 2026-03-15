@@ -4,14 +4,14 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- Rounded Box Fill (Blue background when checked) -->
+    <!-- Rounded Box Fill (Theme Blue background when checked) -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#1B2F5B"
         android:pathData="M5,3h14c1.1,0 2,0.9 2,2v14c0,1.1 -0.9,2 -2,2H5c-1.1,0 -2,-0.9 -2,-2V5c0,-1.1 0.9,-2 2,-2z" />
 
     <!-- Checkmark inside (White) -->
     <path
-        android:fillColor="#000000"
+        android:fillColor="#FFFFFF"
         android:pathData="M9,16.17L4.83,12l-1.42,1.41L9,19 21,7l-1.41,-1.41L9,16.17z" />
 
 </vector>

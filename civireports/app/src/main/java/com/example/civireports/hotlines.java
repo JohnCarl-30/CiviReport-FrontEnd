@@ -1,10 +1,16 @@
 package com.example.civireports;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -41,6 +47,11 @@ public class hotlines extends AppCompatActivity {
         cardDSWD        = findViewById(R.id.cardDSWD);
 
         setupClickListeners();
+
+        // Check if we should show the emergency popup
+        if (getIntent().getBooleanExtra("show_emergency_popup", false)) {
+            showEmergencyReceivedDialog();
+        }
     }
 
     private void setupClickListeners() {
@@ -77,5 +88,25 @@ public class hotlines extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + number));
         startActivity(intent);
+    }
+
+    private void showEmergencyReceivedDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        
+        View dialogView = inflater.inflate(R.layout.dialog_emergency_received, null); 
+        
+        ImageView btnClose = dialogView.findViewById(R.id.btn_close_emergency);
+
+        AlertDialog dialog = builder.setView(dialogView).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> dialog.dismiss());
+        }
+        
+        dialog.show();
     }
 }
