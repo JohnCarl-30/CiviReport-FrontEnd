@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: androidx.navigationevent:navigationevent-android:1.0.2@aar" external-system-id="GRADLE">
     <CLASSES>
-      <root url="file://$USER_HOME$/.gradle/caches/9.2.1/transforms/0e450c766dc94beb0c92d2942bb36cba/workspace/transformed/navigationevent/AndroidManifest.xml" />
-      <root url="jar://$USER_HOME$/.gradle/caches/9.2.1/transforms/0e450c766dc94beb0c92d2942bb36cba/workspace/transformed/navigationevent/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/9.2.1/transforms/0e450c766dc94beb0c92d2942bb36cba/workspace/transformed/navigationevent/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/9.2.1/transforms/cd36f990897244f6d57d93b15aea805d/workspace/transformed/navigationevent/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/9.2.1/transforms/cd36f990897244f6d57d93b15aea805d/workspace/transformed/navigationevent/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/9.2.1/transforms/cd36f990897244f6d57d93b15aea805d/workspace/transformed/navigationevent/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
