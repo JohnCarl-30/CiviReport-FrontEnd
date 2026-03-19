@@ -12,6 +12,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.civireports.models.ForgotPasswordRequest;
+import com.example.civireports.models.MessageResponse;
+import com.example.civireports.network.RetrofitClient;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private ImageView btnBack;
@@ -24,82 +32,89 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
-        // Initialize views
         btnBack = findViewById(R.id.btnBack);
         etIdentifier = findViewById(R.id.etIdentifier);
         tvResend = findViewById(R.id.tvResend);
         btnSendOTP = findViewById(R.id.btnSendOTP);
 
-        // Setup placeholder behavior
         setupPlaceholderBehavior(etIdentifier);
 
-        // Back button listener
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish(); // Close activity and go back
+        btnBack.setOnClickListener(v -> finish());
+
+        btnSendOTP.setOnClickListener(v -> {
+            String identifier = etIdentifier.getText().toString().trim();
+
+            if (identifier.isEmpty()) {
+                etIdentifier.setError("Please enter your email or mobile number");
+                etIdentifier.requestFocus();
+                return;
             }
-        });
 
-        // Send OTP button listener
-        btnSendOTP.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String identifier = etIdentifier.getText().toString().trim();
-                
-                if (identifier.isEmpty()) {
-                    etIdentifier.setError("Please enter your email or mobile number");
-                    etIdentifier.requestFocus();
-                    return;
-                }
+            boolean isValidEmail = Patterns.EMAIL_ADDRESS.matcher(identifier).matches();
+            boolean isValidMobile = identifier.matches("^09\\d{9}$");
 
-                // Check for valid email
-                boolean isValidEmail = Patterns.EMAIL_ADDRESS.matcher(identifier).matches();
-                // Check for valid PH mobile number (11 digits, starts with 09)
-                boolean isValidMobile = identifier.matches("^09\\d{9}$");
-
-                if (isValidEmail) {
-                    Intent intent = new Intent(ForgotPasswordActivity.this, VerifyCodeActivity.class);
-                    intent.putExtra("IDENTIFIER", identifier);
-                    startActivity(intent);
-                } else if (isValidMobile) {
-                    Intent intent = new Intent(ForgotPasswordActivity.this, VerifyMobileActivity.class);
-                    intent.putExtra("IDENTIFIER", identifier);
-                    startActivity(intent);
+            if (isValidEmail) {
+                sendOtp(identifier);
+            } else if (isValidMobile) {
+                Intent intent = new Intent(ForgotPasswordActivity.this, VerifyMobileActivity.class);
+                intent.putExtra("IDENTIFIER", identifier);
+                startActivity(intent);
+            } else {
+                if (identifier.matches("\\d+")) {
+                    etIdentifier.setError("Mobile number must consist of 11 digits and start with 09");
                 } else {
-                    // Provide specific error messages based on input type
-                    if (identifier.matches("\\d+")) {
-                        etIdentifier.setError("Mobile number must consist of 11 digits and start with 09");
-                    } else {
-                        etIdentifier.setError("Please enter a valid email address (e.g. name@email.com)");
-                    }
-                    etIdentifier.requestFocus();
+                    etIdentifier.setError("Please enter a valid email address (e.g. name@email.com)");
                 }
+                etIdentifier.requestFocus();
             }
         });
 
-        // Resend text listener
-        tvResend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(ForgotPasswordActivity.this, "Resending code...", Toast.LENGTH_SHORT).show();
+        tvResend.setOnClickListener(v -> {
+            String identifier = etIdentifier.getText().toString().trim();
+            if (!identifier.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(identifier).matches()) {
+                sendOtp(identifier);
+            } else {
+                Toast.makeText(this, "Please enter a valid email first", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    /**
-     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
-     */
+    private void sendOtp(String email) {
+        btnSendOTP.setEnabled(false);
+
+        ForgotPasswordRequest request = new ForgotPasswordRequest(email);
+
+        RetrofitClient.getApiService().forgotPassword(request).enqueue(new Callback<MessageResponse>() {
+            @Override
+            public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                btnSendOTP.setEnabled(true);
+                if (response.isSuccessful()) {
+                    Toast.makeText(ForgotPasswordActivity.this, "OTP sent to your email!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(ForgotPasswordActivity.this, VerifyCodeActivity.class);
+                    intent.putExtra("IDENTIFIER", email);
+                    startActivity(intent);
+                } else if (response.code() == 404) {
+                    etIdentifier.setError("Email not found");
+                    etIdentifier.requestFocus();
+                } else {
+                    Toast.makeText(ForgotPasswordActivity.this, "Something went wrong. Try again.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MessageResponse> call, Throwable t) {
+                btnSendOTP.setEnabled(true);
+                Toast.makeText(ForgotPasswordActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void setupPlaceholderBehavior(EditText editText) {
         if (editText == null) return;
-        
         final CharSequence originalHint = editText.getHint();
         editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                editText.setHint("");
-            } else {
-                editText.setHint(originalHint);
-            }
+            if (hasFocus) editText.setHint("");
+            else editText.setHint(originalHint);
         });
     }
 }

@@ -1,5 +1,6 @@
 package com.example.civireports;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -28,9 +29,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.civireports.models.RegisterRequest;
+import com.example.civireports.models.RegisterResponse;
+import com.example.civireports.network.RetrofitClient;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText firstNameInput, lastNameInput, emailInput, contactInput, passwordInput, confirmPasswordInput;
+    private EditText firstNameInput, middleNameInput, lastNameInput, suffixInput,
+            emailInput, contactInput, addressInput, passwordInput, confirmPasswordInput;
     private CheckBox termsCheckbox;
     private boolean isTermsAccepted = false;
     private boolean isPrivacyAccepted = false;
@@ -44,11 +54,10 @@ public class RegisterActivity extends AppCompatActivity {
         View mainLayout = findViewById(R.id.register_main);
         LinearLayout formContainer = null;
 
-        // Find the inner LinearLayout of the ScrollView to adjust its padding
         ScrollView scrollView = null;
         if (mainLayout instanceof android.view.ViewGroup) {
-            for (int i = 0; i < ((android.view.ViewGroup)mainLayout).getChildCount(); i++) {
-                View child = ((android.view.ViewGroup)mainLayout).getChildAt(i);
+            for (int i = 0; i < ((android.view.ViewGroup) mainLayout).getChildCount(); i++) {
+                View child = ((android.view.ViewGroup) mainLayout).getChildAt(i);
                 if (child instanceof ScrollView) {
                     scrollView = (ScrollView) child;
                     if (scrollView.getChildAt(0) instanceof LinearLayout) {
@@ -88,14 +97,16 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Initialize views
         firstNameInput = findViewById(R.id.first_name_input);
+        middleNameInput = findViewById(R.id.middle_name_input);
         lastNameInput = findViewById(R.id.last_name_input);
+        suffixInput = findViewById(R.id.suffix_input);
         emailInput = findViewById(R.id.email_input);
         contactInput = findViewById(R.id.contact_input);
+        addressInput = findViewById(R.id.address_input);
         passwordInput = findViewById(R.id.password_input);
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
         termsCheckbox = findViewById(R.id.terms_checkbox);
 
-        // Disable main checkbox until terms and privacy are accepted in their dialogs
         if (termsCheckbox != null) {
             termsCheckbox.setEnabled(false);
         }
@@ -111,10 +122,54 @@ public class RegisterActivity extends AppCompatActivity {
         if (registerSubmitButton != null) {
             registerSubmitButton.setOnClickListener(v -> {
                 if (validateInputs()) {
-                    showRegistrationSuccessDialog();
+                    handleRegister(registerSubmitButton);
                 }
             });
         }
+    }
+
+    private void handleRegister(Button submitButton) {
+        String suffix = suffixInput != null ? suffixInput.getText().toString().trim() : "";
+        String firstName = firstNameInput.getText().toString().trim();
+        String middleName = middleNameInput != null ? middleNameInput.getText().toString().trim() : "";
+        String lastName = lastNameInput.getText().toString().trim();
+        String email = emailInput.getText().toString().trim();
+        String contact = contactInput.getText().toString().trim();
+        String address = addressInput != null ? addressInput.getText().toString().trim() : "";
+        String password = passwordInput.getText().toString();
+        String confirmPassword = confirmPasswordInput.getText().toString();
+
+        submitButton.setEnabled(false);
+
+        RegisterRequest request = new RegisterRequest(
+                suffix, firstName, middleName, lastName,
+                email, contact, address, password,confirmPassword
+        );
+
+        RetrofitClient.getApiService().register(request).enqueue(new Callback<RegisterResponse>() {
+            @Override
+            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                submitButton.setEnabled(true);
+                if (response.isSuccessful()) {
+                    Toast.makeText(RegisterActivity.this, "Registration successful! Please log in.", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                } else if (response.code() == 409) {
+                    emailInput.setError("Email already exists");
+                    emailInput.requestFocus();
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Registration failed. Try again.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                submitButton.setEnabled(true);
+                Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private boolean validateInputs() {
@@ -125,6 +180,7 @@ public class RegisterActivity extends AppCompatActivity {
         String lastName = lastNameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
         String contact = contactInput.getText().toString().trim();
+        String address = addressInput != null ? addressInput.getText().toString().trim() : "";
         String password = passwordInput.getText().toString();
         String confirmPassword = confirmPasswordInput.getText().toString();
 
@@ -132,13 +188,12 @@ public class RegisterActivity extends AppCompatActivity {
         if (lastName.isEmpty()) { lastNameInput.setError("Last name is required"); isValid = false; if (firstErrorView == null) firstErrorView = lastNameInput; }
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) { emailInput.setError("Valid email is required"); isValid = false; if (firstErrorView == null) firstErrorView = emailInput; }
         if (contact.isEmpty() || !contact.matches("^09\\d{9}$")) { contactInput.setError("Valid 11-digit contact number is required"); isValid = false; if (firstErrorView == null) firstErrorView = contactInput; }
+        if (address.isEmpty() && addressInput != null) { addressInput.setError("Address is required"); isValid = false; if (firstErrorView == null) firstErrorView = addressInput; }
         if (password.isEmpty() || password.length() < 8) { passwordInput.setError("Password must be at least 8 characters"); isValid = false; if (firstErrorView == null) firstErrorView = passwordInput; }
         if (!password.equals(confirmPassword)) { confirmPasswordInput.setError("Passwords do not match"); isValid = false; if (firstErrorView == null) firstErrorView = confirmPasswordInput; }
         if (termsCheckbox != null && !termsCheckbox.isChecked()) { Toast.makeText(this, "Please read and agree to the Terms and Privacy Policy by clicking the links", Toast.LENGTH_SHORT).show(); isValid = false; }
 
-        if (firstErrorView != null) {
-            firstErrorView.requestFocus();
-        }
+        if (firstErrorView != null) firstErrorView.requestFocus();
 
         return isValid;
     }
@@ -188,13 +243,9 @@ public class RegisterActivity extends AppCompatActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.terms_and_services, null);
         if (dialogView == null) return;
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(dialogView)
-                .create();
-
-        if (dialog.getWindow() != null) {
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
+        if (dialog.getWindow() != null)
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
 
         ImageView btnBack = dialogView.findViewById(R.id.btn_back);
         CheckBox cbAccept = dialogView.findViewById(R.id.cb_accept_terms);
@@ -207,7 +258,6 @@ public class RegisterActivity extends AppCompatActivity {
                 updateMainCheckbox();
             });
         }
-
         dialog.show();
     }
 
@@ -215,13 +265,9 @@ public class RegisterActivity extends AppCompatActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.privacy_and_policy_dialog, null);
         if (dialogView == null) return;
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(dialogView)
-                .create();
-
-        if (dialog.getWindow() != null) {
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
+        if (dialog.getWindow() != null)
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
 
         ImageView btnBack = dialogView.findViewById(R.id.btn_back_privacy);
         CheckBox cbAccept = dialogView.findViewById(R.id.cb_accept_privacy);
@@ -234,11 +280,6 @@ public class RegisterActivity extends AppCompatActivity {
                 updateMainCheckbox();
             });
         }
-
         dialog.show();
-    }
-
-    private void showRegistrationSuccessDialog() {
-        Toast.makeText(this, "Registration Successful!", Toast.LENGTH_LONG).show();
     }
 }
