@@ -68,7 +68,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void loadDashboardData() {
         ReportDataStore store = ReportDataStore.getInstance();
-        
+        //burat
         // Format to 3 digits like the design (001, 002, etc.)
         tvReportCount.setText(String.format("%03d", store.getReportCount()));
         tvEmergencyCount.setText(String.format("%03d", store.getEmergencyCount()));
