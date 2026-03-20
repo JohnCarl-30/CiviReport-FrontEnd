@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "civireports"
+rootProject.name = "civireport"
 include(":app")
  

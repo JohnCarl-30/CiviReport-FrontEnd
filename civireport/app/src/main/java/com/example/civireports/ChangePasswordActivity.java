@@ -10,78 +10,84 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.civireports.models.MessageResponse;
+import com.example.civireports.models.ResetPasswordRequest;
+import com.example.civireports.network.RetrofitClient;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ChangePasswordActivity extends AppCompatActivity {
 
     private ImageView btnBack;
     private EditText etNewPassword, etConfirmPassword;
     private Button btnChangePassword;
-    private boolean isPasswordChanged = false;
+    private String email, otp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
 
-        // Initialize views
         btnBack = findViewById(R.id.btnBack);
         etNewPassword = findViewById(R.id.etNewPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         btnChangePassword = findViewById(R.id.btnChangePassword);
 
-        // Setup placeholder behavior
+        email = getIntent().getStringExtra("IDENTIFIER");
+        otp = getIntent().getStringExtra("OTP");
+
         setupPlaceholderBehavior(etNewPassword);
         setupPlaceholderBehavior(etConfirmPassword);
 
-        // Back button listener
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        btnBack.setOnClickListener(v -> finish());
 
-        // Change Password / Log in button listener
-        btnChangePassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isPasswordChanged) {
-                    // Phase 1: Change Password
-                    if (validatePassword()) {
-                        isPasswordChanged = true;
-                        Toast.makeText(ChangePasswordActivity.this, "Password changed successfully", Toast.LENGTH_SHORT).show();
-                        
-                        // Change button text to "Log in"
-                        btnChangePassword.setText("Log in");
-                        
-                        // Disable inputs to indicate completion
-                        etNewPassword.setEnabled(false);
-                        etConfirmPassword.setEnabled(false);
-                        // Hide back button as process is finished
-                        btnBack.setVisibility(View.GONE);
-                    }
-                } else {
-                    // Phase 2: Redirect to Login (MainActivity)
-                    Intent intent = new Intent(ChangePasswordActivity.this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                }
+        btnChangePassword.setOnClickListener(v -> {
+            if (validatePassword()) {
+                handleResetPassword();
             }
         });
     }
 
-    /**
-     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
-     */
-    private void setupPlaceholderBehavior(EditText editText) {
-        if (editText == null) return;
-        
-        final CharSequence originalHint = editText.getHint();
-        editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                editText.setHint("");
-            } else {
-                editText.setHint(originalHint);
+    private void handleResetPassword() {
+        String newPassword = etNewPassword.getText().toString();
+        btnChangePassword.setEnabled(false);
+
+        ResetPasswordRequest request = new ResetPasswordRequest(email, otp, newPassword);
+
+        RetrofitClient.getApiService().resetPassword(request).enqueue(new Callback<MessageResponse>() {
+            @Override
+            public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                btnChangePassword.setEnabled(true);
+                if (response.isSuccessful()) {
+                    Toast.makeText(ChangePasswordActivity.this, "Password changed successfully!", Toast.LENGTH_SHORT).show();
+                    btnChangePassword.setText("Log in");
+                    etNewPassword.setEnabled(false);
+                    etConfirmPassword.setEnabled(false);
+                    btnBack.setVisibility(View.GONE);
+
+                    btnChangePassword.setOnClickListener(v -> {
+                        Intent intent = new Intent(ChangePasswordActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    });
+                } else if (response.code() == 400) {
+                    Toast.makeText(ChangePasswordActivity.this, "Invalid or expired OTP. Please try again.", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(ChangePasswordActivity.this, ForgotPasswordActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(ChangePasswordActivity.this, "Something went wrong. Try again.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MessageResponse> call, Throwable t) {
+                btnChangePassword.setEnabled(true);
+                Toast.makeText(ChangePasswordActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -95,11 +101,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
             return false;
         }
 
-        // Minimum 8 characters, mix of uppercase, lowercase, numbers, and symbols
-        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
-
+        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[_@$!%*?&])[A-Za-z\\d_@$!%*?&]{8,}$";
         if (!newPassword.matches(passwordPattern)) {
-            etNewPassword.setError("Password must be at least 8 characters, including uppercase, lowercase, number, and symbol.");
+            etNewPassword.setError("Min 8 chars, must include uppercase, lowercase, number, and symbol");
             return false;
         }
 
@@ -109,5 +113,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private void setupPlaceholderBehavior(EditText editText) {
+        if (editText == null) return;
+        final CharSequence originalHint = editText.getHint();
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) editText.setHint("");
+            else editText.setHint(originalHint);
+        });
     }
 }
