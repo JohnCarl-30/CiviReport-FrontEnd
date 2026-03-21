@@ -25,6 +25,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.civireports.models.ComplaintResponse;
+import com.example.civireports.network.RetrofitClient;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -36,6 +39,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Report extends AppCompatActivity {
 
@@ -110,6 +120,44 @@ public class Report extends AppCompatActivity {
         setupPlaceholderBehaviors();
     }
 
+    private void handleComplaint(Button submit) {
+        submit.setEnabled(false);
+
+        RequestBody rbType = RequestBody.create(MediaType.parse("text/plain"), spinnerCategory.getSelectedItem().toString());
+        RequestBody rbSubtype = RequestBody.create(MediaType.parse("text/plain"), spinnerSpecificIssue.getSelectedItem().toString());
+        RequestBody rbNotes = RequestBody.create(MediaType.parse("text/plain"), etNotes.getText().toString().trim());
+        RequestBody rbLocation = RequestBody.create(MediaType.parse("text/plain"), etAddress.getText().toString().trim());
+
+        // I-build ang files list
+        List<MultipartBody.Part> fileParts = new ArrayList<>();
+        if (selectedFileUri != null) {
+            File file = new File(selectedFileUri.getPath());
+            RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
+            fileParts.add(MultipartBody.Part.createFormData("files", file.getName(), fileBody));
+        }
+
+        RetrofitClient.getApiService(this).submitComplaint(rbType, rbSubtype, rbNotes, rbLocation, fileParts)
+                .enqueue(new Callback<ComplaintResponse>() {
+                    @Override
+                    public void onResponse(Call<ComplaintResponse> call, Response<ComplaintResponse> response) {
+                        submit.setEnabled(true);
+                        if (response.isSuccessful()) {
+                            Toast.makeText(Report.this, "Complaint submitted!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(Report.this, StatusReport.class));
+                            finish();
+                        } else {
+                            Toast.makeText(Report.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ComplaintResponse> call, Throwable t) {
+                        submit.setEnabled(true);
+                        Toast.makeText(Report.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void initViews() {
         spinnerCategory     = findViewById(R.id.spinnerCategory);
         spinnerSpecificIssue = findViewById(R.id.spinnerSpecificIssue);
@@ -135,7 +183,7 @@ public class Report extends AppCompatActivity {
      */
     private void setupPlaceholderBehavior(EditText editText) {
         if (editText == null) return;
-        
+
         final CharSequence originalHint = editText.getHint();
         editText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
@@ -288,7 +336,7 @@ public class Report extends AppCompatActivity {
 
             String queueNum = "Queue #" + (int)(Math.random() * 900 + 100);
             String dateStr = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(new Date());
-            
+
             ReportDataStore.ReportItem newItem = new ReportDataStore.ReportItem(
                 queueNum,
                 "PENDING",
@@ -299,14 +347,17 @@ public class Report extends AppCompatActivity {
                 dateStr,
                 finalUri
             );
-            
-            ReportDataStore.getInstance().addReport(newItem);
-            
-            Toast.makeText(this, "Report submitted successfully!", Toast.LENGTH_SHORT).show();
-            
-            Intent intent = new Intent(this, StatusReport.class);
-            startActivity(intent);
-            finish();
+
+
+            handleComplaint(btnSubmit);
+
+//            ReportDataStore.getInstance().addReport(newItem);
+//
+//            Toast.makeText(this, "Report submitted successfully!", Toast.LENGTH_SHORT).show();
+//
+//            Intent intent = new Intent(this, StatusReport.class);
+//            startActivity(intent);
+//            finish();
         });
     }
 
@@ -363,7 +414,7 @@ public class Report extends AppCompatActivity {
         boolean addressFilled     = etAddress != null && !etAddress.getText().toString().trim().isEmpty();
         boolean notesFilled       = etNotes != null && !etNotes.getText().toString().trim().isEmpty();
         boolean fileSelected      = selectedFileUri != null;
-        
+
         return categorySelected || issueSelected || customIssueFilled || addressFilled || notesFilled || fileSelected;
     }
 

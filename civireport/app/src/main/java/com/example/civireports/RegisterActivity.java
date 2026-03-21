@@ -210,7 +210,7 @@ public class RegisterActivity extends AppCompatActivity {
                 email, contact, address, password,confirmPassword
         );
 
-        RetrofitClient.getApiService().register(request).enqueue(new Callback<RegisterResponse>() {
+        RetrofitClient.getApiService(this).register(request).enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 submitButton.setEnabled(true);

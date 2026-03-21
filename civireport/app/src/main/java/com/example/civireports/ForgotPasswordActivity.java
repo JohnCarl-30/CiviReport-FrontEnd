@@ -84,7 +84,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         ForgotPasswordRequest request = new ForgotPasswordRequest(email);
 
-        RetrofitClient.getApiService().forgotPassword(request).enqueue(new Callback<MessageResponse>() {
+        RetrofitClient.getApiService(this).forgotPassword(request).enqueue(new Callback<MessageResponse>() {
             @Override
             public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                 btnSendOTP.setEnabled(true);

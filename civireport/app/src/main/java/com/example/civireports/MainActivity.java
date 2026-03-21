@@ -18,9 +18,18 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.civireports.models.LoginResponse;
+import com.example.civireports.network.ApiService;
+import com.example.civireports.network.RetrofitClient;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button loginButton = findViewById(R.id.login_button);
+
+        //loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
         loginButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
             startActivity(intent);
@@ -119,5 +130,52 @@ public class MainActivity extends AppCompatActivity {
         if (!permissionsNeeded.isEmpty()) {
             permissionLauncher.launch(permissionsNeeded.toArray(new String[0]));
         }
+    }
+
+    private void handleLogin(Button loginButton, EditText emailInput, EditText passwordInput) {
+        String email = emailInput.getText().toString().trim();
+        String password = passwordInput.getText().toString().trim();
+
+        // Basic validation
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please enter email and password.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        loginButton.setEnabled(false);
+
+        // BAGO
+        ApiService api = RetrofitClient.getApiService(MainActivity.this);
+        api.login(email, password).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                loginButton.setEnabled(true);
+                if (response.isSuccessful() && response.body() != null) {
+                    String token = response.body().getAccessToken();
+                    int userId = response.body().getUserId();
+
+
+                    // I-save ang token sa SharedPreferences
+                    getSharedPreferences("auth", MODE_PRIVATE)
+                            .edit()
+                            .putString("token", token)
+                            .putInt("user_id", userId)
+                            .apply();
+                            RetrofitClient.reset();
+
+                    Toast.makeText(MainActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, DashboardActivity.class));
+                    finish();
+                } else {
+                    Toast.makeText(MainActivity.this, "Invalid email or password.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                loginButton.setEnabled(true);
+                Toast.makeText(MainActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

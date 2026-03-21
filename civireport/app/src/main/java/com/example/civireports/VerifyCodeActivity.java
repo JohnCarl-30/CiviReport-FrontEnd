@@ -76,7 +76,7 @@ public class VerifyCodeActivity extends AppCompatActivity {
             btnVerify.setEnabled(false); // prevent double-tap
 
             VerifyOtpRequest request = new VerifyOtpRequest(email, otp);
-            RetrofitClient.getApiService().verifyOtp(request).enqueue(new Callback<MessageResponse>() {
+            RetrofitClient.getApiService(this).verifyOtp(request).enqueue(new Callback<MessageResponse>() {
                 @Override
                 public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                     btnVerify.setEnabled(true);
@@ -116,7 +116,7 @@ public class VerifyCodeActivity extends AppCompatActivity {
     private void resendOtp() {
         ForgotPasswordRequest request = new ForgotPasswordRequest(email);
 
-        RetrofitClient.getApiService().forgotPassword(request).enqueue(new Callback<MessageResponse>() {
+        RetrofitClient.getApiService(this).forgotPassword(request).enqueue(new Callback<MessageResponse>() {
             @Override
             public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                 if (response.isSuccessful()) {

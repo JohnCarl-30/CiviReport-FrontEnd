@@ -56,7 +56,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         ResetPasswordRequest request = new ResetPasswordRequest(email, otp, newPassword);
 
-        RetrofitClient.getApiService().resetPassword(request).enqueue(new Callback<MessageResponse>() {
+        RetrofitClient.getApiService(this).resetPassword(request).enqueue(new Callback<MessageResponse>() {
             @Override
             public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                 btnChangePassword.setEnabled(true);
