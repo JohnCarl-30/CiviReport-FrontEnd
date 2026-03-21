@@ -6,7 +6,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.LinkMovementMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Patterns;
@@ -44,6 +46,8 @@ public class RegisterActivity extends AppCompatActivity {
     private CheckBox termsCheckbox;
     private boolean isTermsAccepted = false;
     private boolean isPrivacyAccepted = false;
+    private boolean isPasswordVisible = false;
+    private boolean isConfirmPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +111,8 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
         termsCheckbox = findViewById(R.id.terms_checkbox);
 
+        setupPasswordVisibility();
+
         if (termsCheckbox != null) {
             termsCheckbox.setEnabled(false);
         }
@@ -124,6 +130,39 @@ public class RegisterActivity extends AppCompatActivity {
                 if (validateInputs()) {
                     handleRegister(registerSubmitButton);
                 }
+            });
+        }
+    }
+
+    private void setupPasswordVisibility() {
+        ImageView showPasswordBtn = findViewById(R.id.show_password_button);
+        ImageView showConfirmPasswordBtn = findViewById(R.id.show_confirm_password_button);
+
+        if (showPasswordBtn != null) {
+            showPasswordBtn.setOnClickListener(v -> {
+                isPasswordVisible = !isPasswordVisible;
+                if (isPasswordVisible) {
+                    passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view); // You might want a "hide" icon here if available
+                } else {
+                    passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
+                }
+                passwordInput.setSelection(passwordInput.getText().length());
+            });
+        }
+
+        if (showConfirmPasswordBtn != null) {
+            showConfirmPasswordBtn.setOnClickListener(v -> {
+                isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                if (isConfirmPasswordVisible) {
+                    confirmPasswordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    showConfirmPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
+                } else {
+                    confirmPasswordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    showConfirmPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
+                }
+                confirmPasswordInput.setSelection(confirmPasswordInput.getText().length());
             });
         }
     }

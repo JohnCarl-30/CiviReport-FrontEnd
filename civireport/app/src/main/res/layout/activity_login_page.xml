@@ -210,7 +210,7 @@
                             android:layout_centerVertical="true"
                             android:layout_marginEnd="16dp"
                             android:src="@android:drawable/ic_menu_view"
-                            android:alpha="0.5"
+                            android:alpha="0.8"
                             android:contentDescription="Show Password"
                             android:clickable="true"
                             android:focusable="true"/>

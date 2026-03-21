@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Standard verified seal badge path -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#00C853"
+        android:strokeWidth="1.5"
+        android:pathData="M12 1L14.39 3.14L17.5 2.11L18.85 5.15L22 6L21.36 9.21L23.51 11.5L21.36 13.79L22 17L18.85 17.85L17.5 20.89L14.39 19.86L12 22L9.61 19.86L6.5 20.89L5.15 17.85L2 17L2.64 13.79L0.49 11.5L2.64 9.21L2 6L5.15 5.15L6.5 2.11L9.61 3.14L12 1Z" />
+
+    <!-- Checkmark -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#00C853"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M8.5 11.5L10.8 13.8L15.5 9" />
+
+</vector>

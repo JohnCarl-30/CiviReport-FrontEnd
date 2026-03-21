@@ -1,93 +1,107 @@
 package com.example.civireports;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.button.MaterialButton;
 
 public class Profile extends AppCompatActivity {
 
-    private LinearLayout navHome;
-    private LinearLayout navHotlines;
-    private LinearLayout navNotification;
-    private LinearLayout navProfile;
-
-    private TextView btnBack;
-    private MaterialButton btnLogout;
-    
-    // Menu items
-    private LinearLayout menuEditProfile;
-    private LinearLayout menuSecurity;
-    private LinearLayout menuLegal;
-    private LinearLayout menuHelp;
-    private LinearLayout menuAbout;
+    private TextView tvUserName, tvUserEmail;
+    private ImageView verifiedBadge;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile);
 
-        initViews();
-        setupClickListeners();
+        sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
+
+        // Initialize views
+        tvUserName = findViewById(R.id.tvUserName);
+        tvUserEmail = findViewById(R.id.tvUserEmail);
+        verifiedBadge = findViewById(R.id.verified_badge);
+
+        setupMenuItems();
         setupBottomNav();
-    }
 
-    private void initViews() {
-        navHome         = findViewById(R.id.navHome);
-        navHotlines     = findViewById(R.id.navHotlines);
-        navNotification = findViewById(R.id.navNotification);
-        navProfile      = findViewById(R.id.navProfile);
-        btnLogout       = findViewById(R.id.btnLogout);
-        btnBack         = findViewById(R.id.btnBack);
-        
-        menuEditProfile = findViewById(R.id.menuEditProfile);
-        menuSecurity    = findViewById(R.id.menuSecurity);
-        menuLegal       = findViewById(R.id.menuLegal);
-        menuHelp        = findViewById(R.id.menuHelp);
-        menuAbout       = findViewById(R.id.menuAbout);
-    }
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-    private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> finish());
-
-        btnLogout.setOnClickListener(v -> {
-            Intent intent = new Intent(Profile.this, MainActivity.class);
+        // Log out
+        ((MaterialButton) findViewById(R.id.btnLogout)).setOnClickListener(v -> {
+            // TODO: Clear session/token/preferences when backend is ready
+            Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class); // Assuming MainActivity is Login
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
+    }
 
-        menuEditProfile.setOnClickListener(v -> Toast.makeText(this, "Edit Profile clicked", Toast.LENGTH_SHORT).show());
-        menuSecurity.setOnClickListener(v -> Toast.makeText(this, "Security clicked", Toast.LENGTH_SHORT).show());
-        menuLegal.setOnClickListener(v -> Toast.makeText(this, "Legal Information clicked", Toast.LENGTH_SHORT).show());
-        menuHelp.setOnClickListener(v -> Toast.makeText(this, "Help & Support clicked", Toast.LENGTH_SHORT).show());
-        menuAbout.setOnClickListener(v -> Toast.makeText(this, "About App clicked", Toast.LENGTH_SHORT).show());
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh user data every time the activity comes to the foreground
+        loadUserData();
+    }
+
+    private void loadUserData() {
+        // Load data from SharedPreferences (Synced with EditProfileActivity)
+        String name = sharedPreferences.getString("full_name", "Samantha G. Pitero");
+        String email = sharedPreferences.getString("email", "lia.pitero.coi@pcu.edu.ph");
+        
+        tvUserName.setText(name);
+        tvUserEmail.setText(email);
+        
+        // Example: logic for verified status
+        boolean isVerified = true; 
+        if (verifiedBadge != null) {
+            verifiedBadge.setVisibility(isVerified ? android.view.View.VISIBLE : android.view.View.GONE);
+        }
+    }
+
+    private void setupMenuItems() {
+        // Account section
+        findViewById(R.id.menuEditProfile).setOnClickListener(v ->
+                startActivity(new Intent(this, EditProfileActivity.class)));
+
+        findViewById(R.id.menuChangePassword).setOnClickListener(v ->
+                startActivity(new Intent(this, ProfileChangePassActivity.class)));
+
+        findViewById(R.id.menuReportHistory).setOnClickListener(v ->
+                startActivity(new Intent(this, ReportHistoryActivity.class)));
+
+        // Support section
+        findViewById(R.id.menuHelp).setOnClickListener(v ->
+                startActivity(new Intent(this, HelpSupportActivity.class)));
+
+        findViewById(R.id.menuAbout).setOnClickListener(v ->
+                startActivity(new Intent(this, AboutAppActivity.class)));
     }
 
     private void setupBottomNav() {
-        navHome.setOnClickListener(v -> {
-            startActivity(new Intent(this, DashboardActivity.class));
-            finish();
+        findViewById(R.id.navHome).setOnClickListener(v -> {
+                startActivity(new Intent(this, DashboardActivity.class));
+                overridePendingTransition(0, 0);
         });
 
-        navHotlines.setOnClickListener(v -> {
-            startActivity(new Intent(this, hotlines.class));
-            finish();
+        findViewById(R.id.navHotlines).setOnClickListener(v -> {
+                startActivity(new Intent(this, hotlines.class));
+                overridePendingTransition(0, 0);
         });
 
-        navNotification.setOnClickListener(v -> {
-            startActivity(new Intent(this, Notification.class));
-            finish();
+        findViewById(R.id.navNotification).setOnClickListener(v -> {
+                startActivity(new Intent(this, Notification.class));
+                overridePendingTransition(0, 0);
         });
 
-        navProfile.setOnClickListener(v -> {
-            // Already on this screen
-        });
+        findViewById(R.id.navProfile).setOnClickListener(v ->
+                Toast.makeText(this, "You are on Profile", Toast.LENGTH_SHORT).show());
     }
 }

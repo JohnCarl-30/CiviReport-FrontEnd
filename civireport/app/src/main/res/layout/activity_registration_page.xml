@@ -479,21 +479,40 @@
                         app:cardElevation="4dp"
                         app:cardUseCompatPadding="true">
 
-                        <EditText
-                            android:id="@+id/password_input"
+                        <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/selector_edittext_outline"
-                            android:textColor="#1B2F5B"
-                            android:hint="Password"
-                            android:textColorHint="#A3A3A3"
-                            android:textCursorDrawable="@drawable/cursor"
-                            android:inputType="textPassword"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="12dp"
-                            android:textSize="14sp" />
+                            android:layout_height="wrap_content">
+
+                            <EditText
+                                android:id="@+id/password_input"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/selector_edittext_outline"
+                                android:textColor="#1B2F5B"
+                                android:hint="Password"
+                                android:textColorHint="#A3A3A3"
+                                android:textCursorDrawable="@drawable/cursor"
+                                android:inputType="textPassword"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="48dp"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:id="@+id/show_password_button"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="16dp"
+                                android:src="@android:drawable/ic_menu_view"
+                                android:alpha="0.8"
+                                android:contentDescription="Show Password"
+                                android:clickable="true"
+                                android:focusable="true"/>
+
+                        </RelativeLayout>
 
                     </androidx.cardview.widget.CardView>
 
@@ -524,21 +543,40 @@
                         app:cardElevation="4dp"
                         app:cardUseCompatPadding="true">
 
-                        <EditText
-                            android:id="@+id/confirm_password_input"
+                        <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/selector_edittext_outline"
-                            android:textColor="#1B2F5B"
-                            android:hint="Confirm password"
-                            android:textColorHint="#A3A3A3"
-                            android:textCursorDrawable="@drawable/cursor"
-                            android:inputType="textPassword"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="12dp"
-                            android:textSize="14sp" />
+                            android:layout_height="wrap_content">
+
+                            <EditText
+                                android:id="@+id/confirm_password_input"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/selector_edittext_outline"
+                                android:textColor="#1B2F5B"
+                                android:hint="Confirm password"
+                                android:textColorHint="#A3A3A3"
+                                android:textCursorDrawable="@drawable/cursor"
+                                android:inputType="textPassword"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="48dp"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:id="@+id/show_confirm_password_button"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginEnd="16dp"
+                                android:src="@android:drawable/ic_menu_view"
+                                android:alpha="0.8"
+                                android:contentDescription="Show Confirm Password"
+                                android:clickable="true"
+                                android:focusable="true"/>
+
+                        </RelativeLayout>
 
                     </androidx.cardview.widget.CardView>
 

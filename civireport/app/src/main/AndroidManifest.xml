@@ -77,6 +77,13 @@
             android:exported="true">
         </activity>
         <activity android:name=".Profile" />
+        <activity android:name=".EditProfileActivity" />
+        <activity android:name=".ProfileChangePassActivity" />
+        <activity android:name=".ReportHistoryActivity" />
+        <activity android:name=".HelpSupportActivity" />
+        <activity android:name=".AboutAppActivity" />
+        <activity android:name=".PrivacyPolicyActivity" />
+        <activity android:name=".TermsServicesActivity" />
     </application>
 
 </manifest>
