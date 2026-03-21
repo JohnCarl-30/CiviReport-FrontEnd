@@ -33,17 +33,17 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/brgy"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="4dp"
             app:civ_border_width="1dp"
             app:civ_border_color="#F0F0F0"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="6dp"
             android:text="Edit Profile"
             android:textColor="#1B2F5B"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="10dp">
 
             <!-- FORM CARD -->
             <androidx.cardview.widget.CardView
@@ -67,7 +67,8 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -86,7 +87,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_profile"
+                            android:src="@drawable/ic_edit_profile"
                             android:contentDescription="Profile"
                             android:layout_marginEnd="8dp"/>
 
@@ -111,12 +112,12 @@
                     <EditText
                         android:id="@+id/etFullName"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="38dp"
                         android:background="@drawable/bg_input_border"
                         android:paddingStart="14dp"
                         android:paddingEnd="14dp"
-                        android:text="Samantha G. Pitero"
-                        android:textColor="#1B2F5B"
+                        android:text="Juan Dela Cruz"
+                        android:textColor="#BFBFBF"
                         android:textSize="14sp"
                         android:inputType="textPersonName"
                         android:layout_marginBottom="14dp"
@@ -134,12 +135,12 @@
                     <EditText
                         android:id="@+id/etEmail"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="38dp"
                         android:background="@drawable/bg_input_border"
                         android:paddingStart="14dp"
                         android:paddingEnd="14dp"
-                        android:text="Samantha@gmail.com"
-                        android:textColor="#1B2F5B"
+                        android:text="JuanDC@gmail.com"
+                        android:textColor="#BFBFBF"
                         android:textSize="14sp"
                         android:inputType="textEmailAddress"
                         android:layout_marginBottom="14dp"
@@ -157,12 +158,12 @@
                     <EditText
                         android:id="@+id/etContact"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="38dp"
                         android:background="@drawable/bg_input_border"
                         android:paddingStart="14dp"
                         android:paddingEnd="14dp"
                         android:text="09123456789"
-                        android:textColor="#1B2F5B"
+                        android:textColor="#BFBFBF"
                         android:textSize="14sp"
                         android:inputType="phone"
                         android:layout_marginBottom="14dp"
@@ -180,12 +181,12 @@
                     <EditText
                         android:id="@+id/etAddress"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="38dp"
                         android:background="@drawable/bg_input_border"
                         android:paddingStart="14dp"
                         android:paddingEnd="14dp"
-                        android:text="Secret"
-                        android:textColor="#1B2F5B"
+                        android:text="Enter your Address"
+                        android:textColor="#BFBFBF"
                         android:textSize="14sp"
                         android:inputType="textPostalAddress"
                         android:layout_marginBottom="24dp"
@@ -195,13 +196,13 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnConfirmChanges"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
+                        android:layout_height="38dp"
                         android:text="Confirm Changes"
                         android:textColor="@android:color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:textAllCaps="false"
-                        android:backgroundTint="#1B2F5B"
+                        android:backgroundTint="#023AA9"
                         app:cornerRadius="12dp"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
@@ -214,7 +215,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text="Delete Account"
-                        android:textColor="#CE1126"
+                        android:textColor="#CE1328"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:clickable="true"

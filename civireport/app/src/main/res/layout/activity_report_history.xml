@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="10dp">
 
             <!-- CARD stretches full height -->
             <androidx.cardview.widget.CardView
@@ -88,7 +88,7 @@
                         <ImageView
                             android:layout_width="22dp"
                             android:layout_height="22dp"
-                            android:src="@android:drawable/ic_menu_recent_history"
+                            android:src="@drawable/ic_report_history"
                             android:tint="#1B2F5B"
                             android:contentDescription="History"
                             android:layout_marginEnd="8dp"/>

@@ -53,8 +53,8 @@ public class Profile extends AppCompatActivity {
 
     private void loadUserData() {
         // Load data from SharedPreferences (Synced with EditProfileActivity)
-        String name = sharedPreferences.getString("full_name", "Samantha G. Pitero");
-        String email = sharedPreferences.getString("email", "lia.pitero.coi@pcu.edu.ph");
+        String name = sharedPreferences.getString("full_name", "Juan Dela Cruz");
+        String email = sharedPreferences.getString("email", "JuanDC@gmail.com");
         
         tvUserName.setText(name);
         tvUserEmail.setText(email);

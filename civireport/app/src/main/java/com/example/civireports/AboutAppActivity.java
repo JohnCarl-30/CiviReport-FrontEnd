@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,36 +29,42 @@ public class AboutAppActivity extends AppCompatActivity {
 
     private void setupFeatures() {
         setFeature(R.id.feature1,
-                android.R.drawable.ic_menu_report_image,
+                R.drawable.ic_feature_report,
                 "Issue Reporting with Photos",
                 "Submit issue reports with photo and video documentation");
 
         setFeature(R.id.feature2,
-                android.R.drawable.ic_menu_recent_history,
+                R.drawable.ic_feature_status,
                 "Real-Time status tracking",
                 "Pending, in-progress, resolved");
 
         setFeature(R.id.feature3,
-                android.R.drawable.ic_menu_help,
+                R.drawable.ic_feature_ai,
                 "AI-powered guidance",
                 "Safety tips and troubleshooting");
 
         setFeature(R.id.feature4,
-                android.R.drawable.ic_dialog_info,
+                R.drawable.ic_feature_notif,
                 "Push notifications",
                 "Updates you on your report status");
 
         setFeature(R.id.feature5,
-                android.R.drawable.ic_menu_call,
+                R.drawable.ic_feature_call,
                 "Hotlines at your fingertips",
                 "Reach emergency services in one tap");
     }
 
     private void setFeature(int viewId, int iconRes, String title, String desc) {
         android.view.View row = findViewById(viewId);
-        ((ImageView) row.findViewById(R.id.featureIcon)).setImageResource(iconRes);
-        ((TextView)  row.findViewById(R.id.featureTitle)).setText(title);
-        ((TextView)  row.findViewById(R.id.featureDesc)).setText(desc);
+        if (row != null) {
+            ImageView iconView = row.findViewById(R.id.featureIcon);
+            TextView titleView = row.findViewById(R.id.featureTitle);
+            TextView descView = row.findViewById(R.id.featureDesc);
+
+            if (iconView != null) iconView.setImageResource(iconRes);
+            if (titleView != null) titleView.setText(title);
+            if (descView != null) descView.setText(desc);
+        }
     }
 
     private void setupBottomNav() {

@@ -33,20 +33,19 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/brgy"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="4dp"
             app:civ_border_width="1dp"
             app:civ_border_color="#F0F0F0"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="6dp"
             android:text="Change Password"
             android:textColor="#1B2F5B"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"/>
     </LinearLayout>
-
     <!-- SCROLLABLE CONTENT -->
     <ScrollView
         android:layout_width="match_parent"
@@ -59,20 +58,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="10dp"
+            android:gravity="center_vertical">
 
             <!-- FORM CARD -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_height="475dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="true"
                 app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:orientation="vertical"
                     android:padding="24dp">
 
@@ -85,12 +86,12 @@
                         android:layout_marginBottom="24dp">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@android:drawable/ic_lock_lock"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ic_change_password"
                             app:tint="#1B2F5B"
                             android:contentDescription="Lock"
-                            android:layout_marginEnd="12dp"/>
+                            android:layout_marginEnd="4dp"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -118,7 +119,7 @@
                         <EditText
                             android:id="@+id/etCurrentPassword"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_input_border"
                             android:paddingStart="16dp"
                             android:paddingEnd="48dp"
@@ -159,7 +160,7 @@
                         <EditText
                             android:id="@+id/etNewPassword"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_input_border"
                             android:paddingStart="16dp"
                             android:paddingEnd="48dp"
@@ -199,7 +200,7 @@
                         <EditText
                             android:id="@+id/etConfirmPassword"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_input_border"
                             android:paddingStart="16dp"
                             android:paddingEnd="48dp"
@@ -226,7 +227,7 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnChangePasswordSubmit"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
+                        android:layout_height="38dp"
                         android:text="Change Password"
                         android:textColor="@android:color/white"
                         android:textSize="16sp"

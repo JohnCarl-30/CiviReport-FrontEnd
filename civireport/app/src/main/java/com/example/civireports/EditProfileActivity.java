@@ -6,8 +6,11 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,26 +36,51 @@ public class EditProfileActivity extends AppCompatActivity {
         etContact = findViewById(R.id.etContact);
         etAddress = findViewById(R.id.etAddress);
 
+        // Set up interactions: clear on focus and change color
+        setupEditBehavior(etFullName);
+        setupEditBehavior(etEmail);
+        setupEditBehavior(etContact);
+        setupEditBehavior(etAddress);
+
         // Load current data from SharedPreferences
         loadCurrentData();
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         // Confirm Changes
-        ((MaterialButton) findViewById(R.id.btnConfirmChanges)).setOnClickListener(v -> {
-            saveProfileData();
-        });
+        MaterialButton btnConfirm = findViewById(R.id.btnConfirmChanges);
+        if (btnConfirm != null) {
+            btnConfirm.setOnClickListener(v -> {
+                saveProfileData();
+            });
+        }
 
         // Delete Account — show confirmation dialog
-        ((TextView) findViewById(R.id.tvDeleteAccount)).setOnClickListener(v ->
-                showDeleteAccountDialog());
+        TextView tvDelete = findViewById(R.id.tvDeleteAccount);
+        if (tvDelete != null) {
+            tvDelete.setOnClickListener(v ->
+                    showDeleteAccountDialog());
+        }
 
         setupBottomNav();
     }
 
+    private void setupEditBehavior(EditText editText) {
+        if (editText == null) return;
+        
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                // Clear the text so the user can input whatever they want
+                editText.setText("");
+                // Set color to 1B2F5B when focused/typing
+                editText.setTextColor(Color.parseColor("#1B2F5B"));
+            }
+        });
+    }
+
     private void loadCurrentData() {
-        String name = sharedPreferences.getString("full_name", "Samantha G. Pitero");
-        String email = sharedPreferences.getString("email", "Samantha@gmail.com");
+        String name = sharedPreferences.getString("full_name", "Juan Dela Cruz");
+        String email = sharedPreferences.getString("email", "JuanDC@gmail.com");
         String contact = sharedPreferences.getString("contact", "09123456789");
         String address = sharedPreferences.getString("address", "Secret");
 
@@ -81,12 +109,9 @@ public class EditProfileActivity extends AppCompatActivity {
         editor.putString("address", address);
         editor.apply();
 
-        // TODO: Here you would also call your backend API using Retrofit to update the database
-        // RetrofitClient.getApiService().updateProfile(...).enqueue(...);
-
         Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
         
-        // Return to Profile with result or just finish
+        // Return to Profile
         finish();
     }
 
@@ -96,37 +121,51 @@ public class EditProfileActivity extends AppCompatActivity {
         dialog.setContentView(R.layout.dialog_delete_acc);
 
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(
+            Window window = dialog.getWindow();
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setLayout(
                     (int)(getResources().getDisplayMetrics().widthPixels * 0.88),
                     ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            // Raise the dialog position a little bit to the top
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.CENTER;
+            params.y = -(int)(60 * getResources().getDisplayMetrics().density); // Moves it 60dp up from the center
+            window.setAttributes(params);
         }
 
         dialog.setCancelable(true);
 
-        dialog.findViewById(R.id.btnBackDialog).setOnClickListener(v -> dialog.dismiss());
+        View btnBack = dialog.findViewById(R.id.btnBackDialog);
+        if (btnBack != null) btnBack.setOnClickListener(v -> dialog.dismiss());
 
-        ((MaterialButton) dialog.findViewById(R.id.btnConfirmDelete)).setOnClickListener(v -> {
-            dialog.dismiss();
-            
-            // Clear SharedPreferences on delete
-            sharedPreferences.edit().clear().apply();
-            
-            Toast.makeText(this, "Account deleted", Toast.LENGTH_SHORT).show();
-            
-            Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        MaterialButton btnDelete = dialog.findViewById(R.id.btnConfirmDelete);
+        if (btnDelete != null) {
+            btnDelete.setOnClickListener(v -> {
+                dialog.dismiss();
+                sharedPreferences.edit().clear().apply();
+                Toast.makeText(this, "Account deleted", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
 
         dialog.show();
     }
 
     private void setupBottomNav() {
-        findViewById(R.id.navHome).setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
-        findViewById(R.id.navHotlines).setOnClickListener(v -> startActivity(new Intent(this, hotlines.class)));
-        findViewById(R.id.navNotification).setOnClickListener(v -> startActivity(new Intent(this, Notification.class)));
-        findViewById(R.id.navProfile).setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
+        View home = findViewById(R.id.navHome);
+        if (home != null) home.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
+        
+        View hotlines = findViewById(R.id.navHotlines);
+        if (hotlines != null) hotlines.setOnClickListener(v -> startActivity(new Intent(this, hotlines.class)));
+        
+        View notification = findViewById(R.id.navNotification);
+        if (notification != null) notification.setOnClickListener(v -> startActivity(new Intent(this, Notification.class)));
+        
+        View profile = findViewById(R.id.navProfile);
+        if (profile != null) profile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));
     }
 }

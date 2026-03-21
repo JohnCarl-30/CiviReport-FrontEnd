@@ -111,6 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
         termsCheckbox = findViewById(R.id.terms_checkbox);
 
+        setupHintBehavior();
         setupPasswordVisibility();
 
         if (termsCheckbox != null) {
@@ -134,6 +135,30 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    private void setupHintBehavior() {
+        setupSingleHintBehavior(firstNameInput);
+        setupSingleHintBehavior(middleNameInput);
+        setupSingleHintBehavior(lastNameInput);
+        setupSingleHintBehavior(suffixInput);
+        setupSingleHintBehavior(emailInput);
+        setupSingleHintBehavior(contactInput);
+        setupSingleHintBehavior(addressInput);
+        setupSingleHintBehavior(passwordInput);
+        setupSingleHintBehavior(confirmPasswordInput);
+    }
+
+    private void setupSingleHintBehavior(EditText editText) {
+        if (editText == null) return;
+        String originalHint = editText.getHint() != null ? editText.getHint().toString() : "";
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                editText.setHint("");
+            } else {
+                editText.setHint(originalHint);
+            }
+        });
+    }
+
     private void setupPasswordVisibility() {
         ImageView showPasswordBtn = findViewById(R.id.show_password_button);
         ImageView showConfirmPasswordBtn = findViewById(R.id.show_confirm_password_button);
@@ -143,7 +168,7 @@ public class RegisterActivity extends AppCompatActivity {
                 isPasswordVisible = !isPasswordVisible;
                 if (isPasswordVisible) {
                     passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                    showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view); // You might want a "hide" icon here if available
+                    showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
                 } else {
                     passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
                     showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);

@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
         EditText passwordInput = findViewById(R.id.editTextTextPassword);
         ImageView showPasswordBtn = findViewById(R.id.show_password_button);
 
+        setupHintBehavior(emailInput);
+        setupHintBehavior(passwordInput);
+
         // Show/Hide Password Toggle
         showPasswordBtn.setOnClickListener(v -> {
             if (isPasswordVisible) {
@@ -92,6 +95,18 @@ public class MainActivity extends AppCompatActivity {
 
         // Request permissions after UI is initialized to avoid rendering hangs
         requestInitialPermissions();
+    }
+
+    private void setupHintBehavior(EditText editText) {
+        if (editText == null) return;
+        String originalHint = editText.getHint() != null ? editText.getHint().toString() : "";
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                editText.setHint("");
+            } else {
+                editText.setHint(originalHint);
+            }
+        });
     }
 
     private void requestInitialPermissions() {

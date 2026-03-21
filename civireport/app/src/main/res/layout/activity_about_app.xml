@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:background="@android:color/white"
-        android:elevation="4dp"
+        android:elevation="1dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
@@ -33,17 +33,17 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/brgy"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="4dp"
             app:civ_border_width="1dp"
             app:civ_border_color="#F0F0F0"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="6dp"
             android:text="About App"
             android:textColor="#1B2F5B"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -59,22 +59,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="10dp">
 
             <!-- About App card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="0dp"
                 app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="3dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <!-- Title row -->
                     <LinearLayout
@@ -82,29 +83,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="10dp">
+                        android:layout_marginBottom="12dp">
 
-                        <!-- Icon with blue background -->
-                        <LinearLayout
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:gravity="center"
-                            android:background="@drawable/bg_email"
-                            android:layout_marginEnd="10dp">
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@android:drawable/ic_menu_info_details"
-                                android:tint="#1B2F5B"
-                                android:contentDescription="About"/>
-                        </LinearLayout>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_about_app"
+                            app:tint="#1B2F5B"
+                            android:layout_marginEnd="8dp"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="1dp"
                             android:text="About App"
                             android:textColor="#1B2F5B"
-                            android:textSize="15sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"/>
                     </LinearLayout>
 
@@ -113,134 +107,278 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="CiviReport is an Android mobile application that empowers community residents to report local issues directly to their barangay officials with AI-powered guidance, real-time status tracking, and quick access to emergency hotlines."
-                        android:textColor="#555555"
-                        android:textSize="13sp"
-                        android:lineSpacingMultiplier="1.4"/>
+                        android:textColor="#1B2F5B"
+                        android:textSize="14sp"
+                        android:lineSpacingMultiplier="1.2"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- App Features card -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="App Features"
-                android:textColor="#1B2F5B"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="10dp"
-                android:layout_marginStart="4dp"/>
-
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="0dp"
                 app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="3dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="App Features"
+                        android:textColor="#1B2F5B"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="20dp"/>
 
                     <!-- Feature 1 -->
-                    <include layout="@layout/item_feature"
-                        android:id="@+id/feature1"/>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>
+                    <LinearLayout
+                        android:id="@+id/feature1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <LinearLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_email"
+                            android:gravity="center"
+                            android:layout_marginEnd="16dp">
+                            <ImageView
+                                android:id="@+id/featureIcon"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_feature_report" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/featureTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Issue Reporting with Photos"
+                                android:textColor="#1B2F5B"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:id="@+id/featureDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Submit issue reports with photo and video documentation"
+                                android:textColor="#777777"
+                                android:textSize="12sp"/>
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <!-- Feature 2 -->
-                    <include layout="@layout/item_feature"
-                        android:id="@+id/feature2"/>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>
+                    <LinearLayout
+                        android:id="@+id/feature2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <LinearLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_email"
+                            android:gravity="center"
+                            android:layout_marginEnd="16dp">
+                            <ImageView
+                                android:id="@+id/featureIcon"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_feature_status" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/featureTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Real-Time status tracking"
+                                android:textColor="#1B2F5B"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:id="@+id/featureDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pending, in-progress, resolved"
+                                android:textColor="#777777"
+                                android:textSize="12sp"/>
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <!-- Feature 3 -->
-                    <include layout="@layout/item_feature"
-                        android:id="@+id/feature3"/>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>
+                    <LinearLayout
+                        android:id="@+id/feature3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <LinearLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_email"
+                            android:gravity="center"
+                            android:layout_marginEnd="16dp">
+                            <ImageView
+                                android:id="@+id/featureIcon"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_feature_ai" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/featureTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="AI-powered guidance"
+                                android:textColor="#1B2F5B"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:id="@+id/featureDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Safety tips and troubleshooting"
+                                android:textColor="#777777"
+                                android:textSize="12sp"/>
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <!-- Feature 4 -->
-                    <include layout="@layout/item_feature"
-                        android:id="@+id/feature4"/>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>
+                    <LinearLayout
+                        android:id="@+id/feature4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <LinearLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_email"
+                            android:gravity="center"
+                            android:layout_marginEnd="16dp">
+                            <ImageView
+                                android:id="@+id/featureIcon"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_feature_notif" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/featureTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Push notifications"
+                                android:textColor="#1B2F5B"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:id="@+id/featureDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Updates you on your report status"
+                                android:textColor="#777777"
+                                android:textSize="12sp"/>
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <!-- Feature 5 -->
-                    <include layout="@layout/item_feature"
-                        android:id="@+id/feature5"/>
+                    <LinearLayout
+                        android:id="@+id/feature5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <LinearLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_email"
+                            android:gravity="center"
+                            android:layout_marginEnd="16dp">
+                            <ImageView
+                                android:id="@+id/featureIcon"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_feature_call" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/featureTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Hotlines at your fingertips"
+                                android:textColor="#1B2F5B"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:id="@+id/featureDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Reach emergency services in one tap"
+                                android:textColor="#777777"
+                                android:textSize="12sp"/>
+                        </LinearLayout>
+                    </LinearLayout>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Privacy Policy + Terms in one card -->
+            <!-- Privacy Policy + Terms Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="3dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardUseCompatPadding="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Privacy Policy -->
                     <LinearLayout
                         android:id="@+id/btnPrivacyPolicy"
                         android:layout_width="match_parent"
-                        android:layout_height="54dp"
+                        android:layout_height="56dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackground">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Privacy Policy"
-                            android:textColor="#1B2F5B"
-                            android:textSize="14sp"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="&#8250;"
-                            android:textSize="22sp"
-                            android:textColor="#1B2F5B"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Privacy Policy" android:textColor="#1B2F5B" android:textSize="16sp" android:textStyle="bold"/>
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" app:tint="#1B2F5B"/>
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp"
-                        android:background="#F0F0F0"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginStart="20dp" android:layout_marginEnd="20dp"/>
 
-                    <!-- Terms and Services -->
                     <LinearLayout
                         android:id="@+id/btnTerms"
                         android:layout_width="match_parent"
-                        android:layout_height="54dp"
+                        android:layout_height="56dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="20dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackground">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Terms and Services"
-                            android:textColor="#1B2F5B"
-                            android:textSize="14sp"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="&#8250;"
-                            android:textSize="22sp"
-                            android:textColor="#1B2F5B"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Terms and Services" android:textColor="#1B2F5B" android:textSize="16sp" android:textStyle="bold"/>
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" app:tint="#1B2F5B"/>
                     </LinearLayout>
 
                 </LinearLayout>
