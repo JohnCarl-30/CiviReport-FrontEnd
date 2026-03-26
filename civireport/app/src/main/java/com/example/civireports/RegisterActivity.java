@@ -19,6 +19,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstNameInput, middleNameInput, lastNameInput, suffixInput,
             emailInput, contactInput, addressInput, passwordInput, confirmPasswordInput;
+    private RadioGroup genderRadioGroup;
     private CheckBox termsCheckbox;
     private boolean isTermsAccepted = false;
     private boolean isPrivacyAccepted = false;
@@ -109,6 +112,7 @@ public class RegisterActivity extends AppCompatActivity {
         addressInput = findViewById(R.id.address_input);
         passwordInput = findViewById(R.id.password_input);
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
+        genderRadioGroup = findViewById(R.id.gender_radio_group);
         termsCheckbox = findViewById(R.id.terms_checkbox);
 
         setupHintBehavior();
@@ -202,8 +206,21 @@ public class RegisterActivity extends AppCompatActivity {
         String address = addressInput != null ? addressInput.getText().toString().trim() : "";
         String password = passwordInput.getText().toString();
         String confirmPassword = confirmPasswordInput.getText().toString();
+        
+        String gender = "";
+        int selectedGenderId = genderRadioGroup.getCheckedRadioButtonId();
+        if (selectedGenderId != -1) {
+            RadioButton selectedRadioButton = findViewById(selectedGenderId);
+            gender = selectedRadioButton.getText().toString();
+        }
 
         submitButton.setEnabled(false);
+
+        // Save gender to SharedPreferences for Profile display
+        getSharedPreferences("UserProfile", MODE_PRIVATE)
+                .edit()
+                .putString("gender", gender)
+                .apply();
 
         RegisterRequest request = new RegisterRequest(
                 suffix, firstName, middleName, lastName,
@@ -253,6 +270,12 @@ public class RegisterActivity extends AppCompatActivity {
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) { emailInput.setError("Valid email is required"); isValid = false; if (firstErrorView == null) firstErrorView = emailInput; }
         if (contact.isEmpty() || !contact.matches("^09\\d{9}$")) { contactInput.setError("Valid 11-digit contact number is required"); isValid = false; if (firstErrorView == null) firstErrorView = contactInput; }
         if (address.isEmpty() && addressInput != null) { addressInput.setError("Address is required"); isValid = false; if (firstErrorView == null) firstErrorView = addressInput; }
+        
+        if (genderRadioGroup.getCheckedRadioButtonId() == -1) {
+            Toast.makeText(this, "Please select a gender", Toast.LENGTH_SHORT).show();
+            isValid = false;
+        }
+
         if (password.isEmpty() || password.length() < 8) { passwordInput.setError("Password must be at least 8 characters"); isValid = false; if (firstErrorView == null) firstErrorView = passwordInput; }
         if (!password.equals(confirmPassword)) { confirmPasswordInput.setError("Passwords do not match"); isValid = false; if (firstErrorView == null) firstErrorView = confirmPasswordInput; }
         if (termsCheckbox != null && !termsCheckbox.isChecked()) { Toast.makeText(this, "Please read and agree to the Terms and Privacy Policy by clicking the links", Toast.LENGTH_SHORT).show(); isValid = false; }

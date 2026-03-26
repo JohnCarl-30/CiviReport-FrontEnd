@@ -341,6 +341,7 @@ public class Report extends AppCompatActivity {
                 queueNum,
                 "PENDING",
                 selectedCategory,
+                "Nominal", // Default priority
                 specificIssue,
                 etAddress.getText().toString().trim(),
                 etNotes.getText().toString().trim(),

@@ -20,7 +20,7 @@ import com.google.android.material.button.MaterialButton;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private EditText etFullName, etEmail, etContact, etAddress;
+    private EditText etFullName, etEmail, etContact, etAddress, etGender;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -35,6 +35,7 @@ public class EditProfileActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etContact = findViewById(R.id.etContact);
         etAddress = findViewById(R.id.etAddress);
+        etGender = findViewById(R.id.etGender);
 
         // Set up interactions: clear on focus and change color
         setupEditBehavior(etFullName);
@@ -83,11 +84,13 @@ public class EditProfileActivity extends AppCompatActivity {
         String email = sharedPreferences.getString("email", "JuanDC@gmail.com");
         String contact = sharedPreferences.getString("contact", "09123456789");
         String address = sharedPreferences.getString("address", "Secret");
+        String gender = sharedPreferences.getString("gender", "Not Specified");
 
         etFullName.setText(name);
         etEmail.setText(email);
         etContact.setText(contact);
         etAddress.setText(address);
+        etGender.setText(gender);
     }
 
     private void saveProfileData() {

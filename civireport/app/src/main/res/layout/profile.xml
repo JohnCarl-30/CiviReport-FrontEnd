@@ -46,6 +46,7 @@
             android:textSize="14sp"
             android:textStyle="bold"/>
     </LinearLayout>
+
     <!-- SCROLLABLE CONTENT -->
     <ScrollView
         android:layout_width="match_parent"
@@ -71,26 +72,51 @@
                 app:cardUseCompatPadding="true">
 
                 <RelativeLayout
-                    android:layout_width="338dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="20dp">
 
-                    <ImageView
-                        android:id="@+id/profile_image"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_centerVertical="true"
-                        android:contentDescription="Avatar"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_profile" />
+                    <RelativeLayout
+                        android:id="@+id/profile_image_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/profile_image"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/ic_profile"
+                            app:civ_border_color="#F1F6FF"
+                            app:civ_border_width="2dp"
+                            android:clickable="true"
+                            android:focusable="true"/>
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/btn_edit_profile_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignEnd="@id/profile_image"
+                            android:layout_alignBottom="@id/profile_image"
+                            android:layout_marginEnd="-10dp"
+                            android:layout_marginBottom="-9dp"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:src="@android:drawable/ic_menu_edit"
+                            app:backgroundTint="#0047AB"
+                            app:elevation="2dp"
+                            app:fabCustomSize="24dp"
+                            app:maxImageSize="14dp"
+                            app:tint="@android:color/white" />
+                    </RelativeLayout>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:layout_marginStart="1dp"
+                        android:layout_marginStart="16dp"
                         android:layout_toStartOf="@+id/verified_badge"
-                        android:layout_toEndOf="@id/profile_image"
+                        android:layout_toEndOf="@id/profile_image_container"
                         android:orientation="vertical">
 
                         <TextView
@@ -415,6 +441,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="11sp" />
         </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>
