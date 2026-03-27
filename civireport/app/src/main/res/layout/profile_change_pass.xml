@@ -59,7 +59,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="10dp"
-            android:gravity="center_vertical">
+            android:paddingTop="40dp"
+            android:gravity="center_horizontal">
 
             <!-- FORM CARD -->
             <androidx.cardview.widget.CardView

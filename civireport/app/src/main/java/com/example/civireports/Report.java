@@ -143,6 +143,10 @@ public class Report extends AppCompatActivity {
                         submit.setEnabled(true);
                         if (response.isSuccessful()) {
                             Toast.makeText(Report.this, "Complaint submitted!", Toast.LENGTH_SHORT).show();
+
+                            // Save locally as well for dashboard stats
+                            saveToLocalStore();
+
                             startActivity(new Intent(Report.this, StatusReport.class));
                             finish();
                         } else {
@@ -154,8 +158,47 @@ public class Report extends AppCompatActivity {
                     public void onFailure(Call<ComplaintResponse> call, Throwable t) {
                         submit.setEnabled(true);
                         Toast.makeText(Report.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        // Still save locally even if network fails (for testing/demo purposes)
+                        saveToLocalStore();
+                        startActivity(new Intent(Report.this, StatusReport.class));
+                        finish();
                     }
                 });
+    }
+
+    private void saveToLocalStore() {
+        String selectedCategory = spinnerCategory.getSelectedItem().toString();
+        String specificIssue = spinnerSpecificIssue.getSelectedItem().toString();
+        if (specificIssue.equals("Other")) {
+            specificIssue = etCustomSpecificIssue.getText().toString().trim();
+        }
+
+        // Logic to determine priority based on category or issue
+        String priority = "Nominal";
+        if (selectedCategory.contains("Safety") || selectedCategory.contains("Health")) {
+            priority = "Priority";
+        }
+        if (specificIssue.contains("Theft") || specificIssue.contains("Assault") || specificIssue.contains("Accident")) {
+            priority = "Emergency";
+        }
+
+        String queueNum = "#" + (int)(Math.random() * 900 + 100);
+        String dateStr = "Just now";
+
+        ReportDataStore.ReportItem newItem = new ReportDataStore.ReportItem(
+                queueNum,
+                "Pending",
+                specificIssue.isEmpty() ? selectedCategory : specificIssue,
+                priority,
+                specificIssue,
+                etAddress.getText().toString().trim(),
+                etNotes.getText().toString().trim(),
+                dateStr,
+                selectedFileUri
+        );
+
+        ReportDataStore.getInstance().addReport(newItem);
     }
 
     private void initViews() {
@@ -328,37 +371,7 @@ public class Report extends AppCompatActivity {
                 return;
             }
 
-            // Copy file to internal storage before saving to store
-            Uri finalUri = null;
-            if (selectedFileUri != null) {
-                finalUri = copyFileToInternalStorage(selectedFileUri);
-            }
-
-            String queueNum = "Queue #" + (int)(Math.random() * 900 + 100);
-            String dateStr = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(new Date());
-
-            ReportDataStore.ReportItem newItem = new ReportDataStore.ReportItem(
-                queueNum,
-                "PENDING",
-                selectedCategory,
-                "Nominal", // Default priority
-                specificIssue,
-                etAddress.getText().toString().trim(),
-                etNotes.getText().toString().trim(),
-                dateStr,
-                finalUri
-            );
-
-
             handleComplaint(btnSubmit);
-
-//            ReportDataStore.getInstance().addReport(newItem);
-//
-//            Toast.makeText(this, "Report submitted successfully!", Toast.LENGTH_SHORT).show();
-//
-//            Intent intent = new Intent(this, StatusReport.class);
-//            startActivity(intent);
-//            finish();
         });
     }
 

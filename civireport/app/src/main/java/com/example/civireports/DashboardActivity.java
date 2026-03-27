@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -107,7 +109,15 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void populateReportsList() {
         reportsContainer.removeAllViews();
-        List<ReportDataStore.ReportItem> reports = ReportDataStore.getInstance().getAllReports();
+        List<ReportDataStore.ReportItem> reports = new ArrayList<>(ReportDataStore.getInstance().getAllReports());
+        
+        // Sort reports by priority: Emergency > Priority > Nominal
+        Collections.sort(reports, (r1, r2) -> {
+            int p1 = getPriorityWeight(r1.getPriority());
+            int p2 = getPriorityWeight(r2.getPriority());
+            return Integer.compare(p1, p2);
+        });
+
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (ReportDataStore.ReportItem item : reports) {
@@ -135,6 +145,12 @@ public class DashboardActivity extends AppCompatActivity {
 
             reportsContainer.addView(itemView);
         }
+    }
+
+    private int getPriorityWeight(String priority) {
+        if ("Emergency".equals(priority)) return 0;
+        if ("Priority".equals(priority)) return 1;
+        return 2; // Nominal
     }
 
     private void setupClickListeners() {

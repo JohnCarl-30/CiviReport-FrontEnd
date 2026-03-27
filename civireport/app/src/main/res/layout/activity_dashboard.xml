@@ -75,27 +75,208 @@
                 android:textStyle="bold" />
 
             <!-- ── MAIN CONTENT AREA ── -->
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <!-- ── CONTENT BELOW (Overlapped when expanded) ── -->
+                <!-- ── SEAMLESS STATS + REPORTS CARD ── -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stats_summary_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardBackgroundColor="#D9D9D9"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="6dp"
+                    app:strokeColor="#929292"
+                    app:strokeWidth="1dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/stats_content_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/stats_row"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="false"
+                                android:orientation="horizontal">
+
+                                <!-- Left: Total Complaints -->
+
+                                <!-- Right: Now Processing -->
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center_horizontal"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Total Complaints"
+                                        android:textColor="@android:color/black"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tvTotalComplaints"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:includeFontPadding="false"
+                                        android:text="7"
+                                        android:textColor="@android:color/black"
+                                        android:textSize="100sp"
+                                        android:textStyle="bold" />
+
+                                    <ImageView
+                                        android:id="@+id/btnExpandStats"
+                                        android:layout_width="37dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="bottom|center_horizontal"
+                                        android:contentDescription="Expand"
+                                        android:src="@drawable/ic_arrow_down"
+                                        app:tint="@android:color/black" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical"
+                                    android:paddingStart="8dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginBottom="12dp"
+                                        android:text="Now Processing"
+                                        android:textColor="@android:color/black"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tvEmergencyCount"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="32dp"
+                                        android:layout_marginBottom="8dp"
+                                        android:background="@drawable/bg_badge_emergency"
+                                        android:gravity="start|center_vertical"
+                                        android:paddingStart="28dp"
+                                        android:paddingEnd="16dp"
+                                        android:text="1 Emergency"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tvPriorityCount"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="32dp"
+                                        android:layout_marginBottom="8dp"
+                                        android:background="@drawable/bg_badge_priority"
+                                        android:gravity="start|center_vertical"
+                                        android:paddingStart="28dp"
+                                        android:paddingEnd="16dp"
+                                        android:text="2 Priority"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tvNominalCount"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="32dp"
+                                        android:background="@drawable/bg_badge_nominal"
+                                        android:gravity="start|center_vertical"
+                                        android:paddingStart="28dp"
+                                        android:paddingEnd="16dp"
+                                        android:text="4 Nominal"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:id="@+id/stats_divider"
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#A0A0A0"
+                                android:layout_marginTop="16dp"
+                                android:layout_marginBottom="16dp"
+                                android:visibility="gone" />
+
+                            <LinearLayout
+                                android:id="@+id/reports_overlap_card"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:visibility="gone">
+                                <LinearLayout
+                                    android:id="@+id/reportsContainer"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <FrameLayout
+                            android:id="@+id/btnToggleStats"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginBottom="-12dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:id="@+id/btnCollapseStats"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="bottom|center_horizontal"
+                                android:contentDescription="Collapse"
+                                android:rotation="180"
+                                android:src="@drawable/ic_arrow_down"
+                                android:visibility="gone"
+                                app:tint="@android:color/black" />
+                        </FrameLayout>
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ── CONTENT BELOW ── -->
                 <LinearLayout
                     android:id="@+id/content_below_stats"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="180dp"
+                    android:layout_marginTop="15dp"
                     android:orientation="vertical">
 
-                    <androidx.cardview.widget.CardView
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
                         app:cardBackgroundColor="#A8C2F8"
                         app:cardCornerRadius="14dp"
-                        app:cardElevation="2dp">
+                        app:cardElevation="2dp"
+                        app:strokeColor="#4B82FF"
+                        app:strokeWidth="1dp">
                         <LinearLayout
                             android:id="@+id/btnFileReport"
                             android:layout_width="match_parent"
@@ -128,17 +309,19 @@
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <androidx.cardview.widget.CardView
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="15dp"
                         android:layout_marginEnd="16dp"
                         app:cardBackgroundColor="#FFF099"
                         app:cardCornerRadius="14dp"
-                        app:cardElevation="2dp">
+                        app:cardElevation="2dp"
+                        app:strokeColor="#DEBD00"
+                        app:strokeWidth="1dp">
                         <LinearLayout
                             android:id="@+id/btnCheckStatus"
                             android:layout_width="match_parent"
@@ -165,196 +348,38 @@
                             </androidx.cardview.widget.CardView>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Check Report Status" android:textColor="#1A1A2E" android:textSize="18sp" android:textStyle="bold" />
                         </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <androidx.cardview.widget.CardView
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="15dp"
                         android:layout_marginEnd="16dp"
                         app:cardBackgroundColor="#FFDBDA"
                         app:cardCornerRadius="14dp"
-                        app:cardElevation="4dp"
-                        app:cardUseCompatPadding="true">
+                        app:cardElevation="2dp"
+                        app:strokeColor="#FF8F8C"
+                        app:strokeWidth="1dp">
                         <LinearLayout
+                            android:id="@+id/btnEmergencyCard"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:padding="16dp">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Emergency Report" android:textColor="#1A1A2E" android:textSize="20sp" android:textStyle="bold" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="14dp" android:text="Send an urgent alert to Barangay officials for immediate response" android:textColor="#1A1A2E" android:textSize="14sp" />
-                            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="12dp" app:cardElevation="0dp">
+                            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="12dp" app:cardElevation="0dp" app:strokeColor="#FFEDED" app:strokeWidth="1dp">
                                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="How it works:" android:textColor="#1A1A2E" android:textStyle="bold" android:textSize="16sp"/>
                                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="1. Lorem Ipsum\n2. Lorem ipsum dolor\n3. Ut enim ad minim veniam, quis nostrud\n4. Lorem Ipsum dolor Ut enim ad minim" android:textColor="#1A1A2E" android:textSize="14sp" android:lineSpacingExtra="4dp"/>
                                 </LinearLayout>
-                            </androidx.cardview.widget.CardView>
+                            </com.google.android.material.card.MaterialCardView>
                             <com.example.civireports.SwipeButton android:id="@+id/swipeEmergency" android:layout_width="match_parent" android:layout_height="70dp" android:layout_marginTop="20dp" />
                         </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
-
-                <!-- ── SEAMLESS STATS + REPORTS CARD (Top Layer) ── -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/stats_summary_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:cardBackgroundColor="#D9D9D9"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="6dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="10dp">
-
-                        <LinearLayout
-                            android:id="@+id/stats_row"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:baselineAligned="false"
-                            android:orientation="horizontal">
-
-                            <!-- Left: Total Complaints -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center_horizontal"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Total Complaints"
-                                    android:textColor="@android:color/black"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/tvTotalComplaints"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:includeFontPadding="false"
-                                    android:text="7"
-                                    android:textColor="@android:color/black"
-                                    android:textSize="80sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <!-- Right: Now Processing -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:paddingStart="12dp"
-                                android:paddingEnd="0dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="8dp"
-                                    android:text="Now Processing"
-                                    android:textColor="@android:color/black"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/tvEmergencyCount"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="28dp"
-                                    android:layout_marginBottom="6dp"
-                                    android:background="@drawable/bg_badge_emergency"
-                                    android:gravity="center"
-                                    android:text="1 Emergency"
-                                    android:textColor="@android:color/white"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/tvPriorityCount"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="28dp"
-                                    android:layout_marginBottom="6dp"
-                                    android:background="@drawable/bg_badge_priority"
-                                    android:gravity="center"
-                                    android:text="2 Priority"
-                                    android:textColor="@android:color/white"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/tvNominalCount"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="28dp"
-                                    android:background="@drawable/bg_badge_nominal"
-                                    android:gravity="center"
-                                    android:text="4 Nominal"
-                                    android:textColor="@android:color/white"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <View
-                            android:id="@+id/stats_divider"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="#A0A0A0"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:visibility="gone" />
-
-                        <!-- Reports list is now INSIDE the card for seamless look -->
-                        <LinearLayout
-                            android:id="@+id/reports_overlap_card"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:visibility="gone">
-                            <LinearLayout
-                                android:id="@+id/reportsContainer"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical" />
-                        </LinearLayout>
-
-                        <FrameLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginTop="8dp">
-
-                            <ImageView
-                                android:id="@+id/btnExpandStats"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:clickable="true"
-                                android:contentDescription="Expand"
-                                android:focusable="true"
-                                android:src="@drawable/ic_arrow_down"
-                                app:tint="@android:color/black" />
-
-                            <ImageView
-                                android:id="@+id/btnCollapseStats"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:clickable="true"
-                                android:contentDescription="Collapse"
-                                android:focusable="true"
-                                android:rotation="180"
-                                android:src="@drawable/ic_arrow_down"
-                                android:visibility="gone"
-                                app:tint="@android:color/black" />
-                        </FrameLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </RelativeLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
