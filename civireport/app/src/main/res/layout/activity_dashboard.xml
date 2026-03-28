@@ -112,8 +112,6 @@
                                 android:orientation="horizontal">
 
                                 <!-- Left: Total Complaints -->
-
-                                <!-- Right: Now Processing -->
                                 <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
@@ -139,17 +137,38 @@
                                         android:textSize="100sp"
                                         android:textStyle="bold" />
 
-                                    <ImageView
-                                        android:id="@+id/btnExpandStats"
-                                        android:layout_width="37dp"
-                                        android:layout_height="20dp"
-                                        android:layout_gravity="bottom|center_horizontal"
-                                        android:contentDescription="Expand"
-                                        android:src="@drawable/ic_arrow_down"
-                                        app:tint="@android:color/black" />
+                                    <!-- Chevron moved here, inside the left section -->
+                                    <FrameLayout
+                                        android:id="@+id/btnToggleStats"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="15dp"
+                                        android:layout_marginStart="-60dp"
+                                        android:clickable="true"
+                                        android:focusable="true"
+                                        android:background="?attr/selectableItemBackgroundBorderless">
 
+                                        <ImageView
+                                            android:id="@+id/btnExpandStats"
+                                            android:layout_width="24dp"
+                                            android:layout_height="24dp"
+                                            android:contentDescription="Expand"
+                                            android:src="@drawable/ic_arrow_down"
+                                            app:tint="@android:color/black" />
+
+                                        <ImageView
+                                            android:id="@+id/btnCollapseStats"
+                                            android:layout_width="24dp"
+                                            android:layout_height="24dp"
+                                            android:contentDescription="Collapse"
+                                            android:rotation="180"
+                                            android:src="@drawable/ic_arrow_down"
+                                            android:visibility="gone"
+                                            app:tint="@android:color/black" />
+                                    </FrameLayout>
                                 </LinearLayout>
 
+                                <!-- Right: Now Processing -->
                                 <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
@@ -218,6 +237,7 @@
                                 android:layout_marginBottom="16dp"
                                 android:visibility="gone" />
 
+                            <!-- Reports list is now INSIDE the card for seamless look -->
                             <LinearLayout
                                 android:id="@+id/reports_overlap_card"
                                 android:layout_width="match_parent"
@@ -230,32 +250,7 @@
                                     android:layout_height="wrap_content"
                                     android:orientation="vertical" />
                             </LinearLayout>
-
                         </LinearLayout>
-
-                        <FrameLayout
-                            android:id="@+id/btnToggleStats"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginBottom="-12dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="true">
-
-                            <ImageView
-                                android:id="@+id/btnCollapseStats"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_gravity="bottom|center_horizontal"
-                                android:contentDescription="Collapse"
-                                android:rotation="180"
-                                android:src="@drawable/ic_arrow_down"
-                                android:visibility="gone"
-                                app:tint="@android:color/black" />
-                        </FrameLayout>
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -277,30 +272,34 @@
                         app:cardElevation="2dp"
                         app:strokeColor="#4B82FF"
                         app:strokeWidth="1dp">
+
                         <LinearLayout
                             android:id="@+id/btnFileReport"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="24dp"
+                            android:background="?attr/selectableItemBackground"
                             android:clickable="true"
                             android:focusable="true"
-                            android:background="?attr/selectableItemBackground">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="24dp">
+
                             <androidx.cardview.widget.CardView
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
+                                android:layout_marginEnd="16dp"
                                 app:cardCornerRadius="12dp"
-                                app:cardElevation="0dp"
-                                android:layout_marginEnd="16dp">
+                                app:cardElevation="0dp">
+
                                 <ImageView
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
+                                    android:contentDescription="File Report"
                                     android:padding="12dp"
                                     android:src="@android:drawable/ic_menu_edit"
-                                    app:tint="#1A1A2E"
-                                    android:contentDescription="File Report"/>
+                                    app:tint="#1A1A2E" />
                             </androidx.cardview.widget.CardView>
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

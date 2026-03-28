@@ -64,23 +64,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:lineSpacingExtra="4dp"
-                            android:text="Privacy Policy for CiviReport\n\n
-At CiviReport, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.\n\n
-1. Information Collection\n
-We collect information that you provide directly to us when you create an account, such as your name, email address, contact number, and address.\n\n
-2. Use of Information\n
-We use the information we collect to provide, maintain, and improve our services, and to communicate with you about reports and updates.\n\n
-3. Data Sharing\n
-We do not share your personal information with third parties except as necessary to provide our services or as required by law.\n\n
-4. Data Security\n
-We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, loss, or destruction.\n\n
-5. Your Rights\n
-You have the right to access, correct, or delete your personal information held by us. Please contact us if you wish to exercise these rights.\n\n
-6. Changes to This Policy\n
-We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.\n\n
-7. Contact Us\n
-If you have any questions about this Privacy Policy, please contact your Barangay administration.\n\n
-END OF POLICY. PLEASE SCROLL TO THE BOTTOM TO ACCEPT."
+                            android:text="Introduction\nCiviReport respects the privacy of its users and is committed to protecting personal information in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173) of the Philippines. This Privacy Policy explains how information is collected, used, and protected when users interact with the platform.\n\nInformation We Collect\nThe platform may collect the following information:\nPersonal Information:\n• Name\n• Contact number\n• Email address\n• Barangay or location information\nReport Information:\n• Issue descriptions\n• Photos or attachments\n• Location of reported issues\nTechnical Information:\n• Device type\n• App usage data\n• System logs\n\nHow We Use the Information\nCollected information may be used to:\n• Process and manage submitted reports\n• Allow barangay officials to respond to community concerns\n• Improve the functionality and performance of the platform\n• Maintain security and prevent misuse of the system\n\nData Sharing\nPersonal information will only be shared with authorized barangay officials responsible for handling reported issues. CiviReport does not sell, trade, or rent user information to third parties.\n\nData Security\nCiviReport implements reasonable technical and organizational measures to protect user data from unauthorized access, loss, or misuse. However, no digital platform can guarantee absolute security.\n\nData Retention\nUser data and reports may be retained as long as necessary for record-keeping, issue tracking, and administrative purposes.\n\nUser Rights\nIn accordance with the Data Privacy Act, users have the right to:\n• Access their personal information\n• Request correction of inaccurate data\n• Request deletion of their personal information when appropriate\n\nData Privacy Compliance\nCiviReport complies with the provisions of the Data Privacy Act of 2012 (Republic Act No. 10173) of the Philippines. The platform ensures that personal data collected from users is processed lawfully, fairly, and securely. All personal information is handled only for legitimate purposes related to the operation of the platform, including the management of barangay issue reports and communication with authorized barangay officials. Appropriate technical and organizational measures are implemented to protect user data against unauthorized access, disclosure, alteration, or destruction.\n\nContact Information\nFor questions or concerns regarding this Privacy Policy, users may contact the platform administrators through the official support channels of CiviReport.\n\nBy using the platform, users also agree to the collection and processing of their information as described in the CiviReport Privacy Policy."
                             android:textColor="#444444"
                             android:textSize="14sp" />
 
@@ -92,7 +76,7 @@ END OF POLICY. PLEASE SCROLL TO THE BOTTOM TO ACCEPT."
                             android:text="I have read and agree to the Privacy Policy"
                             android:textColor="#1B2F5B"
                             android:textStyle="bold"
-                            android:visibility="gone" />
+                            android:visibility="visible" />
                     </LinearLayout>
                 </ScrollView>
             </LinearLayout>

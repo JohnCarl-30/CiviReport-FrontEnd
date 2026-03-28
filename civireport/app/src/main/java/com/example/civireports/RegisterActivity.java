@@ -14,13 +14,13 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstNameInput, middleNameInput, lastNameInput, suffixInput,
             emailInput, contactInput, addressInput, passwordInput, confirmPasswordInput;
-    private RadioGroup genderRadioGroup;
+    private AutoCompleteTextView genderInput;
     private CheckBox termsCheckbox;
     private boolean isTermsAccepted = false;
     private boolean isPrivacyAccepted = false;
@@ -112,9 +112,10 @@ public class RegisterActivity extends AppCompatActivity {
         addressInput = findViewById(R.id.address_input);
         passwordInput = findViewById(R.id.password_input);
         confirmPasswordInput = findViewById(R.id.confirm_password_input);
-        genderRadioGroup = findViewById(R.id.gender_radio_group);
+        genderInput = findViewById(R.id.gender_input);
         termsCheckbox = findViewById(R.id.terms_checkbox);
 
+        setupGenderDropdown();
         setupHintBehavior();
         setupPasswordVisibility();
 
@@ -139,6 +140,14 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    private void setupGenderDropdown() {
+        if (genderInput != null) {
+            String[] genders = {"Male", "Female", "Other", "Prefer not to say"};
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, genders);
+            genderInput.setAdapter(adapter);
+        }
+    }
+
     private void setupHintBehavior() {
         setupSingleHintBehavior(firstNameInput);
         setupSingleHintBehavior(middleNameInput);
@@ -149,6 +158,7 @@ public class RegisterActivity extends AppCompatActivity {
         setupSingleHintBehavior(addressInput);
         setupSingleHintBehavior(passwordInput);
         setupSingleHintBehavior(confirmPasswordInput);
+        setupSingleHintBehavior(genderInput);
     }
 
     private void setupSingleHintBehavior(EditText editText) {
@@ -206,13 +216,7 @@ public class RegisterActivity extends AppCompatActivity {
         String address = addressInput != null ? addressInput.getText().toString().trim() : "";
         String password = passwordInput.getText().toString();
         String confirmPassword = confirmPasswordInput.getText().toString();
-        
-        String gender = "";
-        int selectedGenderId = genderRadioGroup.getCheckedRadioButtonId();
-        if (selectedGenderId != -1) {
-            RadioButton selectedRadioButton = findViewById(selectedGenderId);
-            gender = selectedRadioButton.getText().toString();
-        }
+        String gender = genderInput.getText().toString().trim();
 
         submitButton.setEnabled(false);
 
@@ -264,6 +268,7 @@ public class RegisterActivity extends AppCompatActivity {
         String address = addressInput != null ? addressInput.getText().toString().trim() : "";
         String password = passwordInput.getText().toString();
         String confirmPassword = confirmPasswordInput.getText().toString();
+        String gender = genderInput.getText().toString().trim();
 
         if (firstName.isEmpty()) { firstNameInput.setError("First name is required"); isValid = false; firstErrorView = firstNameInput; }
         if (lastName.isEmpty()) { lastNameInput.setError("Last name is required"); isValid = false; if (firstErrorView == null) firstErrorView = lastNameInput; }
@@ -271,9 +276,10 @@ public class RegisterActivity extends AppCompatActivity {
         if (contact.isEmpty() || !contact.matches("^09\\d{9}$")) { contactInput.setError("Valid 11-digit contact number is required"); isValid = false; if (firstErrorView == null) firstErrorView = contactInput; }
         if (address.isEmpty() && addressInput != null) { addressInput.setError("Address is required"); isValid = false; if (firstErrorView == null) firstErrorView = addressInput; }
         
-        if (genderRadioGroup.getCheckedRadioButtonId() == -1) {
-            Toast.makeText(this, "Please select a gender", Toast.LENGTH_SHORT).show();
+        if (gender.isEmpty()) {
+            genderInput.setError("Please select a gender");
             isValid = false;
+            if (firstErrorView == null) firstErrorView = genderInput;
         }
 
         if (password.isEmpty() || password.length() < 8) { passwordInput.setError("Password must be at least 8 characters"); isValid = false; if (firstErrorView == null) firstErrorView = passwordInput; }
@@ -327,7 +333,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showTermsDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.terms_and_services, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_terms, null);
         if (dialogView == null) return;
 
         AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
@@ -343,13 +349,16 @@ public class RegisterActivity extends AppCompatActivity {
             cbAccept.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 isTermsAccepted = isChecked;
                 updateMainCheckbox();
+                if (isChecked) {
+                    dialog.dismiss();
+                }
             });
         }
         dialog.show();
     }
 
     private void showPrivacyPolicyDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.privacy_and_policy_dialog, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_privacy_policy, null);
         if (dialogView == null) return;
 
         AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
@@ -365,6 +374,9 @@ public class RegisterActivity extends AppCompatActivity {
             cbAccept.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 isPrivacyAccepted = isChecked;
                 updateMainCheckbox();
+                if (isChecked) {
+                    dialog.dismiss();
+                }
             });
         }
         dialog.show();

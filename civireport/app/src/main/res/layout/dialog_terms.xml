@@ -42,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="12dp"
-                    android:text="Terms and Services"
+                    android:text="Terms and Service"
                     android:textColor="#1B2F5B"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -64,23 +64,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:lineSpacingExtra="4dp"
-                            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \n\n
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\n
-Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida.\n\n
-Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed pretium diam eros tempus enim.\n\n
-Morbi ut sem. Donec iaculis felis id sem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vulputate, ligula non imperdiet pellentesque, velit metus bibendum purus, ac vestibulum lacus ante sed metus. \n\n
-Wait, there is more... \n\n
-Section 1. Acceptance of Terms\n
-By accessing and using CiviReport, you agree to comply with and be bound by these terms. If you do not agree to these terms, please do not use the application.\n\n
-Section 2. User Accounts\n
-Users are responsible for maintaining the confidentiality of their accounts and passwords. Any activity that occurs under your account is your sole responsibility.\n\n
-Section 3. Privacy Policy\n
-Your privacy is important to us. Our Privacy Policy explains how we collect, use, and protect your personal data when you use CiviReport.\n\n
-Section 4. Termination\n
-We reserve the right to terminate or suspend access to our application immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.\n\n
-Section 5. Governing Law\n
-These Terms shall be governed and construed in accordance with the laws of the Republic of the Philippines.\n\n
-END OF TERMS. PLEASE SCROLL TO THE BOTTOM TO ACCEPT."
+                            android:text="Purpose of the Platform\nCiviReport is a digital platform designed to allow residents to report community issues within their barangay and enable barangay officials to monitor, manage, and respond to these reports efficiently. The platform aims to improve transparency, communication, and service delivery between citizens and local government units.\n\nUser Accounts\nTo access certain features of the platform, users may be required to create an account.\nUsers agree to:\n• Provide accurate and complete information during registration.\n• Maintain the confidentiality of their login credentials.\n• Be responsible for all activities conducted under their account.\nCiviReport administrators reserve the right to suspend or terminate accounts that violate these Terms of Service.\n\nUser Content\nUsers may submit reports, descriptions, images, and other content related to barangay concerns.\nBy submitting content, users agree that:\n• The information provided is truthful and not misleading.\n• The content does not violate any laws or infringe on the rights of others.\n• The platform administrators may review, moderate, or remove content that is inappropriate, abusive, or unrelated to barangay issues.\n\nAcceptable Use\nUsers agree not not to:\n• Use the platform for illegal activities.\n• Submit false reports or spam content.\n• Harass, threaten, or abuse other users or barangay officials.\n• Attempt to access restricted areas of the system without authorization.\nViolation of these rules may result in account suspension or permanent removal from the platform.\n\nLimitation of Liability\nCiviReport serves as a reporting and tracking platform and does not guarantee immediate resolution of submitted issues.\nThe platform developers and administrators are not liable for:\n• Delays in response from barangay officials\n• Inaccurate information submitted by users\n• Temporary service interruptions or technical issues\n\nChanges to Terms\nCiviReport reserves the right to modify or update these Terms of Service at any time. Users will be notified of significant changes through the platform. Continued use of the platform indicates acceptance of the updated terms.\n\nGoverning Law\nThese Terms of Service shall be governed by and interpreted in accordance with the laws and regulations of the Republic of the Philippines."
                             android:textColor="#444444"
                             android:textSize="14sp" />
 
@@ -89,10 +73,10 @@ END OF TERMS. PLEASE SCROLL TO THE BOTTOM TO ACCEPT."
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="I have read and agree to the Terms and Conditions"
+                            android:text="I have read and agree to the Terms and Service"
                             android:textColor="#1B2F5B"
                             android:textStyle="bold"
-                            android:visibility="gone" />
+                            android:visibility="visible" />
                     </LinearLayout>
                 </ScrollView>
             </LinearLayout>
