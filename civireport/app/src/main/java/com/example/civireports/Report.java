@@ -128,7 +128,7 @@ public class Report extends AppCompatActivity {
         RequestBody rbNotes = RequestBody.create(MediaType.parse("text/plain"), etNotes.getText().toString().trim());
         RequestBody rbLocation = RequestBody.create(MediaType.parse("text/plain"), etAddress.getText().toString().trim());
 
-        // I-build ang files list
+
         List<MultipartBody.Part> fileParts = new ArrayList<>();
         if (selectedFileUri != null) {
             File file = new File(selectedFileUri.getPath());
@@ -147,7 +147,11 @@ public class Report extends AppCompatActivity {
                             // Save locally as well for dashboard stats
                             saveToLocalStore();
 
-                            startActivity(new Intent(Report.this, StatusReport.class));
+//                            startActivity(new Intent(Report.this, StatusReport.class));
+//                            finish();
+                            Intent intent = new Intent(Report.this, StatusReport.class);
+                            intent.putExtra("just_submitted", true);
+                            startActivity(intent);
                             finish();
                         } else {
                             Toast.makeText(Report.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
@@ -161,7 +165,11 @@ public class Report extends AppCompatActivity {
 
                         // Still save locally even if network fails (for testing/demo purposes)
                         saveToLocalStore();
-                        startActivity(new Intent(Report.this, StatusReport.class));
+//                        startActivity(new Intent(Report.this, StatusReport.class));
+//                        finish();
+                        Intent intent = new Intent(Report.this, StatusReport.class);
+                        intent.putExtra("just_submitted", true);
+                        startActivity(intent);
                         finish();
                     }
                 });

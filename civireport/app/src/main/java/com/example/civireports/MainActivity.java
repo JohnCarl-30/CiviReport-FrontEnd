@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button loginButton = findViewById(R.id.login_button);
 
-        //loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
+//        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
         loginButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
             startActivity(intent);
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                             .putString("token", token)
                             .putInt("user_id", userId)
                             .apply();
-                            RetrofitClient.reset();
+
 
                     Toast.makeText(MainActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, DashboardActivity.class));

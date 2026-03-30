@@ -10,6 +10,8 @@ import com.example.civireports.models.RegisterRequest;
 import com.example.civireports.models.RegisterResponse;
 import com.example.civireports.models.ResetPasswordRequest;
 import com.example.civireports.models.VerifyOtpRequest;
+import com.example.civireports.models.UserComplaint;
+import retrofit2.http.GET;
 
 import java.util.List;
 
@@ -53,4 +55,7 @@ public interface ApiService {
                                             @Part("complaint_location") RequestBody complaint_location,
                                             @Part List<MultipartBody.Part> files
                                             );
+
+    @GET("complaints/my-complaints")
+    Call<List<UserComplaint>> getMyComplaints();
 }
