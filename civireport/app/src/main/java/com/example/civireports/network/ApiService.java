@@ -1,7 +1,11 @@
 package com.example.civireports.network;
 
+import com.example.civireports.models.ChangePassRequest;
+import com.example.civireports.models.ChangePassResponse;
 import com.example.civireports.models.ComplaintRequest;
 import com.example.civireports.models.ComplaintResponse;
+import com.example.civireports.models.EditProfileRequest;
+import com.example.civireports.models.EditProfileResponse;
 import com.example.civireports.models.ForgotPasswordRequest;
 import com.example.civireports.models.LoginRequest;
 import com.example.civireports.models.LoginResponse;
@@ -23,6 +27,7 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 
 public interface ApiService {
@@ -58,4 +63,15 @@ public interface ApiService {
 
     @GET("complaints/my-complaints")
     Call<List<UserComplaint>> getMyComplaints();
+    @PUT("auth/profile")
+    Call<EditProfileResponse> updateProfile(@Body EditProfileRequest request);
+
+    @PUT("auth/change-password")
+    Call<ChangePassResponse> changePassword(@Body ChangePassRequest request);
+
+    @Multipart
+    @PUT("auth/upload-profile-picture")
+    Call<MessageResponse> uploadProfilePicture(
+            @Part MultipartBody.Part file
+    );
 }

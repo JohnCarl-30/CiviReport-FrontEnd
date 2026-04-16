@@ -16,7 +16,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.civireports.models.EditProfileRequest;
+import com.example.civireports.models.EditProfileResponse;
+import com.example.civireports.network.ApiService;
+import com.example.civireports.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EditProfileActivity extends AppCompatActivity {
 
@@ -71,9 +80,8 @@ public class EditProfileActivity extends AppCompatActivity {
         
         editText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                // Clear the text so the user can input whatever they want
-                editText.setText("");
-                // Set color to 1B2F5B when focused/typing
+
+
                 editText.setTextColor(Color.parseColor("#1B2F5B"));
             }
         });
@@ -104,18 +112,50 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // Save to SharedPreferences for local sync
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("full_name", name);
-        editor.putString("email", email);
-        editor.putString("contact", contact);
-        editor.putString("address", address);
-        editor.apply();
+        EditProfileRequest request = new EditProfileRequest(
+                name,
+                email,
+                contact,
+                address
+        );
 
-        Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-        
-        // Return to Profile
-        finish();
+        ApiService apiService = RetrofitClient.getApiService(this);
+
+        Call<EditProfileResponse> call = apiService.updateProfile(request);
+
+        call.enqueue(new Callback<EditProfileResponse>() {
+            @Override
+            public void onResponse(Call<EditProfileResponse> call, Response<EditProfileResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("full_name", name);
+                    editor.putString("email", email);
+                    editor.putString("contact", contact);
+                    editor.putString("address", address);
+                    editor.apply();
+
+                    Toast.makeText(EditProfileActivity.this,
+                            "Profile updated successfully!",
+                            Toast.LENGTH_SHORT).show();
+
+                    finish();
+
+                } else {
+                    Toast.makeText(EditProfileActivity.this,
+                            "Update failed",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<EditProfileResponse> call, Throwable t) {
+                Toast.makeText(EditProfileActivity.this,
+                        "Error: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showDeleteAccountDialog() {

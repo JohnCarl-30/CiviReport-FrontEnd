@@ -27,6 +27,22 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
 
 public class Profile extends AppCompatActivity {
 
@@ -66,6 +82,77 @@ public class Profile extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    private byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[16384];
+
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        return buffer.toByteArray();
+    }
+
+    private String getToken() {
+        SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
+        return prefs.getString("access_token", "");
+    }
+
+    private void uploadProfileImageToServer(Uri imageUri) {
+        try {
+            String url = "http://10.0.2.2:8000/auth/upload-profile-picture";
+            // emulator use 10.0.2.2, real device use your PC IP
+
+            OkHttpClient client = new OkHttpClient();
+
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            byte[] fileBytes = getBytes(inputStream);
+
+            RequestBody fileBody = RequestBody.create(fileBytes, MediaType.get("image/*"));
+
+            MultipartBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart(
+                            "file",
+                            "profile.jpg",
+                            fileBody
+                    )
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .put(requestBody)
+                    .addHeader("Authorization", "Bearer " + getToken())
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    runOnUiThread(() ->
+                            Toast.makeText(Profile.this, "Upload failed", Toast.LENGTH_SHORT).show()
+                    );
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(() ->
+                                Toast.makeText(Profile.this, "Profile uploaded to server", Toast.LENGTH_SHORT).show()
+                        );
+                    } else {
+                        runOnUiThread(() ->
+                                Toast.makeText(Profile.this, "Server error", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void showProfilePreviewDialog() {
@@ -149,7 +236,7 @@ public class Profile extends AppCompatActivity {
             
             // Take persistable permission
             try {
-                final int takeFlags = data.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
                 getContentResolver().takePersistableUriPermission(imageUri, takeFlags);
             } catch (SecurityException e) {
                 e.printStackTrace();

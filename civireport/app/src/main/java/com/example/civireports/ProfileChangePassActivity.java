@@ -12,10 +12,20 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
+
+import com.example.civireports.network.ApiService;
+import com.example.civireports.network.RetrofitClient;
+import com.example.civireports.models.ChangePassRequest;
+import com.example.civireports.models.ChangePassResponse;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProfileChangePassActivity extends AppCompatActivity {
 
@@ -46,8 +56,7 @@ public class ProfileChangePassActivity extends AppCompatActivity {
 
         btnChangePassword.setOnClickListener(v -> {
             if (validateInputs()) {
-                // TODO: Handle password change API call
-                showSuccessDialog();
+                changePassword();
             }
         });
 
@@ -57,6 +66,38 @@ public class ProfileChangePassActivity extends AppCompatActivity {
         });
 
         setupBottomNav();
+    }
+
+    private void changePassword() {
+        String current = etCurrentPassword.getText().toString().trim();
+        String newPass = etNewPassword.getText().toString().trim();
+        String confirm = etConfirmPassword.getText().toString().trim();
+
+        ChangePassRequest request = new ChangePassRequest(current, newPass, confirm);
+
+        ApiService apiService = RetrofitClient.getApiService(this);
+
+        Call<ChangePassResponse> call = apiService.changePassword(request);
+
+        call.enqueue(new Callback<ChangePassResponse>() {
+            @Override
+            public void onResponse(Call<ChangePassResponse> call, Response<ChangePassResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    showSuccessDialog();
+                } else {
+                    Toast.makeText(ProfileChangePassActivity.this,
+                            "Failed: " + response.message(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ChangePassResponse> call, Throwable t) {
+                Toast.makeText(ProfileChangePassActivity.this,
+                        "Error: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showSuccessDialog() {
