@@ -80,20 +80,28 @@ public class EditProfileActivity extends AppCompatActivity {
         
         editText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-
-
+                // Change placeholder for Full Name when focused
+                if (editText.getId() == R.id.etFullName) {
+                    editText.setHint("Last Name, First Name, Middle Initial, Suffix");
+                }
                 editText.setTextColor(Color.parseColor("#1B2F5B"));
+            } else {
+                // Restore default placeholder when focus is lost
+                if (editText.getId() == R.id.etFullName) {
+                    editText.setHint("Juan Dela Cruz");
+                }
             }
         });
     }
 
     private void loadCurrentData() {
-        String name = sharedPreferences.getString("full_name", "Juan Dela Cruz");
-        String email = sharedPreferences.getString("email", "JuanDC@gmail.com");
-        String contact = sharedPreferences.getString("contact", "09123456789");
-        String address = sharedPreferences.getString("address", "Secret");
+        String name = sharedPreferences.getString("full_name", "");
+        String email = sharedPreferences.getString("email", "");
+        String contact = sharedPreferences.getString("contact", "");
+        String address = sharedPreferences.getString("address", "");
         String gender = sharedPreferences.getString("gender", "Not Specified");
 
+        // Use empty string if no data is found so hint can be shown
         etFullName.setText(name);
         etEmail.setText(email);
         etContact.setText(contact);

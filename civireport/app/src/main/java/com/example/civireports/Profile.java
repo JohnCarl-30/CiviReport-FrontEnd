@@ -72,8 +72,6 @@ public class Profile extends AppCompatActivity {
         setupMenuItems();
         setupBottomNav();
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
         // Log out
         ((MaterialButton) findViewById(R.id.btnLogout)).setOnClickListener(v -> {
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
