@@ -59,7 +59,8 @@
                     android:contentDescription="Notifications"
                     android:focusable="true"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/notif" />
+                    android:src="@drawable/notif"
+                    app:tint="#1B2F5B" />
             </LinearLayout>
 
             <!-- ── WELCOME TEXT ── -->

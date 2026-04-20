@@ -40,17 +40,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-
 public class Profile extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PERMISSION_REQUEST_CODE = 100;
 
     private TextView tvUserName, tvUserEmail;
-    private ImageView verifiedBadge, profileImage;
+    private ImageView verifiedBadge, profileImage, btnNotificationHeader;
     private SharedPreferences sharedPreferences;
     private CircleImageView dialogProfilePreview;
 
@@ -66,11 +62,13 @@ public class Profile extends AppCompatActivity {
         tvUserEmail = findViewById(R.id.tvUserEmail);
         verifiedBadge = findViewById(R.id.verified_badge);
         profileImage = findViewById(R.id.profile_image);
+        btnNotificationHeader = findViewById(R.id.btnNotificationHeader);
 
         profileImage.setOnClickListener(v -> showProfilePreviewDialog());
 
         setupMenuItems();
         setupBottomNav();
+        checkNotifications();
 
         // Log out
         ((MaterialButton) findViewById(R.id.btnLogout)).setOnClickListener(v -> {
@@ -80,6 +78,22 @@ public class Profile extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    private void checkNotifications() {
+        // Logic to check if there are any notifications
+        // This is a placeholder. In a real app, you might check a database or a remote server.
+        boolean hasNotifications = true; // For demonstration, let's assume there's always a notification
+
+        if (btnNotificationHeader != null) {
+            if (hasNotifications) {
+                // Color the notification icon in full #1B2F5B if there's a notification
+                btnNotificationHeader.setColorFilter(Color.parseColor("#1B2F5B"));
+            } else {
+                // Clear the color filter if there are no notifications
+                btnNotificationHeader.clearColorFilter();
+            }
+        }
     }
 
     private byte[] getBytes(InputStream inputStream) throws IOException {
@@ -255,6 +269,7 @@ public class Profile extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadUserData();
+        checkNotifications();
     }
 
     private void loadUserData() {

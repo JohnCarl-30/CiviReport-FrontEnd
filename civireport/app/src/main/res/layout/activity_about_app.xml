@@ -14,14 +14,24 @@
         android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="20dp"
+        android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp">
 
         <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/back_button"
+            android:contentDescription="Back"
+            android:clickable="true"
+            android:focusable="true"/>
+
+        <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_marginStart="8dp"
             android:contentDescription="Barangay Logo"
             android:scaleType="fitCenter"
             android:src="@drawable/brgy" />
@@ -31,8 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_weight="2"
-            android:text="CiviReport: Barangay Issue Tracking"
-            android:textColor="#1A1A2E"
+            android:text="About App"
+            android:textColor="#1B2F5B"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -45,7 +55,8 @@
             android:contentDescription="Notifications"
             android:focusable="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/notif" />
+            android:src="@drawable/notif"
+            app:tint="#1B2F5B" />
     </LinearLayout>
 
     <!-- SCROLLABLE CONTENT -->

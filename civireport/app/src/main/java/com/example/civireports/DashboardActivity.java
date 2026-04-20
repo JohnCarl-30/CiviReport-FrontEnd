@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -183,8 +185,7 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnNotificationHeader.setOnClickListener(v ->
-                startActivity(new Intent(this, Notification.class)));
+        btnNotificationHeader.setOnClickListener(v -> showNotificationModal());
 
         navHome.setOnClickListener(v -> { });
 
@@ -196,6 +197,24 @@ public class DashboardActivity extends AppCompatActivity {
 
         navProfile.setOnClickListener(v ->
                 startActivity(new Intent(this, Profile.class)));
+    }
+
+    private void showNotificationModal() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_notification_modal, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        ImageView btnClose = dialogView.findViewById(R.id.btn_close_notif);
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void checkFirstLogin() {

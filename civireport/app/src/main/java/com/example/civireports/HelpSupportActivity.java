@@ -32,13 +32,21 @@ public class HelpSupportActivity extends AppCompatActivity {
     }
 
     private void setupBottomNav() {
-        findViewById(R.id.navHome).setOnClickListener(v ->
-                startActivity(new Intent(this, DashboardActivity.class)));
-        findViewById(R.id.navHotlines).setOnClickListener(v ->
-                startActivity(new Intent(this, hotlines.class)));
-        findViewById(R.id.navNotification).setOnClickListener(v ->
-                startActivity(new Intent(this, Notification.class)));
-        findViewById(R.id.navProfile).setOnClickListener(v ->
-                startActivity(new Intent(this, Profile.class)));
+        findViewById(R.id.navHome).setOnClickListener(v -> {
+            startActivity(new Intent(this, DashboardActivity.class));
+            overridePendingTransition(0, 0);
+        });
+        findViewById(R.id.navHotlines).setOnClickListener(v -> {
+            startActivity(new Intent(this, hotlines.class));
+            overridePendingTransition(0, 0);
+        });
+        findViewById(R.id.navNotification).setOnClickListener(v -> {
+            startActivity(new Intent(this, Notification.class));
+            overridePendingTransition(0, 0);
+        });
+        findViewById(R.id.navProfile).setOnClickListener(v -> {
+            startActivity(new Intent(this, Profile.class));
+            overridePendingTransition(0, 0);
+        });
     }
 }

@@ -15,12 +15,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.google.android.material.button.MaterialButton;
+
 public class hotlines extends AppCompatActivity {
 
     private LinearLayout navHome;
     private LinearLayout navHotlines;
     private LinearLayout navNotification;
     private LinearLayout navProfile;
+    private ImageView btnNotificationHeader;
 
     private CardView cardEmergency, cardPNP, cardPNPText, cardBFP, cardRedCross, cardSuicide, cardNDRRMC, cardMMDA, cardDSWD;
 
@@ -34,6 +37,7 @@ public class hotlines extends AppCompatActivity {
         navHotlines     = findViewById(R.id.navHotlines);
         navNotification = findViewById(R.id.navNotification);
         navProfile      = findViewById(R.id.navProfile);
+        btnNotificationHeader = findViewById(R.id.btnNotificationHeader);
 
         // Hotline Cards
         cardEmergency   = findViewById(R.id.cardEmergency);
@@ -58,6 +62,7 @@ public class hotlines extends AppCompatActivity {
         // Bottom Navigation
         navHome.setOnClickListener(v -> {
             startActivity(new Intent(this, DashboardActivity.class));
+            overridePendingTransition(0, 0);
         });
 
         navHotlines.setOnClickListener(v -> {
@@ -66,11 +71,17 @@ public class hotlines extends AppCompatActivity {
 
         navNotification.setOnClickListener(v -> {
             startActivity(new Intent(this, Notification.class));
+            overridePendingTransition(0, 0);
         });
 
         navProfile.setOnClickListener(v -> {
             startActivity(new Intent(this, Profile.class));
+            overridePendingTransition(0, 0);
         });
+
+        if (btnNotificationHeader != null) {
+            btnNotificationHeader.setOnClickListener(v -> showNotificationModal());
+        }
 
         // Hotline Click Actions
         cardEmergency.setOnClickListener(v -> makeCall("911"));
@@ -88,6 +99,24 @@ public class hotlines extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + number));
         startActivity(intent);
+    }
+
+    private void showNotificationModal() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_notification_modal, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        ImageView btnClose = dialogView.findViewById(R.id.btn_close_notif);
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void showEmergencyReceivedDialog() {

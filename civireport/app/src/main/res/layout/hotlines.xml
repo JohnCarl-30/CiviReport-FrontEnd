@@ -28,13 +28,26 @@
             android:src="@drawable/brgy" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:text="CiviReport: Barangay Issue Tracking Platform"
+            android:layout_weight="1"
+            android:text="CiviReport: Barangay Issue Tracking"
             android:textColor="#1A1A2E"
             android:textSize="13sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnNotificationHeader"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Notifications"
+            android:focusable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/notif"
+            app:tint="#1B2F5B" />
     </LinearLayout>
 
     <!-- SCROLLABLE CONTENT -->
