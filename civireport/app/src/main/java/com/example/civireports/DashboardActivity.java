@@ -245,11 +245,54 @@ public class DashboardActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void showNotificationDialog(NotificationItem item) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_notification_modal, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        LinearLayout container = dialogView.findViewById(R.id.notif_list_container);
+        TextView tvNotifCount = dialogView.findViewById(R.id.tv_notif_count);
+        TextView tvEmptyNotif = dialogView.findViewById(R.id.tv_empty_notif);
+
+        container.removeAllViews();
+        tvEmptyNotif.setVisibility(View.GONE);
+        tvNotifCount.setVisibility(View.GONE);
+
+        View itemView = inflater.inflate(R.layout.item_notification, container, false);
+        TextView tvBadge = itemView.findViewById(R.id.tvNotifBadge);
+        TextView tvTitle = itemView.findViewById(R.id.tvNotifTitle);
+        TextView tvDesc = itemView.findViewById(R.id.tvNotifDescription);
+        TextView tvDate = itemView.findViewById(R.id.tvNotifDate);
+
+        tvBadge.setText(item.getModalBadgeText());
+        tvTitle.setText(item.getDisplayText());
+        tvDesc.setVisibility(View.VISIBLE);
+        tvDesc.setText(item.getAnnouncementText());
+        tvDate.setText(item.getRelativeTime());
+
+        container.addView(itemView);
+
+        ImageView btnClose = dialogView.findViewById(R.id.btn_close_notif);
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
     private void initNotificationSocket() {
         notificationSocketManager = new NotificationSocketManager(this, new NotificationSocketManager.OnNotificationReceivedListener() {
             @Override
             public void onNotificationAdded(NotificationItem item, List<NotificationItem> notifications) {
                 refreshModalNotifications();
+
+                if (item.shouldShowInModal()) {
+                    showNotificationDialog(item);
+                }
             }
 
             @Override
