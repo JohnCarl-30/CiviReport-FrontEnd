@@ -135,21 +135,24 @@ public class DashboardActivity extends AppCompatActivity {
 
             LinearLayout container = itemView.findViewById(R.id.reportItemContainer);
             TextView tvQueue = itemView.findViewById(R.id.tvQueueNumber);
-            TextView tvTitle = itemView.findViewById(R.id.tvReportTitle);
-            TextView tvTime  = itemView.findViewById(R.id.tvReportTime);
+            TextView tvUrgency = itemView.findViewById(R.id.tvUrgencyLabel);
 
-            tvQueue.setText("#" + item.getComplaintId());
-            tvTitle.setText(item.getComplaintType());
-            tvTime.setText(item.getComplaintDate());
-
+            tvQueue.setText("#" + String.format("%03d", item.getComplaintId()));
+            
             String urgency = item.getUrgencyLevel().toLowerCase();
             if (urgency.equals("critical")) {
+                tvUrgency.setText("Emergency");
+                tvUrgency.setTextColor(Color.parseColor("#E53935"));
                 tvQueue.setBackgroundResource(R.drawable.bg_badge_emergency);
                 container.setBackgroundResource(R.drawable.bg_report_item_emergency);
             } else if (urgency.equals("medium")) {
+                tvUrgency.setText("Priority");
+                tvUrgency.setTextColor(Color.parseColor("#FB8C00"));
                 tvQueue.setBackgroundResource(R.drawable.bg_badge_priority);
                 container.setBackgroundResource(R.drawable.bg_report_item_priority);
             } else {
+                tvUrgency.setText("Nominal");
+                tvUrgency.setTextColor(Color.parseColor("#43A047"));
                 tvQueue.setBackgroundResource(R.drawable.bg_badge_nominal);
                 container.setBackgroundResource(R.drawable.bg_report_item_nominal);
             }
