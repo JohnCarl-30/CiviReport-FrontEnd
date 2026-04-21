@@ -2,6 +2,8 @@ package com.example.civireports.network;
 
 import com.example.civireports.models.ChangePassRequest;
 import com.example.civireports.models.ChangePassResponse;
+import com.example.civireports.models.ChatRequest;
+import com.example.civireports.models.ChatResponse;
 import com.example.civireports.models.ComplaintRequest;
 import com.example.civireports.models.ComplaintResponse;
 import com.example.civireports.models.EditProfileRequest;
@@ -10,11 +12,15 @@ import com.example.civireports.models.ForgotPasswordRequest;
 import com.example.civireports.models.LoginRequest;
 import com.example.civireports.models.LoginResponse;
 import com.example.civireports.models.MessageResponse;
+import com.example.civireports.models.PendingComplaints;
 import com.example.civireports.models.RegisterRequest;
 import com.example.civireports.models.RegisterResponse;
 import com.example.civireports.models.ResetPasswordRequest;
+import com.example.civireports.models.UserProfileResponse;
 import com.example.civireports.models.VerifyOtpRequest;
 import com.example.civireports.models.UserComplaint;
+import com.example.civireports.models.Announcement;
+
 import retrofit2.http.GET;
 
 import java.util.List;
@@ -74,4 +80,16 @@ public interface ApiService {
     Call<MessageResponse> uploadProfilePicture(
             @Part MultipartBody.Part file
     );
+
+    @GET("complaints/pending")
+    Call<List<PendingComplaints>> getPendingComplaints();
+
+    @GET("auth/announcements")
+    Call<List<Announcement>> getAnnouncements();
+
+    @GET("auth/me")
+    Call<UserProfileResponse> getMyProfile();
+
+    @POST("chat")
+    Call<ChatResponse> getAiRecommendation(@Body ChatRequest request);
 }

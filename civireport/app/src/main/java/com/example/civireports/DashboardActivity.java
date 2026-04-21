@@ -8,7 +8,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,11 +16,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.button.MaterialButton;
+import com.example.civireports.models.PendingComplaints;
+import com.example.civireports.models.UserProfileResponse;
+import com.example.civireports.network.ApiService;
+import com.example.civireports.network.RetrofitClient;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -29,6 +33,7 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView tvEmergencyCount;
     private TextView tvPriorityCount;
     private TextView tvNominalCount;
+    private TextView tvWelcome;
 
     private LinearLayout btnFileReport;
     private LinearLayout btnCheckStatus;
@@ -53,9 +58,10 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         initViews();
-        addDummyDataIfNeeded();
         setupClickListeners();
         checkFirstLogin();
+        fetchAndSaveUserProfile();
+        loadDashboardData();
     }
 
     @Override
@@ -69,6 +75,7 @@ public class DashboardActivity extends AppCompatActivity {
         tvEmergencyCount  = findViewById(R.id.tvEmergencyCount);
         tvPriorityCount   = findViewById(R.id.tvPriorityCount);
         tvNominalCount    = findViewById(R.id.tvNominalCount);
+        tvWelcome = findViewById(R.id.tvWelcome);
 
         btnFileReport         = findViewById(R.id.btnFileReport);
         btnCheckStatus        = findViewById(R.id.btnCheckStatus);
@@ -86,58 +93,60 @@ public class DashboardActivity extends AppCompatActivity {
         navProfile      = findViewById(R.id.navProfile);
     }
 
-    private void addDummyDataIfNeeded() {
-        ReportDataStore store = ReportDataStore.getInstance();
-        if (!store.hasReports()) {
-            store.addReport(new ReportDataStore.ReportItem("#007", "Pending", "Accident", "Emergency", "Vehicle Collision", "St. Main", "Help", "1 minutes ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#004", "In Progress", "Broken Streetlight", "Priority", "Electrical Issue", "Ave 2", "No Light", "2 minute ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#001", "Resolved", "Garbage Collection", "Nominal", "Waste Disposal", "Rd 5", "Smelly", "32 minutes ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#002", "Pending", "Clogged Sewage", "Nominal", "Drainage", "Lane 1", "Stuck", "2 hours ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#003", "In Progress", "Stray Dogs", "Nominal", "Animal Control", "St. 9", "Dangerous", "6 hours ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#007", "Resolved", "Stray Dogs", "Nominal", "Animal Control", "Rd 2", "Done", "6 hours ago", null));
-        }
-    }
-
     private void loadDashboardData() {
-        ReportDataStore store = ReportDataStore.getInstance();
+        ApiService api = RetrofitClient.getApiService(this);
+        api.getPendingComplaints().enqueue(new Callback<List<PendingComplaints>>() {
+            @Override
+            public void onResponse(Call<List<PendingComplaints>> call, Response<List<PendingComplaints>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<PendingComplaints> complaints = response.body();
 
-        tvTotalComplaints.setText(String.valueOf(store.getTotalCount()));
-        tvEmergencyCount.setText(store.getEmergencyCount() + " Emergency");
-        tvPriorityCount.setText(store.getPriorityCount() + " Priority");
-        tvNominalCount.setText(store.getNominalCount() + " Nominal");
+                    int emergency = 0, priority = 0, nominal = 0;
+                    for (PendingComplaints c : complaints) {
+                        switch (c.getUrgencyLevel().toLowerCase()) {
+                            case "critical": emergency++; break;
+                            case "medium":   priority++;  break;
+                            default:         nominal++;   break;
+                        }
+                    }
 
-        populateReportsList();
+                    tvTotalComplaints.setText(String.valueOf(complaints.size()));
+                    tvEmergencyCount.setText(emergency + " Emergency");
+                    tvPriorityCount.setText(priority + " Priority");
+                    tvNominalCount.setText(nominal + " Nominal");
+
+                    populateReportsList(complaints);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<PendingComplaints>> call, Throwable t) {
+                Toast.makeText(DashboardActivity.this, "Failed to load complaints", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void populateReportsList() {
+    private void populateReportsList(List<PendingComplaints> complaints) {
         reportsContainer.removeAllViews();
-        List<ReportDataStore.ReportItem> reports = new ArrayList<>(ReportDataStore.getInstance().getAllReports());
-        
-        // Sort reports by priority: Emergency > Priority > Nominal
-        Collections.sort(reports, (r1, r2) -> {
-            int p1 = getPriorityWeight(r1.getPriority());
-            int p2 = getPriorityWeight(r2.getPriority());
-            return Integer.compare(p1, p2);
-        });
+        LayoutInflater inflater = LayoutInflater.from(DashboardActivity.this);
 
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        for (ReportDataStore.ReportItem item : reports) {
+        for (PendingComplaints item : complaints) {
             View itemView = inflater.inflate(R.layout.item_dashboard_report, reportsContainer, false);
-            
+
             LinearLayout container = itemView.findViewById(R.id.reportItemContainer);
             TextView tvQueue = itemView.findViewById(R.id.tvQueueNumber);
             TextView tvTitle = itemView.findViewById(R.id.tvReportTitle);
-            TextView tvTime = itemView.findViewById(R.id.tvReportTime);
+            TextView tvTime  = itemView.findViewById(R.id.tvReportTime);
 
-            tvQueue.setText(item.getQueueNumber());
+            tvQueue.setText("#" + item.getComplaintId());
             tvTitle.setText(item.getComplaintType());
-            tvTime.setText(item.getDate());
+            tvTime.setText(item.getComplaintDate());
 
-            if ("Emergency".equals(item.getPriority())) {
+            String urgency = item.getUrgencyLevel().toLowerCase();
+            if (urgency.equals("critical")) {
                 tvQueue.setBackgroundResource(R.drawable.bg_badge_emergency);
                 container.setBackgroundResource(R.drawable.bg_report_item_emergency);
-            } else if ("Priority".equals(item.getPriority())) {
+            } else if (urgency.equals("medium")) {
                 tvQueue.setBackgroundResource(R.drawable.bg_badge_priority);
                 container.setBackgroundResource(R.drawable.bg_report_item_priority);
             } else {
@@ -147,12 +156,6 @@ public class DashboardActivity extends AppCompatActivity {
 
             reportsContainer.addView(itemView);
         }
-    }
-
-    private int getPriorityWeight(String priority) {
-        if ("Emergency".equals(priority)) return 0;
-        if ("Priority".equals(priority)) return 1;
-        return 2; // Nominal
     }
 
     private void setupClickListeners() {
@@ -179,10 +182,10 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, StatusReport.class)));
 
         swipeEmergency.setOnSwipeCompleteListener(() -> {
-            sendEmergencyAlert();
             Intent intent = new Intent(this, hotlines.class);
             intent.putExtra("show_emergency_popup", true);
             startActivity(intent);
+            Toast.makeText(this, "Emergency alert sent!", Toast.LENGTH_SHORT).show();
         });
 
         btnNotificationHeader.setOnClickListener(v -> showNotificationModal());
@@ -193,7 +196,7 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, hotlines.class)));
 
         navNotification.setOnClickListener(v ->
-                startActivity(new Intent(this, Notification.class)));
+                startActivity(new Intent(this, AnnouncementActivity.class)));
 
         navProfile.setOnClickListener(v ->
                 startActivity(new Intent(this, Profile.class)));
@@ -211,10 +214,43 @@ public class DashboardActivity extends AppCompatActivity {
         }
 
         ImageView btnClose = dialogView.findViewById(R.id.btn_close_notif);
-
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private void fetchAndSaveUserProfile() {
+        ApiService api = RetrofitClient.getApiService(this);
+        api.getMyProfile().enqueue(new Callback<UserProfileResponse>() {
+            @Override
+            public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserProfileResponse profile = response.body();
+
+                    // Save to SharedPreferences
+                    getSharedPreferences("UserProfile", MODE_PRIVATE)
+                            .edit()
+                            .putString("full_name", profile.getFullName())
+                            .putString("email", profile.getEmail())
+                            .putString("contact", profile.getContactNum())
+                            .putString("address", profile.getAddress())
+                            .apply();
+
+
+                    tvWelcome.setText("Welcome, " + profile.getFullName() + "!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserProfileResponse> call, Throwable t) {
+                // fallback sa SharedPreferences kung may naka-save na
+                String savedName = getSharedPreferences("UserProfile", MODE_PRIVATE)
+                        .getString("full_name", "");
+                if (!savedName.isEmpty() && tvWelcome != null) {
+                    tvWelcome.setText("Welcome, " + savedName + "!");
+                }
+            }
+        });
     }
 
     private void checkFirstLogin() {
@@ -242,13 +278,5 @@ public class DashboardActivity extends AppCompatActivity {
         btnGetStarted.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-    }
-
-    private void sendEmergencyAlert() {
-        ReportDataStore.getInstance().addReport(new ReportDataStore.ReportItem(
-                "#SOS", "Pending", "Emergency Alert", "Emergency", 
-                "SOS", "Location Unknown", "User swiped SOS", "Just now", null));
-        loadDashboardData();
-        Toast.makeText(this, "Emergency alert sent to admin!", Toast.LENGTH_SHORT).show();
     }
 }

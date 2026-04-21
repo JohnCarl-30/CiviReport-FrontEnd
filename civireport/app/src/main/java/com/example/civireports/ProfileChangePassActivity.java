@@ -191,7 +191,7 @@ public class ProfileChangePassActivity extends AppCompatActivity {
             finish();
         });
         findViewById(R.id.navNotification).setOnClickListener(v -> {
-            startActivity(new Intent(this, Notification.class));
+            startActivity(new Intent(this, AnnouncementActivity.class));
             finish();
         });
         findViewById(R.id.navProfile).setOnClickListener(v -> {

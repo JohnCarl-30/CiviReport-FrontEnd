@@ -214,7 +214,7 @@ public class EditProfileActivity extends AppCompatActivity {
         if (hotlines != null) hotlines.setOnClickListener(v -> startActivity(new Intent(this, hotlines.class)));
         
         View notification = findViewById(R.id.navNotification);
-        if (notification != null) notification.setOnClickListener(v -> startActivity(new Intent(this, Notification.class)));
+        if (notification != null) notification.setOnClickListener(v -> startActivity(new Intent(this, AnnouncementActivity.class)));
         
         View profile = findViewById(R.id.navProfile);
         if (profile != null) profile.setOnClickListener(v -> startActivity(new Intent(this, Profile.class)));

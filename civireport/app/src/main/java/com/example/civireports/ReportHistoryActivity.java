@@ -153,7 +153,7 @@ public class ReportHistoryActivity extends AppCompatActivity {
         findViewById(R.id.navHotlines).setOnClickListener(v ->
                 startActivity(new Intent(this, hotlines.class)));
         findViewById(R.id.navNotification).setOnClickListener(v ->
-                startActivity(new Intent(this, Notification.class)));
+                startActivity(new Intent(this, AnnouncementActivity.class)));
         findViewById(R.id.navProfile).setOnClickListener(v ->
                 startActivity(new Intent(this, Profile.class)));
     }

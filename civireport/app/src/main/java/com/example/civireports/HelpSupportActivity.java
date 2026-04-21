@@ -48,7 +48,7 @@ public class HelpSupportActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
         });
         findViewById(R.id.navNotification).setOnClickListener(v -> {
-                startActivity(new Intent(this, Notification.class));
+                startActivity(new Intent(this, AnnouncementActivity.class));
                 overridePendingTransition(0, 0);
         });
         findViewById(R.id.navProfile).setOnClickListener(v -> {

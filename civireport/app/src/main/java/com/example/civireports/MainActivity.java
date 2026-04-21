@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         Button loginButton = findViewById(R.id.login_button);
 
         // Optional: you can switch back to handleLogin if using a real backend
-        // loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
+//        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
         
         loginButton.setOnClickListener(v -> {
             // Save a dummy token for "Stay Logged In" feature in demo mode

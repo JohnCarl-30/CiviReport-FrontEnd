@@ -10,11 +10,12 @@ public class RetrofitClient {
     private static final String BASE_URL = "http://10.0.2.2:8000/";
 
     public static ApiService getApiService(Context context) {
-        String token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-                .getString("token", "");
-
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
+                    // Read token fresh every request
+                    String token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                            .getString("token", "");
+
                     Request request = chain.request().newBuilder()
                             .addHeader("Authorization", "Bearer " + token)
                             .build();

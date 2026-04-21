@@ -60,7 +60,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".Notification"
+            android:name=".AnnouncementActivity"
             android:exported="true">
         </activity>
         <activity

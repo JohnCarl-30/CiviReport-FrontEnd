@@ -26,6 +26,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.example.civireports.models.ChatRequest;
+import com.example.civireports.models.ChatResponse;
+
 public class StatusReport extends AppCompatActivity {
 
     private ScrollView scrollView;
@@ -147,7 +150,8 @@ public class StatusReport extends AppCompatActivity {
         tvAddress.setText(complaint.getComplaintLocation());
         tvNotes.setText(complaint.getAdditionalNotes());
         tvDateReported.setText(formatDate(complaint.getComplaintDate()));
-        tvAiRecommendation.setText("");
+        fetchAiRecommendation(complaint, tvAiRecommendation);
+//        tvAiRecommendation.setText("");
 
         String status = complaint.getComplaintStatus();
         tvStatus.setText(complaint.getFormattedStatus());
@@ -211,6 +215,52 @@ public class StatusReport extends AppCompatActivity {
             ivUploadedFile.setVisibility(View.GONE);
             tvNoFile.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void fetchAiRecommendation(UserComplaint complaint, TextView tvAiRecommendation) {
+        tvAiRecommendation.setText("Loading AI recommendation...");
+
+        ChatRequest request = new ChatRequest(
+                complaint.getAdditionalNotes() != null ? complaint.getAdditionalNotes() : complaint.getComplaintType(),
+                complaint.getComplaintType(),
+                complaint.getComplaintSubtype(),
+                complaint.getComplaintLocation()
+        );
+
+        RetrofitClient.getApiService(this)
+                .getAiRecommendation(request)
+                .enqueue(new Callback<ChatResponse>() {
+                    @Override
+                    public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            ChatResponse ai = response.body();
+                            StringBuilder sb = new StringBuilder();
+
+                            sb.append("📋 Category: ").append(ai.getDetectedCategory()).append("\n");
+                            sb.append("⚠️ Urgency: ").append(ai.getUrgency()).append("\n");
+                            sb.append("🏢 Recommended Office: ").append(ai.getRecommendedOffice()).append("\n\n");
+
+                            sb.append("📌 Assessment:\n");
+                            for (String bullet : ai.getReplyBullets()) {
+                                sb.append("• ").append(bullet).append("\n");
+                            }
+
+                            sb.append("\n✅ Suggested Actions:\n");
+                            for (String action : ai.getSuggestedActions()) {
+                                sb.append("• ").append(action).append("\n");
+                            }
+
+                            tvAiRecommendation.setText(sb.toString().trim());
+                        } else {
+                            tvAiRecommendation.setText("AI recommendation unavailable.");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ChatResponse> call, Throwable t) {
+                        tvAiRecommendation.setText("Could not load AI recommendation.");
+                    }
+                });
     }
 
     private void fallbackToLocalStore() {

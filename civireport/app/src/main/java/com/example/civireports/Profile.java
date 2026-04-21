@@ -10,7 +10,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -72,6 +71,18 @@ public class Profile extends AppCompatActivity {
 
         // Log out
         ((MaterialButton) findViewById(R.id.btnLogout)).setOnClickListener(v -> {
+            // Clear auth token
+            getSharedPreferences("auth", MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .apply();
+
+            // Clear profile data
+            getSharedPreferences("UserProfile", MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .apply();
+
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -325,7 +336,7 @@ public class Profile extends AppCompatActivity {
         });
 
         findViewById(R.id.navNotification).setOnClickListener(v -> {
-                startActivity(new Intent(this, Notification.class));
+                startActivity(new Intent(this, AnnouncementActivity.class));
                 overridePendingTransition(0, 0);
         });
 

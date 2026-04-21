@@ -10,12 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-
-import com.google.android.material.button.MaterialButton;
 
 public class hotlines extends AppCompatActivity {
 
@@ -70,7 +67,7 @@ public class hotlines extends AppCompatActivity {
         });
 
         navNotification.setOnClickListener(v -> {
-            startActivity(new Intent(this, Notification.class));
+            startActivity(new Intent(this, AnnouncementActivity.class));
             overridePendingTransition(0, 0);
         });
 
