@@ -53,5 +53,14 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvReportTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="1 min ago"
+            android:textColor="#aaaaaa"
+            android:textSize="18sp" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
