@@ -154,7 +154,19 @@ public class Report extends AppCompatActivity {
                             startActivity(intent);
                             finish();
                         } else {
-                            Toast.makeText(Report.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                            String errorBody = "";
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorBody = response.errorBody().string();
+                                }
+                            } catch (Exception ignored) {
+                            }
+
+                            String message = "Error: " + response.code();
+                            if (!errorBody.isEmpty()) {
+                                message = message + " - " + errorBody;
+                            }
+                            Toast.makeText(Report.this, message, Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -374,6 +386,17 @@ public class Report extends AppCompatActivity {
                 Toast.makeText(this, "Please enter the address/location.", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            if (etAddress.getText().toString().trim().length() < 5) {
+                Toast.makeText(this, "Address/location must be at least 5 characters.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (etNotes.getText().toString().trim().length() < 10) {
+                Toast.makeText(this, "Additional notes must be at least 10 characters.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (!checkboxCertify.isChecked()) {
                 Toast.makeText(this, "Please certify that the information is true and correct.", Toast.LENGTH_SHORT).show();
                 return;

@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button loginButton = findViewById(R.id.login_button);
 
+<<<<<<< Updated upstream
         // Optional: you can switch back to handleLogin if using a real backend
 //        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
         
@@ -110,6 +111,22 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+=======
+// Optional: you can switch back to handleLogin if using a real backend
+        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
+
+//        loginButton.setOnClickListener(v -> {
+//            // Save a dummy token for "Stay Logged In" feature in demo mode
+//            getSharedPreferences("auth", MODE_PRIVATE)
+//                    .edit()
+//                    .putString("token", "dummy_token_for_demo")
+//                    .apply();
+//
+//            Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
+//            startActivity(intent);
+//            finish();
+//        });
+>>>>>>> Stashed changes
 
         TextView forgotPassword = findViewById(R.id.forgot_password_textview);
         forgotPassword.setOnClickListener(v -> {

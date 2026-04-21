@@ -13,14 +13,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.civireports.models.NotificationItem;
 import com.example.civireports.models.PendingComplaints;
 import com.example.civireports.models.UserProfileResponse;
 import com.example.civireports.network.ApiService;
 import com.example.civireports.network.RetrofitClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -28,6 +31,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DashboardActivity extends AppCompatActivity {
+
+    private static final String TAG = "DashboardActivity";
 
     private TextView tvTotalComplaints;
     private TextView tvEmergencyCount;
@@ -50,6 +55,11 @@ public class DashboardActivity extends AppCompatActivity {
     private LinearLayout navNotification;
     private LinearLayout navProfile;
 
+    private NotificationSocketManager notificationSocketManager;
+    private TextView modalNotifCount;
+    private LinearLayout modalNotifListContainer;
+    private TextView modalEmptyNotif;
+
     private boolean isExpanded = false;
 
     @Override
@@ -61,6 +71,7 @@ public class DashboardActivity extends AppCompatActivity {
         setupClickListeners();
         checkFirstLogin();
         fetchAndSaveUserProfile();
+        initNotificationSocket();
         loadDashboardData();
     }
 
@@ -216,10 +227,96 @@ public class DashboardActivity extends AppCompatActivity {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
+        modalNotifCount = dialogView.findViewById(R.id.tv_notif_count);
+        modalNotifListContainer = dialogView.findViewById(R.id.notif_list_container);
+        modalEmptyNotif = dialogView.findViewById(R.id.tv_empty_notif);
+
         ImageView btnClose = dialogView.findViewById(R.id.btn_close_notif);
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
+        dialog.setOnDismissListener(d -> {
+            modalNotifCount = null;
+            modalNotifListContainer = null;
+            modalEmptyNotif = null;
+        });
+
+        refreshModalNotifications();
+
         dialog.show();
+    }
+
+    private void initNotificationSocket() {
+        notificationSocketManager = new NotificationSocketManager(this, new NotificationSocketManager.OnNotificationReceivedListener() {
+            @Override
+            public void onNotificationAdded(NotificationItem item, List<NotificationItem> notifications) {
+                refreshModalNotifications();
+            }
+
+            @Override
+            public void onSocketStateChanged(String state) {
+                Log.d(TAG, "Notification socket state: " + state);
+            }
+        });
+
+        int userId = getSharedPreferences("auth", MODE_PRIVATE).getInt("user_id", -1);
+        if (userId > 0) {
+            notificationSocketManager.connectNotifSocket(userId);
+        } else {
+            Log.w(TAG, "user_id missing in auth preferences. Websocket notifications disabled.");
+        }
+    }
+
+    private void refreshModalNotifications() {
+        if (modalNotifCount == null || modalNotifListContainer == null || modalEmptyNotif == null) {
+            return;
+        }
+
+        List<NotificationItem> allNotifications = notificationSocketManager != null
+                ? notificationSocketManager.getNotifList()
+                : java.util.Collections.emptyList();
+
+        List<NotificationItem> notifications = new ArrayList<>();
+        for (NotificationItem item : allNotifications) {
+            if (item.shouldShowInModal()) {
+                notifications.add(item);
+            }
+        }
+
+        boolean hasNewNotification = !notifications.isEmpty();
+        modalNotifCount.setVisibility(hasNewNotification ? View.VISIBLE : View.GONE);
+        modalNotifCount.setText(hasNewNotification ? notifications.size() + " new" : "0");
+
+        modalNotifListContainer.removeAllViews();
+        if (!hasNewNotification) {
+            modalEmptyNotif.setText("No in-progress or approved complaint updates yet");
+            modalEmptyNotif.setVisibility(View.VISIBLE);
+            modalNotifListContainer.addView(modalEmptyNotif);
+            return;
+        }
+
+        modalEmptyNotif.setVisibility(View.GONE);
+        for (NotificationItem item : notifications) {
+            View itemView = getLayoutInflater().inflate(R.layout.item_notification, modalNotifListContainer, false);
+            TextView tvBadge = itemView.findViewById(R.id.tvNotifBadge);
+            TextView tvTitle = itemView.findViewById(R.id.tvNotifTitle);
+            TextView tvDesc = itemView.findViewById(R.id.tvNotifDescription);
+            TextView tvDate = itemView.findViewById(R.id.tvNotifDate);
+
+            tvBadge.setText(item.getModalBadgeText());
+            tvTitle.setText(item.getDisplayText());
+            tvDesc.setVisibility(View.VISIBLE);
+            tvDesc.setText(item.getAnnouncementText());
+            tvDate.setText(item.getRelativeTime());
+            modalNotifListContainer.addView(itemView);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (notificationSocketManager != null) {
+            notificationSocketManager.closeNotifSocket();
+        }
+        super.onDestroy();
     }
 
     private void fetchAndSaveUserProfile() {
