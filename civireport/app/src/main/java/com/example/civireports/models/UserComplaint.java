@@ -32,6 +32,24 @@ public class UserComplaint {
     @SerializedName("media")
     private List<Media> media;
 
+    @SerializedName("ai_detected_category")
+    private String aiDetectedCategory;
+
+    @SerializedName("ai_urgency")
+    private String aiUrgency;
+
+    @SerializedName("ai_recommended_office")
+    private String aiRecommendedOffice;
+
+    @SerializedName("ai_reply_bullets")
+    private String aiReplyBullets;
+
+    @SerializedName("ai_suggested_actions")
+    private String aiSuggestedActions;
+
+    @SerializedName("ai_message")
+    private String aiMessage;
+
     // Getters
     public int    getComplaintId()       { return complaintId; }
     public String getComplaintType()     { return complaintType; }
@@ -43,6 +61,13 @@ public class UserComplaint {
     public String getComplaintDate()     { return complaintDate; }
     public List<Media> getMedia()        { return media; }
 
+    public String getAiDetectedCategory()  { return aiDetectedCategory; }
+    public String getAiUrgency()           { return aiUrgency; }
+    public String getAiRecommendedOffice() { return aiRecommendedOffice; }
+    public String getAiReplyBullets()      { return aiReplyBullets; }
+    public String getAiSuggestedActions()  { return aiSuggestedActions; }
+    public String getAiMessage()           { return aiMessage; }
+
     // Display helpers
     public String getQueueNumber() {
         return "#" + String.format("%03d", complaintId);
@@ -50,7 +75,6 @@ public class UserComplaint {
 
     public String getFormattedStatus() {
         if (complaintStatus == null) return "PENDING";
-        
         String status = complaintStatus.toUpperCase();
         switch (status) {
             case "PROCESSING":

@@ -15,6 +15,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.example.civireports.models.AiRecommendationResponse;
+import com.example.civireports.models.ComplaintStatusUpdate;
+import com.example.civireports.models.MessageResponse;
 import com.example.civireports.models.UserComplaint;
 import com.example.civireports.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
@@ -28,6 +31,7 @@ import retrofit2.Response;
 
 import com.example.civireports.models.ChatRequest;
 import com.example.civireports.models.ChatResponse;
+import android.util.Log;
 
 public class StatusReport extends AppCompatActivity {
 
@@ -124,22 +128,22 @@ public class StatusReport extends AppCompatActivity {
         TextView tvAiRecommendation = itemView.findViewById(R.id.tvAiRecommendation);
         ImageView ivUploadedFile    = itemView.findViewById(R.id.ivUploadedFile);
         TextView tvNoFile           = itemView.findViewById(R.id.tvNoFile);
-        
+
         MaterialButton btnConfirm   = itemView.findViewById(R.id.btnConfirmFinished);
         View layoutRating           = itemView.findViewById(R.id.layoutRating);
-        
-        View layoutInProgressSat    = itemView.findViewById(R.id.layoutInProgressSatisfaction);
-        MaterialButton btnSatYes    = itemView.findViewById(R.id.btnSatisfiedYes);
-        MaterialButton btnSatNo     = itemView.findViewById(R.id.btnSatisfiedNo);
+
+        View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);
+        MaterialButton btnSatYes       = itemView.findViewById(R.id.btnSatisfiedYes);
+        MaterialButton btnSatNo        = itemView.findViewById(R.id.btnSatisfiedNo);
         TextInputLayout tilSatFeedback = itemView.findViewById(R.id.tilSatisfactionFeedback);
-        MaterialButton btnSubmitSat = itemView.findViewById(R.id.btnSubmitSatisfaction);
+        MaterialButton btnSubmitSat    = itemView.findViewById(R.id.btnSubmitSatisfaction);
 
         tvQueueNumber.setText(complaint.getQueueNumber());
-        
+
         String urgency = complaint.getUrgencyLevel();
-        if ("emergency".equalsIgnoreCase(urgency)) {
+        if ("emergency".equalsIgnoreCase(urgency) || "critical".equalsIgnoreCase(urgency)) {
             tvQueueNumber.setTextColor(Color.parseColor("#E53935"));
-        } else if ("priority".equalsIgnoreCase(urgency)) {
+        } else if ("priority".equalsIgnoreCase(urgency) || "medium".equalsIgnoreCase(urgency)) {
             tvQueueNumber.setTextColor(Color.parseColor("#FB8C00"));
         } else {
             tvQueueNumber.setTextColor(Color.parseColor("#43A047"));
@@ -151,21 +155,23 @@ public class StatusReport extends AppCompatActivity {
         tvNotes.setText(complaint.getAdditionalNotes());
         tvDateReported.setText(formatDate(complaint.getComplaintDate()));
         fetchAiRecommendation(complaint, tvAiRecommendation);
-//        tvAiRecommendation.setText("");
 
-        String status = complaint.getComplaintStatus();
+        String status = normalizeStatus(complaint.getComplaintStatus());
         tvStatus.setText(complaint.getFormattedStatus());
         setStatusStyle(tvStatus, status);
 
-        // Logic for "In Progress" Satisfaction Question
-        if ("IN PROGRESS".equalsIgnoreCase(status) || "PROCESSING".equalsIgnoreCase(status)) {
+        Log.d("STATUS_DEBUG", "RAW: " + complaint.getComplaintStatus());
+        Log.d("STATUS_DEBUG", "NORMALIZED: " + status);
+
+        // Show satisfaction section only when in_progress
+        if (status.equals("in_progress") || status.equals("processing")) {
             layoutInProgressSat.setVisibility(View.VISIBLE);
         } else {
             layoutInProgressSat.setVisibility(View.GONE);
         }
 
-        // Setup the "Confirm Finished" appearance
-        if ("RESOLVED".equalsIgnoreCase(status)) {
+        // Show confirm button only when resolved
+        if (status.equals("resolved")) {
             btnConfirm.setEnabled(true);
             btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
             btnConfirm.setVisibility(View.VISIBLE);
@@ -175,27 +181,71 @@ public class StatusReport extends AppCompatActivity {
             btnConfirm.setVisibility(View.GONE);
         }
 
+        // Approve — mark as resolved
         btnSatYes.setOnClickListener(v -> {
-            tilSatFeedback.setVisibility(View.GONE);
-            btnSubmitSat.setVisibility(View.GONE);
-            Toast.makeText(this, "Glad to hear you are satisfied!", Toast.LENGTH_SHORT).show();
-            layoutInProgressSat.setVisibility(View.GONE);
-            if (!btnConfirm.isEnabled()) {
-                btnConfirm.setVisibility(View.VISIBLE);
-            }
+            RetrofitClient.getApiService(this)
+                    .resolveComplaint(complaint.getComplaintId(), new ComplaintStatusUpdate("approve"))
+                    .enqueue(new Callback<MessageResponse>() {
+                        @Override
+                        public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                            Toast.makeText(StatusReport.this, "Complaint marked as resolved!", Toast.LENGTH_SHORT).show();
+                            tilSatFeedback.setVisibility(View.GONE);
+                            btnSubmitSat.setVisibility(View.GONE);
+                            layoutInProgressSat.setVisibility(View.GONE);
+                            tvStatus.setText("RESOLVED");
+                            setStatusStyle(tvStatus, "resolved");
+                            btnConfirm.setEnabled(true);
+                            btnConfirm.setVisibility(View.VISIBLE);
+                            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
+                        }
+
+                        @Override
+                        public void onFailure(Call<MessageResponse> call, Throwable t) {
+                            Toast.makeText(StatusReport.this, "Failed to update status.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 
+        // Show feedback field
         btnSatNo.setOnClickListener(v -> {
             tilSatFeedback.setVisibility(View.VISIBLE);
             btnSubmitSat.setVisibility(View.VISIBLE);
         });
 
+        // Not satisfied — revert to pending + save feedback
         btnSubmitSat.setOnClickListener(v -> {
-            Toast.makeText(this, "Thank you for your feedback.", Toast.LENGTH_SHORT).show();
-            layoutInProgressSat.setVisibility(View.GONE);
-            if (!btnConfirm.isEnabled()) {
-                btnConfirm.setVisibility(View.VISIBLE);
+            String feedback = "";
+            if (tilSatFeedback.getEditText() != null) {
+                feedback = tilSatFeedback.getEditText().getText().toString().trim();
             }
+
+            if (feedback.isEmpty()) {
+                tilSatFeedback.setError("Please tell admin why you are not satisfied.");
+                return;
+            }
+
+            tilSatFeedback.setError(null);
+            final String finalFeedback = feedback;
+
+            RetrofitClient.getApiService(this)
+                    .resolveComplaint(complaint.getComplaintId(),
+                            new ComplaintStatusUpdate("not_satisfied", finalFeedback))
+                    .enqueue(new Callback<MessageResponse>() {
+                        @Override
+                        public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                            Toast.makeText(StatusReport.this, "Feedback sent! Complaint resubmitted.", Toast.LENGTH_SHORT).show();
+                            layoutInProgressSat.setVisibility(View.GONE);
+                            tvStatus.setText("PENDING");
+                            setStatusStyle(tvStatus, "pending");
+                            tilSatFeedback.setVisibility(View.GONE);
+                            btnSubmitSat.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onFailure(Call<MessageResponse> call, Throwable t) {
+                            Toast.makeText(StatusReport.this, "Failed to send feedback.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 
         btnConfirm.setOnClickListener(v -> {
@@ -217,50 +267,72 @@ public class StatusReport extends AppCompatActivity {
         }
     }
 
+    private String normalizeStatus(String status) {
+        if (status == null) return "";
+        return status.toLowerCase().trim().replace(" ", "_");
+    }
+
     private void fetchAiRecommendation(UserComplaint complaint, TextView tvAiRecommendation) {
+        if (complaint.getAiReplyBullets() != null && !complaint.getAiReplyBullets().isEmpty()) {
+            displayAiRecommendation(tvAiRecommendation,
+                    complaint.getAiDetectedCategory(),
+                    complaint.getAiUrgency(),
+                    complaint.getAiRecommendedOffice(),
+                    complaint.getAiReplyBullets(),
+                    complaint.getAiSuggestedActions());
+            return;
+        }
+
         tvAiRecommendation.setText("Loading AI recommendation...");
 
-        ChatRequest request = new ChatRequest(
-                complaint.getAdditionalNotes() != null ? complaint.getAdditionalNotes() : complaint.getComplaintType(),
-                complaint.getComplaintType(),
-                complaint.getComplaintSubtype(),
-                complaint.getComplaintLocation()
-        );
-
         RetrofitClient.getApiService(this)
-                .getAiRecommendation(request)
-                .enqueue(new Callback<ChatResponse>() {
+                .generateAiRecommendation(complaint.getComplaintId())
+                .enqueue(new Callback<AiRecommendationResponse>() {
                     @Override
-                    public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+                    public void onResponse(Call<AiRecommendationResponse> call,
+                                           Response<AiRecommendationResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            ChatResponse ai = response.body();
-                            StringBuilder sb = new StringBuilder();
-
-                            sb.append("📋 Category: ").append(ai.getDetectedCategory()).append("\n");
-                            sb.append("⚠️ Urgency: ").append(ai.getUrgency()).append("\n");
-                            sb.append("🏢 Recommended Office: ").append(ai.getRecommendedOffice()).append("\n\n");
-
-                            sb.append("📌 Assessment:\n");
-                            for (String bullet : ai.getReplyBullets()) {
-                                sb.append("• ").append(bullet).append("\n");
-                            }
-
-                            sb.append("\n✅ Suggested Actions:\n");
-                            for (String action : ai.getSuggestedActions()) {
-                                sb.append("• ").append(action).append("\n");
-                            }
-
-                            tvAiRecommendation.setText(sb.toString().trim());
+                            AiRecommendationResponse ai = response.body();
+                            displayAiRecommendation(tvAiRecommendation,
+                                    ai.getAiDetectedCategory(),
+                                    ai.getAiUrgency(),
+                                    ai.getAiRecommendedOffice(),
+                                    ai.getAiReplyBullets(),
+                                    ai.getAiSuggestedActions());
                         } else {
                             tvAiRecommendation.setText("AI recommendation unavailable.");
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<ChatResponse> call, Throwable t) {
+                    public void onFailure(Call<AiRecommendationResponse> call, Throwable t) {
                         tvAiRecommendation.setText("Could not load AI recommendation.");
                     }
                 });
+    }
+
+    private void displayAiRecommendation(TextView tv, String category, String urgency,
+                                         String office, String bulletsRaw, String actionsRaw) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("📋 Category: ").append(category != null ? category : "—").append("\n");
+        sb.append("⚠️ Urgency: ").append(urgency != null ? urgency : "—").append("\n");
+        sb.append("🏢 Recommended Office: ").append(office != null ? office : "—").append("\n\n");
+
+        sb.append("📌 Assessment:\n");
+        if (bulletsRaw != null) {
+            for (String bullet : bulletsRaw.split("\\|")) {
+                sb.append("• ").append(bullet.trim()).append("\n");
+            }
+        }
+
+        sb.append("\n✅ Suggested Actions:\n");
+        if (actionsRaw != null) {
+            for (String action : actionsRaw.split("\\|")) {
+                sb.append("• ").append(action.trim()).append("\n");
+            }
+        }
+
+        tv.setText(sb.toString().trim());
     }
 
     private void fallbackToLocalStore() {
@@ -304,23 +376,20 @@ public class StatusReport extends AppCompatActivity {
             tvStatus.setText(status);
             setStatusStyle(tvStatus, status);
 
-            MaterialButton btnConfirm = itemView.findViewById(R.id.btnConfirmFinished);
-            View layoutRating         = itemView.findViewById(R.id.layoutRating);
-            
-            View layoutInProgressSat    = itemView.findViewById(R.id.layoutInProgressSatisfaction);
-            MaterialButton btnSatYes    = itemView.findViewById(R.id.btnSatisfiedYes);
-            MaterialButton btnSatNo     = itemView.findViewById(R.id.btnSatisfiedNo);
+            MaterialButton btnConfirm      = itemView.findViewById(R.id.btnConfirmFinished);
+            View layoutRating              = itemView.findViewById(R.id.layoutRating);
+            View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);
+            MaterialButton btnSatYes       = itemView.findViewById(R.id.btnSatisfiedYes);
+            MaterialButton btnSatNo        = itemView.findViewById(R.id.btnSatisfiedNo);
             TextInputLayout tilSatFeedback = itemView.findViewById(R.id.tilSatisfactionFeedback);
-            MaterialButton btnSubmitSat = itemView.findViewById(R.id.btnSubmitSatisfaction);
+            MaterialButton btnSubmitSat    = itemView.findViewById(R.id.btnSubmitSatisfaction);
 
-            // Logic for "In Progress" Satisfaction Question (Local Data)
             if ("IN PROGRESS".equalsIgnoreCase(status) || "PROCESSING".equalsIgnoreCase(status)) {
                 layoutInProgressSat.setVisibility(View.VISIBLE);
             } else {
                 layoutInProgressSat.setVisibility(View.GONE);
             }
 
-            // Setup the "Confirm Finished" appearance
             if ("RESOLVED".equalsIgnoreCase(status)) {
                 btnConfirm.setEnabled(true);
                 btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
@@ -328,7 +397,7 @@ public class StatusReport extends AppCompatActivity {
             } else {
                 btnConfirm.setEnabled(false);
                 btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
-                btnConfirm.setVisibility(View.GONE); 
+                btnConfirm.setVisibility(View.GONE);
             }
 
             btnSatYes.setOnClickListener(v -> {
@@ -336,9 +405,6 @@ public class StatusReport extends AppCompatActivity {
                 btnSubmitSat.setVisibility(View.GONE);
                 Toast.makeText(this, "Glad to hear you are satisfied!", Toast.LENGTH_SHORT).show();
                 layoutInProgressSat.setVisibility(View.GONE);
-                if (!btnConfirm.isEnabled()) {
-                    btnConfirm.setVisibility(View.VISIBLE);
-                }
             });
 
             btnSatNo.setOnClickListener(v -> {
@@ -349,9 +415,6 @@ public class StatusReport extends AppCompatActivity {
             btnSubmitSat.setOnClickListener(v -> {
                 Toast.makeText(this, "Thank you for your feedback.", Toast.LENGTH_SHORT).show();
                 layoutInProgressSat.setVisibility(View.GONE);
-                if (!btnConfirm.isEnabled()) {
-                    btnConfirm.setVisibility(View.VISIBLE);
-                }
             });
 
             btnConfirm.setOnClickListener(v -> {
@@ -381,12 +444,15 @@ public class StatusReport extends AppCompatActivity {
 
     private void setStatusStyle(TextView tv, String status) {
         if (status == null) { tv.setBackgroundResource(R.drawable.bg_status_pending); return; }
-        switch (status.toUpperCase()) {
-            case "REJECT":
-            case "REJECTED":
+        switch (status.toLowerCase()) {
+            case "reject":
+            case "rejected":
                 tv.setBackgroundResource(R.drawable.bg_status_rejected); break;
-            case "RESOLVED":
-            case "APPROVED": case "SOLVED": case "FINISHED": case "COMPLETED":
+            case "resolved":
+            case "approved":
+            case "solved":
+            case "finished":
+            case "completed":
                 tv.setBackgroundResource(R.drawable.bg_status_approve);  break;
             default:
                 tv.setBackgroundResource(R.drawable.bg_status_pending);  break;

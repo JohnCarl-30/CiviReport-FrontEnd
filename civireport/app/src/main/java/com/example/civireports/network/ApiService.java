@@ -1,11 +1,13 @@
 package com.example.civireports.network;
 
+import com.example.civireports.models.AiRecommendationResponse;
 import com.example.civireports.models.ChangePassRequest;
 import com.example.civireports.models.ChangePassResponse;
 import com.example.civireports.models.ChatRequest;
 import com.example.civireports.models.ChatResponse;
 import com.example.civireports.models.ComplaintRequest;
 import com.example.civireports.models.ComplaintResponse;
+import com.example.civireports.models.ComplaintStatusUpdate;
 import com.example.civireports.models.EditProfileRequest;
 import com.example.civireports.models.EditProfileResponse;
 import com.example.civireports.models.ForgotPasswordRequest;
@@ -92,4 +94,14 @@ public interface ApiService {
 
     @POST("chat")
     Call<ChatResponse> getAiRecommendation(@Body ChatRequest request);
+    @POST("complaints/{complaint_id}/ai-recommendation")
+    Call<AiRecommendationResponse> generateAiRecommendation(
+            @retrofit2.http.Path("complaint_id") int complaintId
+    );
+
+    @POST("complaints/{complaint_id}/resolve")
+    Call<MessageResponse> resolveComplaint(
+            @retrofit2.http.Path("complaint_id") int complaintId,
+            @Body ComplaintStatusUpdate payload
+    );
 }
