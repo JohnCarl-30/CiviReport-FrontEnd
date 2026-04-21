@@ -50,7 +50,20 @@ public class UserComplaint {
 
     public String getFormattedStatus() {
         if (complaintStatus == null) return "PENDING";
-        return complaintStatus.toUpperCase();
+        
+        String status = complaintStatus.toUpperCase();
+        switch (status) {
+            case "PROCESSING":
+                return "IN PROGRESS";
+            case "COMPLETED":
+            case "SOLVED":
+            case "FINISHED":
+                return "RESOLVED";
+            case "REJECTED":
+                return "REJECT";
+            default:
+                return status;
+        }
     }
 
     public String getFirstImageUrl(String baseUrl) {

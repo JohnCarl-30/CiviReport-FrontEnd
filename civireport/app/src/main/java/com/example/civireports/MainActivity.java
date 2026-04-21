@@ -2,6 +2,7 @@ package com.example.civireports;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,7 +56,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // EdgeToEdge.enable(this) is removed to improve compatibility with emulator rendering
+        
+        // ── SESSION CHECK ──
+        // Check if a token already exists to keep the user logged in
+        SharedPreferences authPrefs = getSharedPreferences("auth", MODE_PRIVATE);
+        if (authPrefs.contains("token") && !authPrefs.getString("token", "").isEmpty()) {
+            startActivity(new Intent(MainActivity.this, DashboardActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login_page);
 
         // Initialize EditTexts
@@ -86,10 +96,19 @@ public class MainActivity extends AppCompatActivity {
 
         Button loginButton = findViewById(R.id.login_button);
 
-//        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
+        // Optional: you can switch back to handleLogin if using a real backend
+        // loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
+        
         loginButton.setOnClickListener(v -> {
+            // Save a dummy token for "Stay Logged In" feature in demo mode
+            getSharedPreferences("auth", MODE_PRIVATE)
+                    .edit()
+                    .putString("token", "dummy_token_for_demo")
+                    .apply();
+
             Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
             startActivity(intent);
+            finish();
         });
 
         TextView forgotPassword = findViewById(R.id.forgot_password_textview);
@@ -144,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
         loginButton.setEnabled(false);
 
-        // BAGO
         ApiService api = RetrofitClient.getApiService(MainActivity.this);
         api.login(email, password).enqueue(new Callback<LoginResponse>() {
             @Override
@@ -155,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     int userId = response.body().getUserId();
 
 
-                    // I-save ang token sa SharedPreferences
+                    // Save token to SharedPreferences
                     getSharedPreferences("auth", MODE_PRIVATE)
                             .edit()
                             .putString("token", token)

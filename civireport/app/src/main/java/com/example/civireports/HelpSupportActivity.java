@@ -28,25 +28,32 @@ public class HelpSupportActivity extends AppCompatActivity {
             }
         });
 
+        // Tap Rate our Service → open Google Forms link
+        findViewById(R.id.btnRateService).setOnClickListener(v -> {
+            String url = "https://forms.gle/example"; // Replace with your actual Google Form URL
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+        });
+
         setupBottomNav();
     }
 
     private void setupBottomNav() {
         findViewById(R.id.navHome).setOnClickListener(v -> {
-            startActivity(new Intent(this, DashboardActivity.class));
-            overridePendingTransition(0, 0);
+                startActivity(new Intent(this, DashboardActivity.class));
+                overridePendingTransition(0, 0);
         });
         findViewById(R.id.navHotlines).setOnClickListener(v -> {
-            startActivity(new Intent(this, hotlines.class));
-            overridePendingTransition(0, 0);
+                startActivity(new Intent(this, hotlines.class));
+                overridePendingTransition(0, 0);
         });
         findViewById(R.id.navNotification).setOnClickListener(v -> {
-            startActivity(new Intent(this, Notification.class));
-            overridePendingTransition(0, 0);
+                startActivity(new Intent(this, Notification.class));
+                overridePendingTransition(0, 0);
         });
         findViewById(R.id.navProfile).setOnClickListener(v -> {
-            startActivity(new Intent(this, Profile.class));
-            overridePendingTransition(0, 0);
+                startActivity(new Intent(this, Profile.class));
+                overridePendingTransition(0, 0);
         });
     }
 }

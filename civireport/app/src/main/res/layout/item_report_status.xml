@@ -120,5 +120,63 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:gravity="end" />
+
+        <!-- Confirm Finished Section -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmFinished"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Confirm Finished"
+            android:textColor="@android:color/white"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:backgroundTint="#4CAF50"
+            app:cornerRadius="10dp"
+            android:visibility="visible" />
+
+        <!-- Rating Section (Visible after confirming) -->
+        <LinearLayout
+            android:id="@+id/layoutRating"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingTop="12dp"
+            android:gravity="center_horizontal">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="How would you rate the resolution?"
+                android:textColor="#1A3A6B"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="1"
+                android:rating="0"
+                style="?android:attr/ratingBarStyle"
+                android:layout_marginVertical="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSubmitRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Submit Feedback"
+                android:textAllCaps="false"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

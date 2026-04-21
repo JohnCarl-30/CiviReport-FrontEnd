@@ -90,11 +90,11 @@ public class DashboardActivity extends AppCompatActivity {
         ReportDataStore store = ReportDataStore.getInstance();
         if (!store.hasReports()) {
             store.addReport(new ReportDataStore.ReportItem("#007", "Pending", "Accident", "Emergency", "Vehicle Collision", "St. Main", "Help", "1 minutes ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#004", "Processing", "Broken Streetlight", "Priority", "Electrical Issue", "Ave 2", "No Light", "2 minute ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#001", "Completed", "Garbage Collection", "Nominal", "Waste Disposal", "Rd 5", "Smelly", "32 minutes ago", null));
+            store.addReport(new ReportDataStore.ReportItem("#004", "In Progress", "Broken Streetlight", "Priority", "Electrical Issue", "Ave 2", "No Light", "2 minute ago", null));
+            store.addReport(new ReportDataStore.ReportItem("#001", "Resolved", "Garbage Collection", "Nominal", "Waste Disposal", "Rd 5", "Smelly", "32 minutes ago", null));
             store.addReport(new ReportDataStore.ReportItem("#002", "Pending", "Clogged Sewage", "Nominal", "Drainage", "Lane 1", "Stuck", "2 hours ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#003", "Processing", "Stray Dogs", "Nominal", "Animal Control", "St. 9", "Dangerous", "6 hours ago", null));
-            store.addReport(new ReportDataStore.ReportItem("#007", "Completed", "Stray Dogs", "Nominal", "Animal Control", "Rd 2", "Done", "6 hours ago", null));
+            store.addReport(new ReportDataStore.ReportItem("#003", "In Progress", "Stray Dogs", "Nominal", "Animal Control", "St. 9", "Dangerous", "6 hours ago", null));
+            store.addReport(new ReportDataStore.ReportItem("#007", "Resolved", "Stray Dogs", "Nominal", "Animal Control", "Rd 2", "Done", "6 hours ago", null));
         }
     }
 

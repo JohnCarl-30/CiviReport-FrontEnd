@@ -43,7 +43,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/header"
-        android:layout_above="@id/bottomArea"
         android:fillViewport="true"
         android:visibility="gone">
 
@@ -83,6 +82,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
+            <!-- Spacer to ensure content isn't covered by the floating button -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -92,7 +96,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/header"
-        android:layout_above="@id/bottomArea"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="32dp"
@@ -117,31 +120,23 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- BOTTOM AREA WITH BUTTON -->
-    <LinearLayout
-        android:id="@+id/bottomArea"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <!-- FLOATING BOTTOM BUTTON -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBack"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
         android:layout_alignParentBottom="true"
-        android:gravity="center_horizontal"
-        android:paddingTop="20dp"
-        android:paddingBottom="40dp"
-        android:paddingStart="40dp"
-        android:paddingEnd="40dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnBack"
-            android:layout_width="250dp"
-            android:layout_height="40dp"
-            android:text="Back to Home"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:backgroundTint="#1A3A6B"
-            app:cornerRadius="28dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"/>
-    </LinearLayout>
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:text="Back to Home"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:backgroundTint="#1A3A6B"
+        app:cornerRadius="28dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:elevation="8dp"/>
 
 </RelativeLayout>
