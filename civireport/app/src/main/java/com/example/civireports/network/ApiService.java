@@ -22,6 +22,8 @@ import com.example.civireports.models.UserProfileResponse;
 import com.example.civireports.models.VerifyOtpRequest;
 import com.example.civireports.models.UserComplaint;
 import com.example.civireports.models.Announcement;
+import com.example.civireports.models.EmergencyRequest;
+import com.example.civireports.models.EmergencyResponse;
 
 import retrofit2.http.GET;
 
@@ -94,6 +96,13 @@ public interface ApiService {
 
     @POST("chat")
     Call<ChatResponse> getAiRecommendation(@Body ChatRequest request);
+<<<<<<< Updated upstream
+=======
+
+    @POST("emergencies")
+    Call<EmergencyResponse> createEmergency(@Body EmergencyRequest request);
+
+>>>>>>> Stashed changes
     @POST("complaints/{complaint_id}/ai-recommendation")
     Call<AiRecommendationResponse> generateAiRecommendation(
             @retrofit2.http.Path("complaint_id") int complaintId
