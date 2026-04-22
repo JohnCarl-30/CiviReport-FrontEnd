@@ -112,6 +112,30 @@
                         android:textStyle="bold"
                         android:layout_marginBottom="8dp"/>
 
+                    <!-- Rejection Reason Section -->
+                    <LinearLayout
+                        android:id="@+id/layoutRejection"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rejection reason:"
+                            android:textColor="#1A3A6B"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvRejectionReason"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="N/A"
+                            android:textColor="#1A3A6B"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="8dp"/>
+                    </LinearLayout>
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

@@ -129,8 +129,13 @@ public class StatusReport extends AppCompatActivity {
         ImageView ivUploadedFile    = itemView.findViewById(R.id.ivUploadedFile);
         TextView tvNoFile           = itemView.findViewById(R.id.tvNoFile);
 
+        // Rejection Reason Elements
+        View layoutRejection        = itemView.findViewById(R.id.layoutRejection);
+        TextView tvRejectionReason  = itemView.findViewById(R.id.tvRejectionReason);
+
         // Admin Update View components
         View layoutAdminUpdate      = itemView.findViewById(R.id.layoutAdminUpdate);
+        TextView tvAdminUpdateTitle = itemView.findViewById(R.id.tvAdminUpdateTitle);
         TextView tvAdminNotes       = itemView.findViewById(R.id.tvAdminNotes);
         TextView tvAttachedLabel    = itemView.findViewById(R.id.tvAttachedImageLabel);
         View cardAdminProof         = itemView.findViewById(R.id.cardAdminProof);
@@ -163,15 +168,39 @@ public class StatusReport extends AppCompatActivity {
         tvDateReported.setText(formatDate(complaint.getComplaintDate()));
         fetchAiRecommendation(complaint, tvAiRecommendation);
 
+        // Populate Rejection Reason
+        if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) && 
+            complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
+            layoutRejection.setVisibility(View.VISIBLE);
+            tvRejectionReason.setText(complaint.getRejectionReason());
+        } else {
+            layoutRejection.setVisibility(View.GONE);
+        }
+
+        String status = normalizeStatus(complaint.getComplaintStatus());
+        tvStatus.setText(complaint.getFormattedStatus());
+        setStatusStyle(tvStatus, status);
+
         // Populate Admin Updates
         boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
         String proofUrl = complaint.getResolutionImageUrl("http://10.0.2.2:8000");
         boolean hasAdminProof = proofUrl != null;
+        boolean isInProgress = status.equals("in_progress") || status.equals("processing");
 
-        if (hasAdminNotes || hasAdminProof) {
+        if (hasAdminNotes || hasAdminProof || isInProgress) {
             layoutAdminUpdate.setVisibility(View.VISIBLE);
+            
+            if (isInProgress) {
+                tvAdminUpdateTitle.setText("Admin Status Update");
+            } else {
+                tvAdminUpdateTitle.setText("Final Admin Resolution");
+            }
+
             if (hasAdminNotes) {
                 tvAdminNotes.setText(complaint.getAdminNotes());
+                tvAdminNotes.setVisibility(View.VISIBLE);
+            } else if (isInProgress) {
+                tvAdminNotes.setText("The admin has approved your report and is currently working on it. Check back later for specific updates.");
                 tvAdminNotes.setVisibility(View.VISIBLE);
             } else {
                 tvAdminNotes.setVisibility(View.GONE);
@@ -189,12 +218,8 @@ public class StatusReport extends AppCompatActivity {
             layoutAdminUpdate.setVisibility(View.GONE);
         }
 
-        String status = normalizeStatus(complaint.getComplaintStatus());
-        tvStatus.setText(complaint.getFormattedStatus());
-        setStatusStyle(tvStatus, status);
-
         // Show satisfaction section only when in_progress
-        if (status.equals("in_progress") || status.equals("processing")) {
+        if (isInProgress) {
             layoutInProgressSat.setVisibility(View.VISIBLE);
         } else {
             layoutInProgressSat.setVisibility(View.GONE);

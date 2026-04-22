@@ -32,6 +32,9 @@ public class UserComplaint {
     @SerializedName("admin_notes")
     private String adminNotes;
 
+    @SerializedName("rejection_reason")
+    private String rejectionReason;
+
     @SerializedName("media")
     private List<Media> media;
 
@@ -63,6 +66,7 @@ public class UserComplaint {
     public String getUrgencyLevel()      { return urgencyLevel != null ? urgencyLevel : "nominal"; }
     public String getComplaintDate()     { return complaintDate; }
     public String getAdminNotes()        { return adminNotes; }
+    public String getRejectionReason()   { return rejectionReason; }
     public List<Media> getMedia()        { return media; }
 
     public String getAiDetectedCategory()  { return aiDetectedCategory; }
@@ -88,7 +92,7 @@ public class UserComplaint {
             case "FINISHED":
                 return "RESOLVED";
             case "REJECTED":
-                return "REJECT";
+                return "REJECTED";
             default:
                 return status;
         }
@@ -106,8 +110,6 @@ public class UserComplaint {
 
     public String getResolutionImageUrl(String baseUrl) {
         if (media == null || media.size() < 2) return null;
-        // Logic: Second image is often the resolution proof.
-        // We look for the first image whose path doesn't contain 'complaint' or just the second item.
         return baseUrl + media.get(media.size() - 1).getFilePath();
     }
 
