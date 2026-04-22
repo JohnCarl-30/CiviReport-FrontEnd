@@ -5,12 +5,59 @@
     android:layout_height="match_parent"
     android:background="#F1F6FF">
 
+    <!-- ── HEADER (fixed, outside ScrollView) ── -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="Barangay Logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/brgy" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="2"
+            android:text="CiviReport: Barangay Issue Tracking"
+            android:textColor="#1A1A2E"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnNotificationHeader"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Notifications"
+            android:elevation="8dp"
+            android:focusable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/notif"
+            app:tint="#1B2F5B" />
+    </LinearLayout>
+
     <!-- SCROLLABLE CONTENT -->
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottomNavBar"
+        android:layout_below="@id/header"
         android:fillViewport="true">
 
         <LinearLayout
@@ -18,50 +65,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="100dp">
-
-            <!-- ── HEADER ── -->
-            <LinearLayout
-                android:id="@+id/header"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="@android:color/white"
-                android:elevation="4dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="20dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:contentDescription="Barangay Logo"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/brgy" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="2"
-                    android:text="CiviReport: Barangay Issue Tracking"
-                    android:textColor="#1A1A2E"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/btnNotificationHeader"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:contentDescription="Notifications"
-                    android:focusable="true"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/notif"
-                    app:tint="#1B2F5B" />
-            </LinearLayout>
 
             <!-- ── WELCOME TEXT ── -->
             <TextView
@@ -139,7 +142,6 @@
                                         android:textSize="100sp"
                                         android:textStyle="bold" />
 
-                                    <!-- Chevron moved here, inside the left section -->
                                     <FrameLayout
                                         android:id="@+id/btnToggleStats"
                                         android:layout_width="wrap_content"
@@ -170,7 +172,7 @@
                                     </FrameLayout>
                                 </LinearLayout>
 
-                                <!-- Right: Now Processing -->
+                                <!-- Right: Pending Complaints -->
                                 <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
@@ -239,7 +241,6 @@
                                 android:layout_marginBottom="16dp"
                                 android:visibility="gone" />
 
-                            <!-- Reports list is now INSIDE the card for seamless look -->
                             <LinearLayout
                                 android:id="@+id/reports_overlap_card"
                                 android:layout_width="match_parent"
@@ -323,6 +324,7 @@
                         app:cardElevation="2dp"
                         app:strokeColor="#DEBD00"
                         app:strokeWidth="1dp">
+
                         <LinearLayout
                             android:id="@+id/btnCheckStatus"
                             android:layout_width="match_parent"
@@ -333,6 +335,7 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:background="?attr/selectableItemBackground">
+
                             <androidx.cardview.widget.CardView
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
@@ -347,7 +350,14 @@
                                     app:tint="#1A1A2E"
                                     android:contentDescription="Check Status"/>
                             </androidx.cardview.widget.CardView>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Check Report Status" android:textColor="#1A1A2E" android:textSize="18sp" android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Check Report Status"
+                                android:textColor="#1A1A2E"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -362,26 +372,73 @@
                         app:cardElevation="2dp"
                         app:strokeColor="#FF8F8C"
                         app:strokeWidth="1dp">
+
                         <LinearLayout
                             android:id="@+id/btnEmergencyCard"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:padding="16dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Emergency Report" android:textColor="#1A1A2E" android:textSize="20sp" android:textStyle="bold" />
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="14dp" android:text="Send an urgent alert to Barangay officials for immediate response" android:textColor="#1A1A2E" android:textSize="14sp" />
-                            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="12dp" app:cardElevation="0dp" app:strokeColor="#FFEDED" app:strokeWidth="1dp">
-                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="How it works:" android:textColor="#1A1A2E" android:textStyle="bold" android:textSize="16sp"/>
-                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="1. Lorem Ipsum\n2. Lorem ipsum dolor\n3. Ut enim ad minim veniam, quis nostrud\n4. Lorem Ipsum dolor Ut enim ad minim" android:textColor="#1A1A2E" android:textSize="14sp" android:lineSpacingExtra="4dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Emergency Report"
+                                android:textColor="#1A1A2E"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="14dp"
+                                android:text="Send an urgent alert to Barangay officials for immediate response"
+                                android:textColor="#1A1A2E"
+                                android:textSize="14sp" />
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp"
+                                app:strokeColor="#FFEDED"
+                                app:strokeWidth="1dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="16dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="How it works:"
+                                        android:textColor="#1A1A2E"
+                                        android:textStyle="bold"
+                                        android:textSize="16sp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="4dp"
+                                        android:text="1. Lorem Ipsum\n2. Lorem ipsum dolor\n3. Ut enim ad minim veniam, quis nostrud\n4. Lorem Ipsum dolor Ut enim ad minim"
+                                        android:textColor="#1A1A2E"
+                                        android:textSize="14sp"
+                                        android:lineSpacingExtra="4dp"/>
                                 </LinearLayout>
                             </com.google.android.material.card.MaterialCardView>
-                            <com.example.civireports.SwipeButton android:id="@+id/swipeEmergency" android:layout_width="match_parent" android:layout_height="70dp" android:layout_marginTop="20dp" />
+
+                            <com.example.civireports.SwipeButton
+                                android:id="@+id/swipeEmergency"
+                                android:layout_width="match_parent"
+                                android:layout_height="70dp"
+                                android:layout_marginTop="20dp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
 
@@ -500,7 +557,5 @@
                 android:textColor="@android:color/white"
                 android:textSize="11sp" />
         </LinearLayout>
-
     </LinearLayout>
-
 </RelativeLayout>
