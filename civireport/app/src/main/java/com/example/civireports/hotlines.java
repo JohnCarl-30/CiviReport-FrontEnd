@@ -1,6 +1,5 @@
 package com.example.civireports;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -11,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -99,28 +99,14 @@ public class hotlines extends AppCompatActivity {
     }
 
     private void showNotificationModal() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_notification_modal, null);
-        builder.setView(dialogView);
-
-        final AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        ImageView btnClose = dialogView.findViewById(R.id.btn_close_notif);
-
-        btnClose.setOnClickListener(v -> dialog.dismiss());
-
-        dialog.show();
+        NotificationModalHelper.show(this);
     }
 
     private void showEmergencyReceivedDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         
-        View dialogView = inflater.inflate(R.layout.dialog_emergency_received, null); 
+        View dialogView = inflater.inflate(R.layout.dialog_emergency_received, null);
         
         ImageView btnClose = dialogView.findViewById(R.id.btn_close_emergency);
 

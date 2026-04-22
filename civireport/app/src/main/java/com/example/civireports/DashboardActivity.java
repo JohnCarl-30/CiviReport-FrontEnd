@@ -37,6 +37,11 @@ import retrofit2.Response;
 public class DashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "DashboardActivity";
+    private static final String DASHBOARD_CACHE_PREFS = "dashboard_cache";
+    private static final String KEY_TOTAL = "total";
+    private static final String KEY_EMERGENCY = "emergency";
+    private static final String KEY_PRIORITY = "priority";
+    private static final String KEY_NOMINAL = "nominal";
 
     private TextView tvTotalComplaints;
     private TextView tvEmergencyCount;
@@ -63,6 +68,7 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView modalNotifCount;
     private LinearLayout modalNotifListContainer;
     private TextView modalEmptyNotif;
+    private int dashboardLoadVersion = 0;
 
     private boolean isExpanded = false;
     private boolean emergencyAlertSent = false;
@@ -73,11 +79,11 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         initViews();
+        restoreDashboardSnapshot();
         setupClickListeners();
         checkFirstLogin();
         fetchAndSaveUserProfile();
         initNotificationSocket();
-        loadDashboardData();
     }
 
     @Override
@@ -121,6 +127,9 @@ public class DashboardActivity extends AppCompatActivity {
     private void loadDashboardData() {
         final List<DashboardItem> allItems = new ArrayList<>();
         final int[] callsCompleted = {0};
+        final boolean[] complaintsFailed = {false};
+        final boolean[] emergenciesFailed = {false};
+        final int requestVersion = ++dashboardLoadVersion;
 
         // Fetch pending complaints
         RetrofitClient.getApiService(this)
@@ -139,15 +148,30 @@ public class DashboardActivity extends AppCompatActivity {
                                         c.getComplaintDate()
                                 ));
                             }
+                        } else {
+                            complaintsFailed[0] = true;
                         }
                         callsCompleted[0]++;
-                        if (callsCompleted[0] == 2) updateDashboard(allItems);
+                        if (callsCompleted[0] == 2) {
+                            updateDashboardIfCurrent(
+                                    requestVersion,
+                                    allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]
+                            );
+                        }
                     }
 
                     @Override
                     public void onFailure(Call<List<PendingComplaints>> call, Throwable t) {
+                        complaintsFailed[0] = true;
                         callsCompleted[0]++;
-                        if (callsCompleted[0] == 2) updateDashboard(allItems);
+                        if (callsCompleted[0] == 2) {
+                            updateDashboardIfCurrent(
+                                    requestVersion,
+                                    allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]
+                            );
+                        }
                     }
                 });
 
@@ -168,17 +192,42 @@ public class DashboardActivity extends AppCompatActivity {
                                         e.getCreatedAt()
                                 ));
                             }
+                        } else {
+                            emergenciesFailed[0] = true;
                         }
                         callsCompleted[0]++;
-                        if (callsCompleted[0] == 2) updateDashboard(allItems);
+                        if (callsCompleted[0] == 2) {
+                            updateDashboardIfCurrent(
+                                    requestVersion,
+                                    allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]
+                            );
+                        }
                     }
 
                     @Override
                     public void onFailure(Call<List<EmergencyListResponse>> call, Throwable t) {
+                        emergenciesFailed[0] = true;
                         callsCompleted[0]++;
-                        if (callsCompleted[0] == 2) updateDashboard(allItems);
+                        if (callsCompleted[0] == 2) {
+                            updateDashboardIfCurrent(
+                                    requestVersion,
+                                    allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]
+                            );
+                        }
                     }
                 });
+    }
+
+    private void updateDashboardIfCurrent(int requestVersion, List<DashboardItem> items, boolean hasFailure) {
+        if (requestVersion != dashboardLoadVersion) {
+            return;
+        }
+        if (hasFailure) {
+            return;
+        }
+        updateDashboard(items);
     }
 
     private void updateDashboard(List<DashboardItem> items) {
@@ -202,8 +251,36 @@ public class DashboardActivity extends AppCompatActivity {
         tvEmergencyCount.setText(emergency + " Emergency");
         tvPriorityCount.setText(priority + " Priority");
         tvNominalCount.setText(nominal + " Nominal");
+        saveDashboardSnapshot(items.size(), emergency, priority, nominal);
 
         populateReportsList(items);
+    }
+
+    private void restoreDashboardSnapshot() {
+        SharedPreferences prefs = getSharedPreferences(DASHBOARD_CACHE_PREFS, MODE_PRIVATE);
+        if (!prefs.contains(KEY_TOTAL)) {
+            return;
+        }
+
+        int total = prefs.getInt(KEY_TOTAL, 0);
+        int emergency = prefs.getInt(KEY_EMERGENCY, 0);
+        int priority = prefs.getInt(KEY_PRIORITY, 0);
+        int nominal = prefs.getInt(KEY_NOMINAL, 0);
+
+        tvTotalComplaints.setText(String.valueOf(total));
+        tvEmergencyCount.setText(emergency + " Emergency");
+        tvPriorityCount.setText(priority + " Priority");
+        tvNominalCount.setText(nominal + " Nominal");
+    }
+
+    private void saveDashboardSnapshot(int total, int emergency, int priority, int nominal) {
+        getSharedPreferences(DASHBOARD_CACHE_PREFS, MODE_PRIVATE)
+                .edit()
+                .putInt(KEY_TOTAL, total)
+                .putInt(KEY_EMERGENCY, emergency)
+                .putInt(KEY_PRIORITY, priority)
+                .putInt(KEY_NOMINAL, nominal)
+                .apply();
     }
     private int getPriorityWeight(String urgency) {
         switch (urgency.toLowerCase()) {

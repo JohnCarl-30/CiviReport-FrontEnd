@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import retrofit2.Response;
 public class AnnouncementActivity extends AppCompatActivity {
 
     private LinearLayout navHome, navHotlines, navNotification, navProfile;
+    private ImageView btnNotificationHeader;
     private TextView tvEventCount;
     private LinearLayout notifContainer;
     private TextView tabAll, tabCommunity, tabHealth, tabEducation, tabCulture;
@@ -54,6 +56,7 @@ public class AnnouncementActivity extends AppCompatActivity {
         navHotlines     = findViewById(R.id.navHotlines);
         navNotification = findViewById(R.id.navNotification);
         navProfile      = findViewById(R.id.navProfile);
+        btnNotificationHeader = findViewById(R.id.btnNotificationHeader);
         tvEventCount    = findViewById(R.id.tvEventCount);
         notifContainer  = findViewById(R.id.notifContainer);
         tabAll          = findViewById(R.id.tabAll);
@@ -253,6 +256,10 @@ public class AnnouncementActivity extends AppCompatActivity {
     }
 
     private void setupBottomNav() {
+        if (btnNotificationHeader != null) {
+            btnNotificationHeader.setOnClickListener(v -> NotificationModalHelper.show(this));
+        }
+
         navHome.setOnClickListener(v ->
                 startActivity(new Intent(this, DashboardActivity.class)));
         navHotlines.setOnClickListener(v ->

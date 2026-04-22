@@ -62,6 +62,9 @@ public class Profile extends AppCompatActivity {
         verifiedBadge = findViewById(R.id.verified_badge);
         profileImage = findViewById(R.id.profile_image);
         btnNotificationHeader = findViewById(R.id.btnNotificationHeader);
+        if (btnNotificationHeader != null) {
+            btnNotificationHeader.setOnClickListener(v -> NotificationModalHelper.show(this));
+        }
 
         profileImage.setOnClickListener(v -> showProfilePreviewDialog());
 
