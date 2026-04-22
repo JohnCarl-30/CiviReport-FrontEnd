@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.civireports.models.NotificationItem;
 import com.example.civireports.models.PendingComplaints;
+import com.example.civireports.models.EmergencyRequest;
+import com.example.civireports.models.EmergencyResponse;
 import com.example.civireports.models.UserProfileResponse;
 import com.example.civireports.network.ApiService;
 import com.example.civireports.network.RetrofitClient;
@@ -204,10 +206,33 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, StatusReport.class)));
 
         swipeEmergency.setOnSwipeCompleteListener(() -> {
-            Intent intent = new Intent(this, hotlines.class);
-            intent.putExtra("show_emergency_popup", true);
-            startActivity(intent);
-            Toast.makeText(this, "Emergency alert sent!", Toast.LENGTH_SHORT).show();
+            String savedLocation = getSharedPreferences("UserProfile", MODE_PRIVATE)
+                    .getString("address", "");
+            String emergencyLocation = savedLocation.isEmpty() ? "Unknown location" : savedLocation;
+
+            ApiService api = RetrofitClient.getApiService(this);
+            api.createEmergency(new EmergencyRequest(
+                    emergencyLocation,
+                    "Emergency swipe triggered from dashboard",
+                    "pending"
+            )).enqueue(new Callback<EmergencyResponse>() {
+                @Override
+                public void onResponse(Call<EmergencyResponse> call, Response<EmergencyResponse> response) {
+                    if (response.isSuccessful()) {
+                        Intent intent = new Intent(DashboardActivity.this, hotlines.class);
+                        intent.putExtra("show_emergency_popup", true);
+                        startActivity(intent);
+                        Toast.makeText(DashboardActivity.this, "Emergency alert saved!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(DashboardActivity.this, "Failed to save emergency alert", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<EmergencyResponse> call, Throwable t) {
+                    Toast.makeText(DashboardActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         btnNotificationHeader.setOnClickListener(v -> showNotificationModal());
