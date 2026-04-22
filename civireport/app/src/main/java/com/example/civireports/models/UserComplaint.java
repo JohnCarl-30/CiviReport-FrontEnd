@@ -29,7 +29,7 @@ public class UserComplaint {
     @SerializedName("complaint_date")
     private String complaintDate;
 
-    @SerializedName("admin_notes")
+    @SerializedName("resolved_notes")
     private String adminNotes;
 
     @SerializedName("rejection_reason")

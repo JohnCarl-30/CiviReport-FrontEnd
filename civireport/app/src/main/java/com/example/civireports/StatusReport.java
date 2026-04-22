@@ -135,7 +135,7 @@ public class StatusReport extends AppCompatActivity {
 
         // Admin Update View components
         View layoutAdminUpdate      = itemView.findViewById(R.id.layoutAdminUpdate);
-        TextView tvAdminUpdateTitle = itemView.findViewById(R.id.tvAdminUpdateTitle);
+//        TextView tvAdminUpdateTitle = itemView.findViewById(R.id.tvAdminUpdateTitle);
         TextView tvAdminNotes       = itemView.findViewById(R.id.tvAdminNotes);
         TextView tvAttachedLabel    = itemView.findViewById(R.id.tvAttachedImageLabel);
         View cardAdminProof         = itemView.findViewById(R.id.cardAdminProof);
@@ -190,11 +190,11 @@ public class StatusReport extends AppCompatActivity {
         if (hasAdminNotes || hasAdminProof || isInProgress) {
             layoutAdminUpdate.setVisibility(View.VISIBLE);
             
-            if (isInProgress) {
-                tvAdminUpdateTitle.setText("Admin Status Update");
-            } else {
-                tvAdminUpdateTitle.setText("Final Admin Resolution");
-            }
+//            if (isInProgress) {
+//                tvAdminUpdateTitle.setText("Admin Status Update");
+//            } else {
+//                tvAdminUpdateTitle.setText("Final Admin Resolution");
+//            }
 
             if (hasAdminNotes) {
                 tvAdminNotes.setText(complaint.getAdminNotes());

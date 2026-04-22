@@ -10,6 +10,7 @@ import com.example.civireports.models.ComplaintResponse;
 import com.example.civireports.models.ComplaintStatusUpdate;
 import com.example.civireports.models.EditProfileRequest;
 import com.example.civireports.models.EditProfileResponse;
+import com.example.civireports.models.EmergencyListResponse;
 import com.example.civireports.models.ForgotPasswordRequest;
 import com.example.civireports.models.LoginRequest;
 import com.example.civireports.models.LoginResponse;
@@ -96,13 +97,11 @@ public interface ApiService {
 
     @POST("chat")
     Call<ChatResponse> getAiRecommendation(@Body ChatRequest request);
-<<<<<<< Updated upstream
-=======
 
     @POST("emergencies")
     Call<EmergencyResponse> createEmergency(@Body EmergencyRequest request);
 
->>>>>>> Stashed changes
+
     @POST("complaints/{complaint_id}/ai-recommendation")
     Call<AiRecommendationResponse> generateAiRecommendation(
             @retrofit2.http.Path("complaint_id") int complaintId
@@ -113,4 +112,8 @@ public interface ApiService {
             @retrofit2.http.Path("complaint_id") int complaintId,
             @Body ComplaintStatusUpdate payload
     );
+
+    @GET("emergencies/pending")
+    Call<List<EmergencyListResponse>> getPendingEmergencies();
+
 }

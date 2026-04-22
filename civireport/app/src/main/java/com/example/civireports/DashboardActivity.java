@@ -24,6 +24,8 @@ import com.example.civireports.models.EmergencyResponse;
 import com.example.civireports.models.UserProfileResponse;
 import com.example.civireports.network.ApiService;
 import com.example.civireports.network.RetrofitClient;
+import com.example.civireports.models.DashboardItem;
+import com.example.civireports.models.EmergencyListResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +65,7 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView modalEmptyNotif;
 
     private boolean isExpanded = false;
+    private boolean emergencyAlertSent = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +83,7 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        emergencyAlertSent = false;
         loadDashboardData();
     }
 
@@ -115,52 +119,114 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadDashboardData() {
-        ApiService api = RetrofitClient.getApiService(this);
-        api.getPendingComplaints().enqueue(new Callback<List<PendingComplaints>>() {
-            @Override
-            public void onResponse(Call<List<PendingComplaints>> call, Response<List<PendingComplaints>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<PendingComplaints> complaints = response.body();
+        final List<DashboardItem> allItems = new ArrayList<>();
+        final int[] callsCompleted = {0};
 
-                    int emergency = 0, priority = 0, nominal = 0;
-                    for (PendingComplaints c : complaints) {
-                        switch (c.getUrgencyLevel().toLowerCase()) {
-                            case "critical": emergency++; break;
-                            case "medium":   priority++;  break;
-                            default:         nominal++;   break;
+        // Fetch pending complaints
+        RetrofitClient.getApiService(this)
+                .getPendingComplaints()
+                .enqueue(new Callback<List<PendingComplaints>>() {
+                    @Override
+                    public void onResponse(Call<List<PendingComplaints>> call, Response<List<PendingComplaints>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            for (PendingComplaints c : response.body()) {
+                                allItems.add(new DashboardItem(
+                                        c.getComplaintId(),
+                                        "#" + String.format("%03d", c.getComplaintId()),
+                                        c.getComplaintType(),
+                                        c.getUrgencyLevel().toLowerCase(),
+                                        "complaint",
+                                        c.getComplaintDate()
+                                ));
+                            }
                         }
+                        callsCompleted[0]++;
+                        if (callsCompleted[0] == 2) updateDashboard(allItems);
                     }
 
-                    tvTotalComplaints.setText(String.valueOf(complaints.size()));
-                    tvEmergencyCount.setText(emergency + " Emergency");
-                    tvPriorityCount.setText(priority + " Priority");
-                    tvNominalCount.setText(nominal + " Nominal");
+                    @Override
+                    public void onFailure(Call<List<PendingComplaints>> call, Throwable t) {
+                        callsCompleted[0]++;
+                        if (callsCompleted[0] == 2) updateDashboard(allItems);
+                    }
+                });
 
-                    populateReportsList(complaints);
-                }
-            }
+        // Fetch pending emergencies
+        RetrofitClient.getApiService(this)
+                .getPendingEmergencies()
+                .enqueue(new Callback<List<EmergencyListResponse>>() {
+                    @Override
+                    public void onResponse(Call<List<EmergencyListResponse>> call, Response<List<EmergencyListResponse>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            for (EmergencyListResponse e : response.body()) {
+                                allItems.add(new DashboardItem(
+                                        e.getEmergencyId(),
+                                        "#E" + String.format("%03d", e.getEmergencyId()),
+                                        "Emergency Alert",
+                                        "critical",
+                                        "emergency",
+                                        e.getCreatedAt()
+                                ));
+                            }
+                        }
+                        callsCompleted[0]++;
+                        if (callsCompleted[0] == 2) updateDashboard(allItems);
+                    }
 
-            @Override
-            public void onFailure(Call<List<PendingComplaints>> call, Throwable t) {
-                Toast.makeText(DashboardActivity.this, "Failed to load complaints", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(Call<List<EmergencyListResponse>> call, Throwable t) {
+                        callsCompleted[0]++;
+                        if (callsCompleted[0] == 2) updateDashboard(allItems);
+                    }
+                });
     }
 
-    private void populateReportsList(List<PendingComplaints> complaints) {
+    private void updateDashboard(List<DashboardItem> items) {
+        // Sort: critical > medium > nominal
+        items.sort((a, b) -> {
+            int wa = getPriorityWeight(a.getUrgencyLevel());
+            int wb = getPriorityWeight(b.getUrgencyLevel());
+            return Integer.compare(wa, wb);
+        });
+
+        int emergency = 0, priority = 0, nominal = 0;
+        for (DashboardItem item : items) {
+            switch (item.getUrgencyLevel()) {
+                case "critical": emergency++; break;
+                case "medium":   priority++;  break;
+                default:         nominal++;   break;
+            }
+        }
+
+        tvTotalComplaints.setText(String.valueOf(items.size()));
+        tvEmergencyCount.setText(emergency + " Emergency");
+        tvPriorityCount.setText(priority + " Priority");
+        tvNominalCount.setText(nominal + " Nominal");
+
+        populateReportsList(items);
+    }
+    private int getPriorityWeight(String urgency) {
+        switch (urgency.toLowerCase()) {
+            case "critical": return 0;
+            case "medium":   return 1;
+            default:         return 2;
+        }
+    }
+
+    private void populateReportsList(List<DashboardItem> items) {
         reportsContainer.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(DashboardActivity.this);
 
-        for (PendingComplaints item : complaints) {
+        for (DashboardItem item : items) {
             View itemView = inflater.inflate(R.layout.item_dashboard_report, reportsContainer, false);
 
             LinearLayout container = itemView.findViewById(R.id.reportItemContainer);
             TextView tvQueue   = itemView.findViewById(R.id.tvQueueNumber);
             TextView tvUrgency = itemView.findViewById(R.id.tvUrgencyLabel);
 
-            tvQueue.setText("#" + String.format("%03d", item.getComplaintId()));
+            tvQueue.setText(item.getDisplayId());
 
-            String urgency = item.getUrgencyLevel().toLowerCase();
+            String urgency = item.getUrgencyLevel();
             if (urgency.equals("critical")) {
                 tvUrgency.setText("Emergency");
                 tvUrgency.setTextColor(Color.parseColor("#E53935"));
@@ -206,6 +272,9 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, StatusReport.class)));
 
         swipeEmergency.setOnSwipeCompleteListener(() -> {
+            if (emergencyAlertSent) return;
+            emergencyAlertSent = true;
+
             String savedLocation = getSharedPreferences("UserProfile", MODE_PRIVATE)
                     .getString("address", "");
             String emergencyLocation = savedLocation.isEmpty() ? "Unknown location" : savedLocation;
@@ -225,20 +294,20 @@ public class DashboardActivity extends AppCompatActivity {
                         Toast.makeText(DashboardActivity.this, "Emergency alert saved!", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(DashboardActivity.this, "Failed to save emergency alert", Toast.LENGTH_SHORT).show();
+                        emergencyAlertSent = false;
                     }
                 }
 
                 @Override
                 public void onFailure(Call<EmergencyResponse> call, Throwable t) {
                     Toast.makeText(DashboardActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    emergencyAlertSent = false;
                 }
             });
         });
 
-        btnNotificationHeader.setOnClickListener(v -> showNotificationModal());
         btnNotificationHeader.setOnClickListener(v -> {
             Log.d(TAG, "Bell clicked!");
-            Toast.makeText(this, "Bell clicked!", Toast.LENGTH_SHORT).show();
             showNotificationModal();
         });
 
