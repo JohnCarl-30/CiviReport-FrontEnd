@@ -129,6 +129,13 @@ public class StatusReport extends AppCompatActivity {
         ImageView ivUploadedFile    = itemView.findViewById(R.id.ivUploadedFile);
         TextView tvNoFile           = itemView.findViewById(R.id.tvNoFile);
 
+        // Admin Update View components
+        View layoutAdminUpdate      = itemView.findViewById(R.id.layoutAdminUpdate);
+        TextView tvAdminNotes       = itemView.findViewById(R.id.tvAdminNotes);
+        TextView tvAttachedLabel    = itemView.findViewById(R.id.tvAttachedImageLabel);
+        View cardAdminProof         = itemView.findViewById(R.id.cardAdminProof);
+        ImageView ivAdminProof      = itemView.findViewById(R.id.ivAdminProof);
+
         MaterialButton btnConfirm   = itemView.findViewById(R.id.btnConfirmFinished);
         View layoutRating           = itemView.findViewById(R.id.layoutRating);
 
@@ -156,12 +163,35 @@ public class StatusReport extends AppCompatActivity {
         tvDateReported.setText(formatDate(complaint.getComplaintDate()));
         fetchAiRecommendation(complaint, tvAiRecommendation);
 
+        // Populate Admin Updates
+        boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
+        String proofUrl = complaint.getResolutionImageUrl("http://10.0.2.2:8000");
+        boolean hasAdminProof = proofUrl != null;
+
+        if (hasAdminNotes || hasAdminProof) {
+            layoutAdminUpdate.setVisibility(View.VISIBLE);
+            if (hasAdminNotes) {
+                tvAdminNotes.setText(complaint.getAdminNotes());
+                tvAdminNotes.setVisibility(View.VISIBLE);
+            } else {
+                tvAdminNotes.setVisibility(View.GONE);
+            }
+
+            if (hasAdminProof) {
+                tvAttachedLabel.setVisibility(View.VISIBLE);
+                cardAdminProof.setVisibility(View.VISIBLE);
+                Glide.with(this).load(proofUrl).into(ivAdminProof);
+            } else {
+                tvAttachedLabel.setVisibility(View.GONE);
+                cardAdminProof.setVisibility(View.GONE);
+            }
+        } else {
+            layoutAdminUpdate.setVisibility(View.GONE);
+        }
+
         String status = normalizeStatus(complaint.getComplaintStatus());
         tvStatus.setText(complaint.getFormattedStatus());
         setStatusStyle(tvStatus, status);
-
-        Log.d("STATUS_DEBUG", "RAW: " + complaint.getComplaintStatus());
-        Log.d("STATUS_DEBUG", "NORMALIZED: " + status);
 
         // Show satisfaction section only when in_progress
         if (status.equals("in_progress") || status.equals("processing")) {

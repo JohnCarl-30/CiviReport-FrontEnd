@@ -29,6 +29,9 @@ public class UserComplaint {
     @SerializedName("complaint_date")
     private String complaintDate;
 
+    @SerializedName("admin_notes")
+    private String adminNotes;
+
     @SerializedName("media")
     private List<Media> media;
 
@@ -59,6 +62,7 @@ public class UserComplaint {
     public String getComplaintStatus()   { return complaintStatus; }
     public String getUrgencyLevel()      { return urgencyLevel != null ? urgencyLevel : "nominal"; }
     public String getComplaintDate()     { return complaintDate; }
+    public String getAdminNotes()        { return adminNotes; }
     public List<Media> getMedia()        { return media; }
 
     public String getAiDetectedCategory()  { return aiDetectedCategory; }
@@ -98,6 +102,13 @@ public class UserComplaint {
             }
         }
         return null;
+    }
+
+    public String getResolutionImageUrl(String baseUrl) {
+        if (media == null || media.size() < 2) return null;
+        // Logic: Second image is often the resolution proof.
+        // We look for the first image whose path doesn't contain 'complaint' or just the second item.
+        return baseUrl + media.get(media.size() - 1).getFilePath();
     }
 
     // Media nested class
