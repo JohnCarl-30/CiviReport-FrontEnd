@@ -33,8 +33,10 @@ public class AnnouncementActivity extends AppCompatActivity {
     private LinearLayout navHome, navHotlines, navNotification, navProfile;
     private TextView tvEventCount;
     private LinearLayout notifContainer;
+    private TextView tabAll, tabCommunity, tabHealth, tabEducation, tabCulture;
 
     private final List<Announcement> allAnnouncements = new ArrayList<>();
+    private String activeCategory = "All";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,7 @@ public class AnnouncementActivity extends AppCompatActivity {
 
         initViews();
         setupBottomNav();
+        setupTabs();
         fetchAnnouncements();
     }
 
@@ -53,6 +56,35 @@ public class AnnouncementActivity extends AppCompatActivity {
         navProfile      = findViewById(R.id.navProfile);
         tvEventCount    = findViewById(R.id.tvEventCount);
         notifContainer  = findViewById(R.id.notifContainer);
+        tabAll          = findViewById(R.id.tabAll);
+        tabCommunity    = findViewById(R.id.tabCommunity);
+        tabHealth       = findViewById(R.id.tabHealth);
+        tabEducation    = findViewById(R.id.tabEducation);
+        tabCulture      = findViewById(R.id.tabCulture);
+    }
+
+    private void setupTabs() {
+        tabAll.setOnClickListener(v       -> setActiveTab(tabAll,       "All"));
+        tabCommunity.setOnClickListener(v -> setActiveTab(tabCommunity, "community"));
+        tabHealth.setOnClickListener(v    -> setActiveTab(tabHealth,    "health"));
+        tabEducation.setOnClickListener(v -> setActiveTab(tabEducation, "education"));
+        tabCulture.setOnClickListener(v   -> setActiveTab(tabCulture,   "culture"));
+
+        // Set default active tab
+        setActiveTab(tabAll, "All");
+    }
+
+    private void setActiveTab(TextView selected, String category) {
+        activeCategory = category;
+
+        for (TextView tab : new TextView[]{tabAll, tabCommunity, tabHealth, tabEducation, tabCulture}) {
+            tab.setBackgroundResource(R.drawable.bg_tab_inactive);
+            tab.setTextColor(0xFF1A3A6B);
+        }
+        selected.setBackgroundResource(R.drawable.bg_tab_active);
+        selected.setTextColor(0xFFFFFFFF);
+
+        showAnnouncements();
     }
 
     private void fetchAnnouncements() {
@@ -60,27 +92,17 @@ public class AnnouncementActivity extends AppCompatActivity {
         api.getAnnouncements().enqueue(new Callback<List<Announcement>>() {
             @Override
             public void onResponse(Call<List<Announcement>> call, Response<List<Announcement>> response) {
-                android.util.Log.d("ANNOUNCE", "Code: " + response.code());
-                android.util.Log.d("ANNOUNCE", "Body: " + response.body());
-
                 if (response.isSuccessful() && response.body() != null) {
-                    android.util.Log.d("ANNOUNCE", "Size: " + response.body().size());
                     allAnnouncements.clear();
                     allAnnouncements.addAll(response.body());
                     showAnnouncements();
                 } else {
-                    try {
-                        android.util.Log.e("ANNOUNCE", "Error: " + response.errorBody().string());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Toast.makeText(AnnouncementActivity.this, "Failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AnnouncementActivity.this, "Failed to load announcements", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Announcement>> call, Throwable t) {
-                android.util.Log.e("ANNOUNCE", "Failure: " + t.getMessage());
                 Toast.makeText(AnnouncementActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -89,23 +111,29 @@ public class AnnouncementActivity extends AppCompatActivity {
     private void showAnnouncements() {
         notifContainer.removeAllViews();
 
-        int count = allAnnouncements.size();
+        List<Announcement> filtered = new ArrayList<>();
+        for (Announcement a : allAnnouncements) {
+            if (activeCategory.equals("All") ||
+                    activeCategory.equalsIgnoreCase(a.getCategory())) {
+                filtered.add(a);
+            }
+        }
+
+        int count = filtered.size();
         tvEventCount.setText(count == 1 ? "Showing 1 Event" : "Showing " + count + " Events");
 
-        for (Announcement a : allAnnouncements) {
+        for (Announcement a : filtered) {
             notifContainer.addView(buildCard(a));
         }
     }
 
     private View buildCard(Announcement a) {
-        // Wrapper
         LinearLayout wrapper = new LinearLayout(this);
         LinearLayout.LayoutParams wp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         wp.setMargins(0, 0, 0, dpToPx(12));
         wrapper.setLayoutParams(wp);
 
-        // Card
         CardView card = new CardView(this);
         card.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -115,11 +143,25 @@ public class AnnouncementActivity extends AppCompatActivity {
         card.setClickable(true);
         card.setFocusable(true);
 
-        // Inner
         LinearLayout inner = new LinearLayout(this);
         inner.setOrientation(LinearLayout.VERTICAL);
         int p = dpToPx(16);
         inner.setPadding(p, p, p, p);
+
+        // Category badge
+        if (a.getCategory() != null && !a.getCategory().isEmpty()) {
+            TextView badge = new TextView(this);
+            LinearLayout.LayoutParams badgeP = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            badgeP.setMargins(0, 0, 0, dpToPx(8));
+            badge.setLayoutParams(badgeP);
+            badge.setBackgroundResource(R.drawable.bg_tab_inactive);
+            badge.setPadding(dpToPx(12), dpToPx(4), dpToPx(12), dpToPx(4));
+            badge.setText(capitalize(a.getCategory()));
+            badge.setTextColor(0xFF1A3A6B);
+            badge.setTextSize(11);
+            inner.addView(badge);
+        }
 
         // Title
         TextView title = new TextView(this);
@@ -175,6 +217,11 @@ public class AnnouncementActivity extends AppCompatActivity {
         return wrapper;
     }
 
+    private String capitalize(String s) {
+        if (s == null || s.isEmpty()) return s;
+        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+    }
+
     private void showAnnouncementModal(Announcement a) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -210,7 +257,7 @@ public class AnnouncementActivity extends AppCompatActivity {
                 startActivity(new Intent(this, DashboardActivity.class)));
         navHotlines.setOnClickListener(v ->
                 startActivity(new Intent(this, hotlines.class)));
-        navNotification.setOnClickListener(v -> { /* already here */ });
+        navNotification.setOnClickListener(v -> { });
         navProfile.setOnClickListener(v ->
                 startActivity(new Intent(this, Profile.class)));
     }

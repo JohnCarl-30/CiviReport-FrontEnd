@@ -25,6 +25,10 @@ public class Announcement {
     @SerializedName("who_will_attend")
     private String whoWillAttend;
 
+    @SerializedName("category")
+    private String category;
+
+
     public int getId()               { return id; }
     public String getTitle()         { return title; }
     public String getDescription()   { return description; }
@@ -32,4 +36,6 @@ public class Announcement {
     public String getPostDate()      { return postDate; }
     public String getEventDate()     { return eventDate; }
     public String getWhoWillAttend() { return whoWillAttend; }
+
+    public String getCategory() { return category != null ? category : ""; }
 }
