@@ -1,124 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@drawable/bg_bottom_sheet"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="40dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true">
 
-    <!-- Drag handle -->
-    <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_drag_handle"/>
-
-    <!-- Category badge -->
-    <TextView
-        android:id="@+id/detailCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_tab_inactive"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:text="Health"
-        android:textColor="#1A3A6B"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp"/>
-
-    <!-- Title -->
-    <TextView
-        android:id="@+id/detailTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Senior Citizen Health Program"
-        android:textColor="#1A1A2E"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp"/>
-
-    <!-- Description -->
-    <TextView
-        android:id="@+id/detailDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Full description here"
-        android:textColor="#444444"
-        android:textSize="15sp"
-        android:lineSpacingMultiplier="1.4"
-        android:layout_marginBottom="20dp"/>
-
-    <!-- Divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#EEEEEE"
-        android:layout_marginBottom="18dp"/>
-
-    <!-- Date row - Unified Background -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_rounded_grey_10"
-        android:paddingStart="12dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:layout_marginBottom="12dp">
+        android:orientation="vertical"
+        android:background="@drawable/bg_bottom_sheet"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="40dp">
 
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@android:drawable/ic_menu_today"
-            android:tint="#1A3A6B"
-            android:contentDescription="Date"/>
+        <!-- Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_drag_handle"/>
 
+        <!-- Category badge -->
         <TextView
-            android:id="@+id/detailDate"
+            android:id="@+id/detailCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="Monday, March 2, 2028 | 6:00AM - 9:00AM"
-            android:textColor="#444444"
-            android:textSize="13sp"/>
-    </LinearLayout>
+            android:background="@drawable/bg_tab_inactive"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Health"
+            android:textColor="#1A3A6B"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
 
-    <!-- Location row - Unified Background -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_rounded_grey_10"
-        android:paddingStart="12dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@android:drawable/ic_menu_mylocation"
-            android:tint="#1A3A6B"
-            android:contentDescription="Location"/>
-
+        <!-- Title -->
         <TextView
-            android:id="@+id/detailLocation"
+            android:id="@+id/detailTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Senior Citizen Health Program"
+            android:textColor="#1A1A2E"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/detailDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Full description here"
+            android:textColor="#444444"
+            android:textSize="15sp"
+            android:lineSpacingMultiplier="1.4"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EEEEEE"
+            android:layout_marginBottom="18dp"/>
+
+        <!-- Date row - Unified Background -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="2nd Floor, Barangay Hall"
-            android:textColor="#444444"
-            android:textSize="13sp"/>
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_rounded_grey_10"
+            android:paddingStart="12dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginBottom="12dp">
 
-</LinearLayout>
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@android:drawable/ic_menu_today"
+                android:tint="#1A3A6B"
+                android:contentDescription="Date"/>
+
+            <TextView
+                android:id="@+id/detailDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Monday, March 2, 2028 | 6:00AM - 9:00AM"
+                android:textColor="#444444"
+                android:textSize="13sp"/>
+        </LinearLayout>
+
+        <!-- Location row - Unified Background -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_rounded_grey_10"
+            android:paddingStart="12dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@android:drawable/ic_menu_mylocation"
+                android:tint="#1A3A6B"
+                android:contentDescription="Location"/>
+
+            <TextView
+                android:id="@+id/detailLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="2nd Floor, Barangay Hall"
+                android:textColor="#444444"
+                android:textSize="13sp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -9,17 +9,20 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.civireports.models.UserComplaint;
+import com.example.civireports.network.RetrofitClient;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ReportHistoryActivity extends AppCompatActivity {
 
     private LinearLayout reportItemsContainer;
     private TextView tvEmptyState;
-
-    // ── Holds submitted reports — TODO: replace with real API data ────────────
-    // When backend is ready, fetch reports from API and call loadReports(list)
-    private final List<ReportItem> reports = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,17 +35,32 @@ public class ReportHistoryActivity extends AppCompatActivity {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         setupBottomNav();
 
-        // TODO: Replace with real API call when backend is ready
-        // For now loads whatever is in the reports list (empty by default)
-        // To test with dummy data, add items like:
-        // reports.add(new ReportItem("Queue #001", "Noise / Disturbance", "Loud Music", "02/19/2026", "PENDING"));
-        loadReports();
+        fetchComplaints();
     }
 
-    // ── Renders report cards or shows empty state ─────────────────────────────
-    private void loadReports() {
-        if (reports.isEmpty()) {
-            tvEmptyState.setVisibility(View.GONE);
+    private void fetchComplaints() {
+        RetrofitClient.getApiService(this)
+                .getMyComplaints()
+                .enqueue(new Callback<List<UserComplaint>>() {
+                    @Override
+                    public void onResponse(Call<List<UserComplaint>> call, Response<List<UserComplaint>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            loadReports(response.body());
+                        } else {
+                            loadReports(new ArrayList<>());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<UserComplaint>> call, Throwable t) {
+                        loadReports(new ArrayList<>());
+                    }
+                });
+    }
+
+    private void loadReports(List<UserComplaint> complaints) {
+        if (complaints.isEmpty()) {
+            tvEmptyState.setVisibility(View.VISIBLE);
             reportItemsContainer.setVisibility(View.GONE);
             return;
         }
@@ -51,10 +69,10 @@ public class ReportHistoryActivity extends AppCompatActivity {
         reportItemsContainer.setVisibility(View.VISIBLE);
         reportItemsContainer.removeAllViews();
 
-        for (int i = 0; i < reports.size(); i++) {
-            reportItemsContainer.addView(buildReportRow(reports.get(i)));
+        for (int i = 0; i < complaints.size(); i++) {
+            reportItemsContainer.addView(buildReportRow(complaints.get(i)));
             // Divider between rows
-            if (i < reports.size() - 1) {
+            if (i < complaints.size() - 1) {
                 View divider = new View(this);
                 LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1));
@@ -66,13 +84,19 @@ public class ReportHistoryActivity extends AppCompatActivity {
         }
     }
 
-    // ── Build a single report row ─────────────────────────────────────────────
-    private View buildReportRow(ReportItem r) {
+    private View buildReportRow(UserComplaint r) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
+        row.setPadding(0, dpToPx(8), 0, dpToPx(8));
+        row.setOnClickListener(v -> {
+            Intent intent = new Intent(this, StatusReport.class);
+            // We could pass the specific complaint ID if needed, 
+            // but StatusReport currently fetches all.
+            startActivity(intent);
+        });
 
         // Left: report details
         LinearLayout left = new LinearLayout(this);
@@ -82,18 +106,18 @@ public class ReportHistoryActivity extends AppCompatActivity {
         left.setLayoutParams(leftParams);
 
         TextView queue = new TextView(this);
-        queue.setText(r.queueNumber);
+        queue.setText(r.getQueueNumber());
         queue.setTextColor(0xFF1B2F5B);
         queue.setTextSize(14);
         queue.setTypeface(null, Typeface.BOLD);
 
         TextView type = new TextView(this);
-        type.setText(r.complaintType + " • " + r.specificIssue);
+        type.setText(r.getComplaintType() + " • " + r.getComplaintSubtype());
         type.setTextColor(0xFF555555);
         type.setTextSize(12);
 
         TextView date = new TextView(this);
-        date.setText(r.dateReported);
+        date.setText(r.getComplaintDate());
         date.setTextColor(0xFF999999);
         date.setTextSize(11);
 
@@ -109,22 +133,23 @@ public class ReportHistoryActivity extends AppCompatActivity {
         statusParams.setMargins(dpToPx(8), 0, 0, 0);
         status.setLayoutParams(statusParams);
         status.setPadding(dpToPx(12), dpToPx(4), dpToPx(12), dpToPx(4));
-        status.setText(r.status);
+        status.setText(r.getFormattedStatus());
         status.setTextColor(0xFFFFFFFF);
         status.setTextSize(11);
         status.setTypeface(null, Typeface.BOLD);
 
-        // Set badge color based on status
-        switch (r.status.toUpperCase()) {
+        String statusStr = r.getComplaintStatus() != null ? r.getComplaintStatus().toUpperCase() : "PENDING";
+        switch (statusStr) {
             case "REJECTED":
                 status.setBackgroundResource(R.drawable.bg_status_rejected);
                 break;
             case "APPROVED":
             case "SOLVED":
             case "FINISHED":
+            case "RESOLVED":
                 status.setBackgroundResource(R.drawable.bg_status_approve);
                 break;
-            default: // PENDING
+            default: // PENDING, PROCESSING, etc.
                 status.setBackgroundResource(R.drawable.bg_status_pending);
                 break;
         }
@@ -136,15 +161,6 @@ public class ReportHistoryActivity extends AppCompatActivity {
 
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
-    }
-
-    // ── Simple report data model ──────────────────────────────────────────────
-    static class ReportItem {
-        String queueNumber, complaintType, specificIssue, dateReported, status;
-        ReportItem(String q, String ct, String si, String d, String s) {
-            queueNumber = q; complaintType = ct; specificIssue = si;
-            dateReported = d; status = s;
-        }
     }
 
     private void setupBottomNav() {
