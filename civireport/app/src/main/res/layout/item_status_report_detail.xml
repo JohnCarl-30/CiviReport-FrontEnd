@@ -344,8 +344,10 @@
                     android:id="@+id/btnSubmitRating"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="Submit Feedback"
                     android:textAllCaps="false"
+                    app:backgroundTint="#1A3A6B"
                     app:cornerRadius="10dp" />
             </LinearLayout>
 
@@ -427,10 +429,6 @@
                     app:backgroundTint="#003EAB"
                     app:cornerRadius="10dp"/>
             </LinearLayout>
-
-
-
-
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
