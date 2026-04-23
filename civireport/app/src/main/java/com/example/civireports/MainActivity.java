@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -23,13 +24,16 @@ import com.example.civireports.models.LoginResponse;
 import com.example.civireports.network.ApiService;
 import com.example.civireports.network.RetrofitClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -56,9 +60,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // ── SESSION CHECK ──
-        // Check if a token already exists to keep the user logged in
+
         SharedPreferences authPrefs = getSharedPreferences("auth", MODE_PRIVATE);
         if (authPrefs.contains("token") && !authPrefs.getString("token", "").isEmpty()) {
             startActivity(new Intent(MainActivity.this, DashboardActivity.class));
@@ -68,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login_page);
 
-        // Initialize EditTexts
         EditText emailInput = findViewById(R.id.editTextTextEmailAddress);
         EditText passwordInput = findViewById(R.id.editTextTextPassword);
         ImageView showPasswordBtn = findViewById(R.id.show_password_button);
@@ -76,40 +77,22 @@ public class MainActivity extends AppCompatActivity {
         setupHintBehavior(emailInput);
         setupHintBehavior(passwordInput);
 
-        // Show/Hide Password Toggle
         showPasswordBtn.setOnClickListener(v -> {
             if (isPasswordVisible) {
-                // Hide password
                 passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view); 
+                showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
                 showPasswordBtn.setAlpha(0.5f);
             } else {
-                // Show password
                 passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                 showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
                 showPasswordBtn.setAlpha(1.0f);
             }
             isPasswordVisible = !isPasswordVisible;
-            // Move cursor to end
             passwordInput.setSelection(passwordInput.getText().length());
         });
 
         Button loginButton = findViewById(R.id.login_button);
-
-        // Optional: you can switch back to handleLogin if using a real backend
         loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
-        
-//        loginButton.setOnClickListener(v -> {
-//            // Save a dummy token for "Stay Logged In" feature in demo mode
-//            getSharedPreferences("auth", MODE_PRIVATE)
-//                    .edit()
-//                    .putString("token", "dummy_token_for_demo")
-//                    .apply();
-//
-//            Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
-//            startActivity(intent);
-//            finish();
-//        });
 
         TextView forgotPassword = findViewById(R.id.forgot_password_textview);
         forgotPassword.setOnClickListener(v -> {
@@ -123,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Request permissions after UI is initialized to avoid rendering hangs
         requestInitialPermissions();
     }
 
@@ -155,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
 
-        // Basic validation
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please enter email and password.", Toast.LENGTH_SHORT).show();
             return;
@@ -164,35 +145,82 @@ public class MainActivity extends AppCompatActivity {
         loginButton.setEnabled(false);
 
         ApiService api = RetrofitClient.getApiService(MainActivity.this);
-        api.login(email, password).enqueue(new Callback<LoginResponse>() {
+        api.login(email, password).enqueue(new retrofit2.Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(retrofit2.Call<LoginResponse> call, retrofit2.Response<LoginResponse> response) {
                 loginButton.setEnabled(true);
                 if (response.isSuccessful() && response.body() != null) {
                     String token = response.body().getAccessToken();
                     int userId = response.body().getUserId();
 
-
-                    // Save token to SharedPreferences
                     getSharedPreferences("auth", MODE_PRIVATE)
                             .edit()
                             .putString("token", token)
+                            .putString("access_token", token)
                             .putInt("user_id", userId)
                             .apply();
 
-
                     Toast.makeText(MainActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(MainActivity.this, DashboardActivity.class));
-                    finish();
+                    fetchUserProfile(token);
                 } else {
                     Toast.makeText(MainActivity.this, "Invalid email or password.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(retrofit2.Call<LoginResponse> call, Throwable t) {
                 loginButton.setEnabled(true);
                 Toast.makeText(MainActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void fetchUserProfile(String token) {
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("http://10.0.2.2:8000/auth/me")
+                .get()
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                runOnUiThread(() -> {
+                    startActivity(new Intent(MainActivity.this, DashboardActivity.class));
+                    finish();
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String body = response.body().string();
+                        org.json.JSONObject json = new org.json.JSONObject(body);
+
+                        String fullName = json.optString("full_name", "");
+                        String email = json.optString("email", "");
+                        String photoUrl = json.optString("profile_photo_path", "")
+                                .replace("127.0.0.1", "10.0.2.2");
+
+                        getSharedPreferences("UserProfile", MODE_PRIVATE)
+                                .edit()
+                                .putString("full_name", fullName)
+                                .putString("email", email)
+                                .putString("profile_photo_path", photoUrl)
+                                .apply();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                runOnUiThread(() -> {
+                    startActivity(new Intent(MainActivity.this, DashboardActivity.class));
+                    finish();
+                });
             }
         });
     }

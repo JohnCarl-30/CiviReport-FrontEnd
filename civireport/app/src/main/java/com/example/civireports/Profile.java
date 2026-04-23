@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -56,12 +57,12 @@ public class Profile extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
 
-        // Initialize views
         tvUserName = findViewById(R.id.tvUserName);
         tvUserEmail = findViewById(R.id.tvUserEmail);
         verifiedBadge = findViewById(R.id.verified_badge);
         profileImage = findViewById(R.id.profile_image);
         btnNotificationHeader = findViewById(R.id.btnNotificationHeader);
+
         if (btnNotificationHeader != null) {
             btnNotificationHeader.setOnClickListener(v -> NotificationModalHelper.show(this));
         }
@@ -72,20 +73,9 @@ public class Profile extends AppCompatActivity {
         setupBottomNav();
         checkNotifications();
 
-        // Log out
         ((MaterialButton) findViewById(R.id.btnLogout)).setOnClickListener(v -> {
-            // Clear auth token
-            getSharedPreferences("auth", MODE_PRIVATE)
-                    .edit()
-                    .clear()
-                    .apply();
-
-            // Clear profile data
-            getSharedPreferences("UserProfile", MODE_PRIVATE)
-                    .edit()
-                    .clear()
-                    .apply();
-
+            getSharedPreferences("auth", MODE_PRIVATE).edit().clear().apply();
+            getSharedPreferences("UserProfile", MODE_PRIVATE).edit().clear().apply();
             Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -95,16 +85,11 @@ public class Profile extends AppCompatActivity {
     }
 
     private void checkNotifications() {
-        // Logic to check if there are any notifications
-        // This is a placeholder. In a real app, you might check a database or a remote server.
-        boolean hasNotifications = true; // For demonstration, let's assume there's always a notification
-
+        boolean hasNotifications = true;
         if (btnNotificationHeader != null) {
             if (hasNotifications) {
-                // Color the notification icon in full #1B2F5B if there's a notification
                 btnNotificationHeader.setColorFilter(Color.parseColor("#1B2F5B"));
             } else {
-                // Clear the color filter if there are no notifications
                 btnNotificationHeader.clearColorFilter();
             }
         }
@@ -114,11 +99,9 @@ public class Profile extends AppCompatActivity {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
         byte[] data = new byte[16384];
-
         while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
             buffer.write(data, 0, nRead);
         }
-
         return buffer.toByteArray();
     }
 
@@ -130,7 +113,6 @@ public class Profile extends AppCompatActivity {
     private void uploadProfileImageToServer(Uri imageUri) {
         try {
             String url = "http://10.0.2.2:8000/auth/upload-profile-picture";
-            // emulator use 10.0.2.2, real device use your PC IP
 
             OkHttpClient client = new OkHttpClient();
 
@@ -141,11 +123,7 @@ public class Profile extends AppCompatActivity {
 
             MultipartBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart(
-                            "file",
-                            "profile.jpg",
-                            fileBody
-                    )
+                    .addFormDataPart("file", "profile.jpg", fileBody)
                     .build();
 
             Request request = new Request.Builder()
@@ -158,19 +136,40 @@ public class Profile extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     runOnUiThread(() ->
-                            Toast.makeText(Profile.this, "Upload failed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(Profile.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                     );
                 }
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     if (response.isSuccessful()) {
-                        runOnUiThread(() ->
-                                Toast.makeText(Profile.this, "Profile uploaded to server", Toast.LENGTH_SHORT).show()
-                        );
+                        try {
+                            String responseBody = response.body().string();
+                            org.json.JSONObject json = new org.json.JSONObject(responseBody);
+                            String photoUrl = json.getString("file_path");
+
+                            photoUrl = photoUrl.replace("127.0.0.1", "10.0.2.2");
+
+                            String finalPhotoUrl = photoUrl;
+                            sharedPreferences.edit()
+                                    .putString("profile_photo_path", finalPhotoUrl)
+                                    .apply();
+
+                            runOnUiThread(() -> {
+                                Glide.with(Profile.this)
+                                        .load(finalPhotoUrl)
+                                        .placeholder(R.drawable.ic_profile)
+                                        .error(R.drawable.ic_profile)
+                                        .into(profileImage);
+                                Toast.makeText(Profile.this, "Profile picture updated!", Toast.LENGTH_SHORT).show();
+                            });
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         runOnUiThread(() ->
-                                Toast.makeText(Profile.this, "Server error", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(Profile.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show()
                         );
                     }
                 }
@@ -196,18 +195,20 @@ public class Profile extends AppCompatActivity {
         dialogProfilePreview = dialog.findViewById(R.id.preview_profile_image);
         FloatingActionButton btnEdit = dialog.findViewById(R.id.btn_edit_profile_pic);
 
-        String imageUriStr = sharedPreferences.getString("profile_image_uri", "");
-        if (!imageUriStr.isEmpty()) {
-            try {
-                dialogProfilePreview.setImageURI(Uri.parse(imageUriStr));
-            } catch (Exception e) {
-                dialogProfilePreview.setImageResource(R.drawable.ic_profile);
-            }
+        String profileUrl = sharedPreferences.getString("profile_photo_path", "")
+                .replace("127.0.0.1", "10.0.2.2"); // <-- fix
+        if (!profileUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(profileUrl)
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .into(dialogProfilePreview);
         } else {
             dialogProfilePreview.setImageResource(R.drawable.ic_profile);
         }
 
         btnEdit.setOnClickListener(v -> {
+            dialog.dismiss();
             if (checkStoragePermission()) {
                 openGallery();
             } else {
@@ -259,8 +260,7 @@ public class Profile extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
-            
-            // Take persistable permission
+
             try {
                 final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
                 getContentResolver().takePersistableUriPermission(imageUri, takeFlags);
@@ -268,14 +268,12 @@ public class Profile extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            sharedPreferences.edit().putString("profile_image_uri", imageUri.toString()).apply();
-            
             if (dialogProfilePreview != null) {
                 dialogProfilePreview.setImageURI(imageUri);
             }
             profileImage.setImageURI(imageUri);
-            
-            Toast.makeText(this, "Profile picture updated", Toast.LENGTH_SHORT).show();
+
+            uploadProfileImageToServer(imageUri);
         }
     }
 
@@ -289,60 +287,53 @@ public class Profile extends AppCompatActivity {
     private void loadUserData() {
         String name = sharedPreferences.getString("full_name", "Juan Dela Cruz");
         String email = sharedPreferences.getString("email", "JuanDC@gmail.com");
-        String imageUriStr = sharedPreferences.getString("profile_image_uri", "");
-        
+        String profileUrl = sharedPreferences.getString("profile_photo_path", "")
+                .replace("127.0.0.1", "10.0.2.2"); // <-- fix
+
         tvUserName.setText(name);
         tvUserEmail.setText(email);
-        
-        if (!imageUriStr.isEmpty()) {
-            try {
-                profileImage.setImageURI(Uri.parse(imageUriStr));
-            } catch (Exception e) {
-                profileImage.setImageResource(R.drawable.ic_profile);
-            }
+
+        if (!profileUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(profileUrl)
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .into(profileImage);
         } else {
             profileImage.setImageResource(R.drawable.ic_profile);
         }
-        
-        boolean isVerified = true; 
+
         if (verifiedBadge != null) {
-            verifiedBadge.setVisibility(isVerified ? android.view.View.VISIBLE : android.view.View.GONE);
+            verifiedBadge.setVisibility(android.view.View.VISIBLE);
         }
     }
 
     private void setupMenuItems() {
         findViewById(R.id.menuEditProfile).setOnClickListener(v ->
                 startActivity(new Intent(this, EditProfileActivity.class)));
-
         findViewById(R.id.menuChangePassword).setOnClickListener(v ->
                 startActivity(new Intent(this, ProfileChangePassActivity.class)));
-
         findViewById(R.id.menuReportHistory).setOnClickListener(v ->
                 startActivity(new Intent(this, ReportHistoryActivity.class)));
-
         findViewById(R.id.menuHelp).setOnClickListener(v ->
                 startActivity(new Intent(this, HelpSupportActivity.class)));
-
         findViewById(R.id.menuAbout).setOnClickListener(v ->
                 startActivity(new Intent(this, AboutAppActivity.class)));
     }
 
     private void setupBottomNav() {
         findViewById(R.id.navHome).setOnClickListener(v -> {
-                startActivity(new Intent(this, DashboardActivity.class));
-                overridePendingTransition(0, 0);
+            startActivity(new Intent(this, DashboardActivity.class));
+            overridePendingTransition(0, 0);
         });
-
         findViewById(R.id.navHotlines).setOnClickListener(v -> {
-                startActivity(new Intent(this, hotlines.class));
-                overridePendingTransition(0, 0);
+            startActivity(new Intent(this, hotlines.class));
+            overridePendingTransition(0, 0);
         });
-
         findViewById(R.id.navNotification).setOnClickListener(v -> {
-                startActivity(new Intent(this, AnnouncementActivity.class));
-                overridePendingTransition(0, 0);
+            startActivity(new Intent(this, AnnouncementActivity.class));
+            overridePendingTransition(0, 0);
         });
-
         findViewById(R.id.navProfile).setOnClickListener(v ->
                 Toast.makeText(this, "You are on Profile", Toast.LENGTH_SHORT).show());
     }

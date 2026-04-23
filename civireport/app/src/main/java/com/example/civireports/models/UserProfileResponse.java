@@ -18,10 +18,13 @@ public class UserProfileResponse {
 
     @SerializedName("address")
     private String address;
+    @SerializedName("profile_photo_path")  // <-- add ito
+    private String profilePhotoPath;
 
     public int getUserId()       { return userId; }
     public String getFullName()  { return fullName; }
     public String getEmail()     { return email; }
     public String getContactNum(){ return contactNum; }
     public String getAddress()   { return address; }
+    public String getProfilePhotoPath() { return profilePhotoPath; }
 }
