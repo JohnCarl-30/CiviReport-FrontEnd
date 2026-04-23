@@ -4,19 +4,19 @@ import com.google.gson.annotations.SerializedName;
 
 public class ComplaintStatusUpdate {
 
-    @SerializedName("action")
-    private String action;
+    @SerializedName("status")
+    private String status;
 
-    @SerializedName("feedback")
+    @SerializedName("rejection_reason")
     private String feedback;
 
-    public ComplaintStatusUpdate(String action, String feedback) {
-        this.action   = action;
+    public ComplaintStatusUpdate(String status, String feedback) {
+        this.status   = status;
         this.feedback = feedback;
     }
 
-    public ComplaintStatusUpdate(String action) {
-        this.action   = action;
+    public ComplaintStatusUpdate(String status) {
+        this.status   = status;
         this.feedback = null;
     }
 }

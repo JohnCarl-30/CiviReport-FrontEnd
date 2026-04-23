@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.civireports.models.EmergencyListResponse;
 import com.example.civireports.models.UserComplaint;
 import com.example.civireports.network.RetrofitClient;
 
@@ -25,6 +26,10 @@ public class ReportHistoryActivity extends AppCompatActivity {
     private LinearLayout reportItemsContainer;
     private TextView tvEmptyState;
 
+    private final List<UserComplaint> complaints = new ArrayList<>();
+    private final List<EmergencyListResponse> emergencies = new ArrayList<>();
+    private int callsCompleted = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,88 +40,124 @@ public class ReportHistoryActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         setupBottomNav();
-
-        fetchComplaints();
+        fetchAll();
     }
 
-    private void fetchComplaints() {
+    private void fetchAll() {
+        callsCompleted = 0;
+        complaints.clear();
+        emergencies.clear();
+
+        // Fetch complaints
         RetrofitClient.getApiService(this)
                 .getMyComplaints()
                 .enqueue(new Callback<List<UserComplaint>>() {
                     @Override
                     public void onResponse(Call<List<UserComplaint>> call, Response<List<UserComplaint>> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            loadReports(response.body());
-                        } else {
-                            loadReports(new ArrayList<>());
+                            complaints.addAll(response.body());
                         }
+                        callsCompleted++;
+                        if (callsCompleted == 2) renderAll();
                     }
 
                     @Override
                     public void onFailure(Call<List<UserComplaint>> call, Throwable t) {
-                        loadReports(new ArrayList<>());
+                        callsCompleted++;
+                        if (callsCompleted == 2) renderAll();
+                    }
+                });
+
+        // Fetch emergencies
+        RetrofitClient.getApiService(this)
+                .getMyEmergencies()
+                .enqueue(new Callback<List<EmergencyListResponse>>() {
+                    @Override
+                    public void onResponse(Call<List<EmergencyListResponse>> call, Response<List<EmergencyListResponse>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            emergencies.addAll(response.body());
+                        }
+                        callsCompleted++;
+                        if (callsCompleted == 2) renderAll();
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<EmergencyListResponse>> call, Throwable t) {
+                        callsCompleted++;
+                        if (callsCompleted == 2) renderAll();
                     }
                 });
     }
 
-    private void loadReports(List<UserComplaint> complaints) {
-        if (complaints.isEmpty()) {
+    private void renderAll() {
+        if (complaints.isEmpty() && emergencies.isEmpty()) {
             tvEmptyState.setVisibility(View.VISIBLE);
             reportItemsContainer.setVisibility(View.GONE);
             return;
         }
 
+        // Combine into unified list
+        List<Object> combined = new ArrayList<>();
+        combined.addAll(complaints);
+        combined.addAll(emergencies);
+
+        // Sort by date — most recent first
+        combined.sort((a, b) -> {
+            String dateA = getDateString(a);
+            String dateB = getDateString(b);
+            return dateB.compareTo(dateA);
+        });
+
         tvEmptyState.setVisibility(View.GONE);
         reportItemsContainer.setVisibility(View.VISIBLE);
         reportItemsContainer.removeAllViews();
 
-        for (int i = 0; i < complaints.size(); i++) {
-            reportItemsContainer.addView(buildReportRow(complaints.get(i)));
-            // Divider between rows
-            if (i < complaints.size() - 1) {
-                View divider = new View(this);
-                LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1));
-                dp.setMargins(0, dpToPx(8), 0, dpToPx(8));
-                divider.setLayoutParams(dp);
-                divider.setBackgroundColor(0xFFF0F0F0);
-                reportItemsContainer.addView(divider);
+        for (int i = 0; i < combined.size(); i++) {
+            Object item = combined.get(i);
+            if (item instanceof UserComplaint) {
+                reportItemsContainer.addView(buildComplaintRow((UserComplaint) item));
+            } else if (item instanceof EmergencyListResponse) {
+                reportItemsContainer.addView(buildEmergencyRow((EmergencyListResponse) item));
             }
+            if (i < combined.size() - 1) addDivider();
         }
     }
 
-    private View buildReportRow(UserComplaint r) {
+    private String getDateString(Object item) {
+        if (item instanceof UserComplaint) {
+            String date = ((UserComplaint) item).getComplaintDate();
+            return date != null ? date : "";
+        } else if (item instanceof EmergencyListResponse) {
+            String date = ((EmergencyListResponse) item).getCreatedAt();
+            return date != null ? date : "";
+        }
+        return "";
+    }
+
+    private View buildComplaintRow(UserComplaint r) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
         row.setPadding(0, dpToPx(8), 0, dpToPx(8));
-        row.setOnClickListener(v -> {
-            Intent intent = new Intent(this, StatusReport.class);
-            startActivity(intent);
-        });
+        row.setOnClickListener(v ->
+                startActivity(new Intent(this, StatusReport.class)));
 
-        // Left: report details
         LinearLayout left = new LinearLayout(this);
         left.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams leftParams = new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        left.setLayoutParams(leftParams);
+        left.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView queue = new TextView(this);
         queue.setText(r.getQueueNumber());
-        
-        // Set queue number color based on urgency
         String urgency = r.getUrgencyLevel() != null ? r.getUrgencyLevel().toLowerCase() : "nominal";
         if (urgency.equals("emergency") || urgency.equals("critical")) {
-            queue.setTextColor(Color.parseColor("#E53935")); // Red
+            queue.setTextColor(Color.parseColor("#E53935"));
         } else if (urgency.equals("priority") || urgency.equals("medium")) {
-            queue.setTextColor(Color.parseColor("#FB8C00")); // Orange
+            queue.setTextColor(Color.parseColor("#FB8C00"));
         } else {
-            queue.setTextColor(Color.parseColor("#43A047")); // Green
+            queue.setTextColor(Color.parseColor("#43A047"));
         }
-
         queue.setTextSize(14);
         queue.setTypeface(null, Typeface.BOLD);
 
@@ -134,7 +175,58 @@ public class ReportHistoryActivity extends AppCompatActivity {
         left.addView(type);
         left.addView(date);
 
-        // Right: status badge
+        TextView status = buildStatusBadge(r.getFormattedStatus(), r.getComplaintStatus());
+
+        row.addView(left);
+        row.addView(status);
+        return row;
+    }
+
+    private View buildEmergencyRow(EmergencyListResponse e) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        row.setPadding(0, dpToPx(8), 0, dpToPx(8));
+
+        LinearLayout left = new LinearLayout(this);
+        left.setOrientation(LinearLayout.VERTICAL);
+        left.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView queue = new TextView(this);
+        queue.setText("#E" + String.format("%03d", e.getEmergencyId()));
+        queue.setTextColor(Color.parseColor("#E53935"));
+        queue.setTextSize(14);
+        queue.setTypeface(null, Typeface.BOLD);
+
+        TextView type = new TextView(this);
+        type.setText("Emergency Alert • " + e.getLocation());
+        type.setTextColor(0xFF555555);
+        type.setTextSize(12);
+
+        TextView date = new TextView(this);
+        String createdAt = e.getCreatedAt() != null && e.getCreatedAt().length() >= 10
+                ? e.getCreatedAt().substring(0, 10) : "";
+        date.setText(createdAt);
+        date.setTextColor(0xFF999999);
+        date.setTextSize(11);
+
+        left.addView(queue);
+        left.addView(type);
+        left.addView(date);
+
+        TextView status = buildStatusBadge(
+                e.getStatus() != null ? e.getStatus().toUpperCase() : "PENDING",
+                e.getStatus()
+        );
+
+        row.addView(left);
+        row.addView(status);
+        return row;
+    }
+
+    private TextView buildStatusBadge(String displayText, String rawStatus) {
         TextView status = new TextView(this);
         LinearLayout.LayoutParams statusParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -142,30 +234,31 @@ public class ReportHistoryActivity extends AppCompatActivity {
         statusParams.setMargins(dpToPx(8), 0, 0, 0);
         status.setLayoutParams(statusParams);
         status.setPadding(dpToPx(12), dpToPx(4), dpToPx(12), dpToPx(4));
-        status.setText(r.getFormattedStatus());
+        status.setText(displayText);
         status.setTextColor(0xFFFFFFFF);
         status.setTextSize(11);
         status.setTypeface(null, Typeface.BOLD);
 
-        String statusStr = r.getComplaintStatus() != null ? r.getComplaintStatus().toUpperCase() : "PENDING";
-        switch (statusStr) {
+        String s = rawStatus != null ? rawStatus.toUpperCase() : "PENDING";
+        switch (s) {
             case "REJECTED":
-                status.setBackgroundResource(R.drawable.bg_status_rejected);
-                break;
-            case "APPROVED":
-            case "SOLVED":
-            case "FINISHED":
-            case "RESOLVED":
-                status.setBackgroundResource(R.drawable.bg_status_approve);
-                break;
-            default: // PENDING, PROCESSING, etc.
-                status.setBackgroundResource(R.drawable.bg_status_pending);
-                break;
+                status.setBackgroundResource(R.drawable.bg_status_rejected); break;
+            case "APPROVED": case "SOLVED": case "FINISHED": case "RESOLVED":
+                status.setBackgroundResource(R.drawable.bg_status_approve);  break;
+            default:
+                status.setBackgroundResource(R.drawable.bg_status_pending);  break;
         }
+        return status;
+    }
 
-        row.addView(left);
-        row.addView(status);
-        return row;
+    private void addDivider() {
+        View divider = new View(this);
+        LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1));
+        dp.setMargins(0, dpToPx(8), 0, dpToPx(8));
+        divider.setLayoutParams(dp);
+        divider.setBackgroundColor(0xFFF0F0F0);
+        reportItemsContainer.addView(divider);
     }
 
     private int dpToPx(int dp) {

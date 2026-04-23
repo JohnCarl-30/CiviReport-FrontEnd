@@ -16,6 +16,7 @@ import com.example.civireports.models.LoginRequest;
 import com.example.civireports.models.LoginResponse;
 import com.example.civireports.models.MessageResponse;
 import com.example.civireports.models.PendingComplaints;
+import com.example.civireports.models.RatingRequest;
 import com.example.civireports.models.RegisterRequest;
 import com.example.civireports.models.RegisterResponse;
 import com.example.civireports.models.ResetPasswordRequest;
@@ -116,4 +117,12 @@ public interface ApiService {
     @GET("emergencies/pending")
     Call<List<EmergencyListResponse>> getPendingEmergencies();
 
+    @GET("emergencies/my-emergencies")
+    Call<List<EmergencyListResponse>> getMyEmergencies();
+
+    @POST("complaints/{complaint_id}/rate")
+    Call<MessageResponse> rateComplaint(
+            @retrofit2.http.Path("complaint_id") int complaintId,
+            @Body RatingRequest payload
+    );
 }

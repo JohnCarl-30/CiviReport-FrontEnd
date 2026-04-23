@@ -149,7 +149,8 @@ public class StatusReport extends AppCompatActivity {
         MaterialButton btnSatNo        = itemView.findViewById(R.id.btnSatisfiedNo);
         TextInputLayout tilSatFeedback = itemView.findViewById(R.id.tilSatisfactionFeedback);
         MaterialButton btnSubmitSat    = itemView.findViewById(R.id.btnSubmitSatisfaction);
-
+        android.widget.RatingBar ratingBar = itemView.findViewById(R.id.ratingBar);
+        MaterialButton btnSubmitRating     = itemView.findViewById(R.id.btnSubmitRating);
         tvQueueNumber.setText(complaint.getQueueNumber());
 
         String urgency = complaint.getUrgencyLevel();
@@ -226,7 +227,7 @@ public class StatusReport extends AppCompatActivity {
         }
 
         // Show confirm button only when resolved
-        if (status.equals("resolved")) {
+        if (status.equals("resolved") && complaint.getServiceRating() == null) {
             btnConfirm.setEnabled(true);
             btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
             btnConfirm.setVisibility(View.VISIBLE);
@@ -243,15 +244,25 @@ public class StatusReport extends AppCompatActivity {
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
-                            Toast.makeText(StatusReport.this, "Complaint marked as resolved!", Toast.LENGTH_SHORT).show();
-                            tilSatFeedback.setVisibility(View.GONE);
-                            btnSubmitSat.setVisibility(View.GONE);
-                            layoutInProgressSat.setVisibility(View.GONE);
-                            tvStatus.setText("RESOLVED");
-                            setStatusStyle(tvStatus, "resolved");
-                            btnConfirm.setEnabled(true);
-                            btnConfirm.setVisibility(View.VISIBLE);
-                            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
+                            if (response.isSuccessful()) {
+                                Toast.makeText(StatusReport.this, "Complaint marked as resolved!", Toast.LENGTH_SHORT).show();
+
+                                tilSatFeedback.setVisibility(View.GONE);
+                                btnSubmitSat.setVisibility(View.GONE);
+                                layoutInProgressSat.setVisibility(View.GONE);
+                                tvStatus.setText("RESOLVED");
+                                setStatusStyle(tvStatus, "resolved");
+                                btnConfirm.setEnabled(true);
+                                btnConfirm.setVisibility(View.VISIBLE);
+                            } else {
+                                try {
+                                    String error = response.errorBody().string();
+                                    android.util.Log.e("API_ERROR", error);
+                                    Toast.makeText(StatusReport.this, error, Toast.LENGTH_LONG).show();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
 
                         @Override
@@ -306,6 +317,39 @@ public class StatusReport extends AppCompatActivity {
         btnConfirm.setOnClickListener(v -> {
             btnConfirm.setVisibility(View.GONE);
             layoutRating.setVisibility(View.VISIBLE);
+        });
+
+        btnSubmitRating.setOnClickListener(v -> {
+            int rating = (int) ratingBar.getRating();
+            if (rating == 0) {
+                Toast.makeText(StatusReport.this, "Please select a rating.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            RetrofitClient.getApiService(StatusReport.this)
+                    .rateComplaint(complaint.getComplaintId(), new com.example.civireports.models.RatingRequest(rating))
+                    .enqueue(new Callback<MessageResponse>() {
+                        @Override
+                        public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(StatusReport.this, "Thank you for your rating! ⭐", Toast.LENGTH_SHORT).show();
+                                layoutRating.setVisibility(View.GONE);
+                            } else {
+                                try {
+                                    String error = response.errorBody().string();
+                                    Log.e("RATE_ERROR", error);
+                                    Toast.makeText(StatusReport.this, error, Toast.LENGTH_LONG).show();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<MessageResponse> call, Throwable t) {
+                            Toast.makeText(StatusReport.this, "Network error.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 
         String imageUrl = complaint.getFirstImageUrl("http://10.0.2.2:8000");

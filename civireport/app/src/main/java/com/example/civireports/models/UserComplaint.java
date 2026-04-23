@@ -56,6 +56,9 @@ public class UserComplaint {
     @SerializedName("ai_message")
     private String aiMessage;
 
+    @SerializedName("service_rating")
+    private Integer service_rating;
+
     // Getters
     public int    getComplaintId()       { return complaintId; }
     public String getComplaintType()     { return complaintType; }
@@ -75,6 +78,7 @@ public class UserComplaint {
     public String getAiReplyBullets()      { return aiReplyBullets; }
     public String getAiSuggestedActions()  { return aiSuggestedActions; }
     public String getAiMessage()           { return aiMessage; }
+    public Integer getServiceRating()           { return service_rating; }
 
     // Display helpers
     public String getQueueNumber() {
