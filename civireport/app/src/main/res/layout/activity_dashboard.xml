@@ -385,7 +385,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Check Report Status"
+                                    android:text="Check Complaint Status"
                                     android:textColor="#5A4700"
                                     android:textSize="18sp"
                                     android:textStyle="bold" />

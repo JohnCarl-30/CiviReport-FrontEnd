@@ -1,6 +1,7 @@
 package com.example.civireports;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -93,8 +94,6 @@ public class ReportHistoryActivity extends AppCompatActivity {
         row.setPadding(0, dpToPx(8), 0, dpToPx(8));
         row.setOnClickListener(v -> {
             Intent intent = new Intent(this, StatusReport.class);
-            // We could pass the specific complaint ID if needed, 
-            // but StatusReport currently fetches all.
             startActivity(intent);
         });
 
@@ -107,7 +106,17 @@ public class ReportHistoryActivity extends AppCompatActivity {
 
         TextView queue = new TextView(this);
         queue.setText(r.getQueueNumber());
-        queue.setTextColor(0xFF1B2F5B);
+        
+        // Set queue number color based on urgency
+        String urgency = r.getUrgencyLevel() != null ? r.getUrgencyLevel().toLowerCase() : "nominal";
+        if (urgency.equals("emergency") || urgency.equals("critical")) {
+            queue.setTextColor(Color.parseColor("#E53935")); // Red
+        } else if (urgency.equals("priority") || urgency.equals("medium")) {
+            queue.setTextColor(Color.parseColor("#FB8C00")); // Orange
+        } else {
+            queue.setTextColor(Color.parseColor("#43A047")); // Green
+        }
+
         queue.setTextSize(14);
         queue.setTypeface(null, Typeface.BOLD);
 
