@@ -11,6 +11,7 @@ import com.example.civireports.models.ComplaintStatusUpdate;
 import com.example.civireports.models.EditProfileRequest;
 import com.example.civireports.models.EditProfileResponse;
 import com.example.civireports.models.EmergencyListResponse;
+import com.example.civireports.models.FeedbackRequest;
 import com.example.civireports.models.ForgotPasswordRequest;
 import com.example.civireports.models.LoginRequest;
 import com.example.civireports.models.LoginResponse;
@@ -124,5 +125,11 @@ public interface ApiService {
     Call<MessageResponse> rateComplaint(
             @retrofit2.http.Path("complaint_id") int complaintId,
             @Body RatingRequest payload
+    );
+
+    @POST("complaints/{complaint_id}/feedback")
+    Call<MessageResponse> submitFeedback(
+            @retrofit2.http.Path("complaint_id") int complaintId,
+            @Body FeedbackRequest payload
     );
 }

@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.civireports.models.AiRecommendationResponse;
 import com.example.civireports.models.ComplaintStatusUpdate;
+import com.example.civireports.models.FeedbackRequest;
 import com.example.civireports.models.MessageResponse;
 import com.example.civireports.models.RatingRequest;
 import com.example.civireports.models.UserComplaint;
@@ -345,14 +346,34 @@ public class StatusReport extends AppCompatActivity {
                 return;
             }
 
+            // Step 1: Submit rating first
             RetrofitClient.getApiService(this)
-                    .rateComplaint(complaint.getComplaintId(), new RatingRequest((int) rating, comment))
+                    .rateComplaint(complaint.getComplaintId(), new RatingRequest((int) rating))
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
-                                Toast.makeText(StatusReport.this, "Thank you for your rating! ⭐", Toast.LENGTH_SHORT).show();
-                                fetchComplaints();
+                                // Step 2: Submit feedback if may comment
+                                if (!comment.isEmpty()) {
+                                    RetrofitClient.getApiService(StatusReport.this)
+                                            .submitFeedback(complaint.getComplaintId(), new FeedbackRequest(comment))
+                                            .enqueue(new Callback<MessageResponse>() {
+                                                @Override
+                                                public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                                                    Toast.makeText(StatusReport.this, "Thank you for your rating and feedback! ⭐", Toast.LENGTH_SHORT).show();
+                                                    fetchComplaints();
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<MessageResponse> call, Throwable t) {
+                                                    Toast.makeText(StatusReport.this, "Rating saved but feedback failed.", Toast.LENGTH_SHORT).show();
+                                                    fetchComplaints();
+                                                }
+                                            });
+                                } else {
+                                    Toast.makeText(StatusReport.this, "Thank you for your rating! ⭐", Toast.LENGTH_SHORT).show();
+                                    fetchComplaints();
+                                }
                             } else {
                                 Toast.makeText(StatusReport.this, "Failed to submit rating.", Toast.LENGTH_SHORT).show();
                             }
