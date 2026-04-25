@@ -194,7 +194,6 @@ public class StatusReport extends AppCompatActivity {
 
         if (hasAdminNotes || hasAdminProof || isInProgress) {
             layoutAdminUpdate.setVisibility(View.VISIBLE);
-            
             if (hasAdminNotes) {
                 tvAdminNotes.setText(complaint.getAdminNotes());
                 tvAdminNotes.setVisibility(View.VISIBLE);
@@ -224,31 +223,46 @@ public class StatusReport extends AppCompatActivity {
             layoutInProgressSat.setVisibility(View.GONE);
         }
 
-        // Show Rating Section ONLY When Report is Resolved
+        // --- RATING & FEEDBACK PERSISTENCE LOGIC ---
         if (complaint.getFormattedStatus().equals("RESOLVED")) {
+            ratingSection.setVisibility(View.VISIBLE);
+            
             if (complaint.getServiceRating() == null) {
-                // Not yet rated, show confirm/start rating flow
+                // Not yet rated: Show input flow
+                btnConfirm.setVisibility(View.VISIBLE);
                 btnConfirm.setEnabled(true);
                 btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
-                btnConfirm.setVisibility(View.VISIBLE);
-                ratingSection.setVisibility(View.GONE);
-            } else {
-                // Already rated, show read-only feedback
-                btnConfirm.setVisibility(View.GONE);
-                ratingSection.setVisibility(View.VISIBLE);
-                userRating.setRating(complaint.getServiceRating());
-                userRating.setIsIndicator(true); // read-only
-                submitRatingButton.setVisibility(View.GONE);
                 
+                // Hide input fields until Confirm is clicked
+                userRating.setVisibility(View.GONE);
+                userComment.setVisibility(View.GONE);
+                submitRatingButton.setVisibility(View.GONE);
+                submitRatingButton.setEnabled(true);
+                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1B2F5B")));
+            } else {
+                // Already rated: Show READ-ONLY feedback and ensure it's never removed
+                btnConfirm.setVisibility(View.GONE);
+                userRating.setVisibility(View.VISIBLE);
+                userRating.setRating(complaint.getServiceRating());
+                userRating.setIsIndicator(true); // Locked
+
                 String comment = complaint.getServiceComment();
                 if (comment != null && !comment.isEmpty()) {
+                    userComment.setVisibility(View.VISIBLE);
                     userComment.setText(comment);
                     userComment.setFocusable(false);
+                    userComment.setFocusableInTouchMode(false);
                     userComment.setClickable(false);
                     userComment.setCursorVisible(false);
+                    userComment.setBackground(null); // Look like a TextView
                 } else {
                     userComment.setVisibility(View.GONE);
                 }
+                
+                // Keep button visible but pale blue and disabled
+                submitRatingButton.setVisibility(View.VISIBLE);
+                submitRatingButton.setEnabled(false);
+                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
             }
         } else {
             btnConfirm.setVisibility(View.GONE);
@@ -264,7 +278,7 @@ public class StatusReport extends AppCompatActivity {
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(StatusReport.this, "Complaint marked as resolved!", Toast.LENGTH_SHORT).show();
-                                fetchComplaints(); // reload
+                                fetchComplaints();
                             } else {
                                 Toast.makeText(StatusReport.this, "Failed to update status.", Toast.LENGTH_SHORT).show();
                             }
@@ -317,7 +331,9 @@ public class StatusReport extends AppCompatActivity {
 
         btnConfirm.setOnClickListener(v -> {
             btnConfirm.setVisibility(View.GONE);
-            ratingSection.setVisibility(View.VISIBLE);
+            userRating.setVisibility(View.VISIBLE);
+            userComment.setVisibility(View.VISIBLE);
+            submitRatingButton.setVisibility(View.VISIBLE);
         });
 
         submitRatingButton.setOnClickListener(v -> {
@@ -491,12 +507,10 @@ public class StatusReport extends AppCompatActivity {
             }
 
             if ("RESOLVED".equalsIgnoreCase(status)) {
-                btnConfirm.setEnabled(true);
-                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
+                ratingSection.setVisibility(View.VISIBLE);
                 btnConfirm.setVisibility(View.VISIBLE);
             } else {
-                btnConfirm.setEnabled(false);
-                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
+                ratingSection.setVisibility(View.GONE);
                 btnConfirm.setVisibility(View.GONE);
             }
 
@@ -519,7 +533,9 @@ public class StatusReport extends AppCompatActivity {
 
             btnConfirm.setOnClickListener(v -> {
                 btnConfirm.setVisibility(View.GONE);
-                ratingSection.setVisibility(View.VISIBLE);
+                userRating.setVisibility(View.VISIBLE);
+                userComment.setVisibility(View.VISIBLE);
+                submitRatingButton.setVisibility(View.VISIBLE);
             });
 
             submitRatingButton.setOnClickListener(v -> {
@@ -528,8 +544,11 @@ public class StatusReport extends AppCompatActivity {
                     Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                userRating.setIsIndicator(true);
+                submitRatingButton.setEnabled(false);
+                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
+                userComment.setEnabled(false);
                 Toast.makeText(this, "Feedback submitted locally!", Toast.LENGTH_SHORT).show();
-                ratingSection.setVisibility(View.GONE);
             });
 
             ImageView ivUploadedFile = itemView.findViewById(R.id.ivUploadedFile);
