@@ -6,8 +6,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.civireports.models.AiRecommendationResponse;
 import com.example.civireports.models.ComplaintStatusUpdate;
 import com.example.civireports.models.MessageResponse;
+import com.example.civireports.models.RatingRequest;
 import com.example.civireports.models.UserComplaint;
 import com.example.civireports.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
@@ -29,8 +32,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import com.example.civireports.models.ChatRequest;
-import com.example.civireports.models.ChatResponse;
 import android.util.Log;
 
 public class StatusReport extends AppCompatActivity {
@@ -135,22 +136,25 @@ public class StatusReport extends AppCompatActivity {
 
         // Admin Update View components
         View layoutAdminUpdate      = itemView.findViewById(R.id.layoutAdminUpdate);
-//        TextView tvAdminUpdateTitle = itemView.findViewById(R.id.tvAdminUpdateTitle);
         TextView tvAdminNotes       = itemView.findViewById(R.id.tvAdminNotes);
         TextView tvAttachedLabel    = itemView.findViewById(R.id.tvAttachedImageLabel);
         View cardAdminProof         = itemView.findViewById(R.id.cardAdminProof);
         ImageView ivAdminProof      = itemView.findViewById(R.id.ivAdminProof);
 
         MaterialButton btnConfirm   = itemView.findViewById(R.id.btnConfirmFinished);
-        View layoutRating           = itemView.findViewById(R.id.layoutRating);
+        
+        // Rating Elements (STRICT camelCase)
+        View ratingSection             = itemView.findViewById(R.id.ratingSection);
+        RatingBar userRating           = itemView.findViewById(R.id.userRating);
+        EditText userComment           = itemView.findViewById(R.id.userComment);
+        MaterialButton submitRatingButton = itemView.findViewById(R.id.submitRatingButton);
 
         View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);
         MaterialButton btnSatYes       = itemView.findViewById(R.id.btnSatisfiedYes);
         MaterialButton btnSatNo        = itemView.findViewById(R.id.btnSatisfiedNo);
         TextInputLayout tilSatFeedback = itemView.findViewById(R.id.tilSatisfactionFeedback);
         MaterialButton btnSubmitSat    = itemView.findViewById(R.id.btnSubmitSatisfaction);
-        android.widget.RatingBar ratingBar = itemView.findViewById(R.id.ratingBar);
-        MaterialButton btnSubmitRating     = itemView.findViewById(R.id.btnSubmitRating);
+
         tvQueueNumber.setText(complaint.getQueueNumber());
 
         String urgency = complaint.getUrgencyLevel();
@@ -178,25 +182,19 @@ public class StatusReport extends AppCompatActivity {
             layoutRejection.setVisibility(View.GONE);
         }
 
-        String status = normalizeStatus(complaint.getComplaintStatus());
+        String reportStatus = normalizeStatus(complaint.getComplaintStatus());
         tvStatus.setText(complaint.getFormattedStatus());
-        setStatusStyle(tvStatus, status);
+        setStatusStyle(tvStatus, reportStatus);
 
         // Populate Admin Updates
         boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
         String proofUrl = complaint.getResolutionImageUrl("http://10.0.2.2:8000");
         boolean hasAdminProof = proofUrl != null;
-        boolean isInProgress = status.equals("in_progress") || status.equals("processing");
+        boolean isInProgress = reportStatus.equals("in_progress") || reportStatus.equals("processing");
 
         if (hasAdminNotes || hasAdminProof || isInProgress) {
             layoutAdminUpdate.setVisibility(View.VISIBLE);
             
-//            if (isInProgress) {
-//                tvAdminUpdateTitle.setText("Admin Status Update");
-//            } else {
-//                tvAdminUpdateTitle.setText("Final Admin Resolution");
-//            }
-
             if (hasAdminNotes) {
                 tvAdminNotes.setText(complaint.getAdminNotes());
                 tvAdminNotes.setVisibility(View.VISIBLE);
@@ -226,15 +224,35 @@ public class StatusReport extends AppCompatActivity {
             layoutInProgressSat.setVisibility(View.GONE);
         }
 
-        // Show confirm button only when resolved
-        if (status.equals("resolved") && complaint.getServiceRating() == null) {
-            btnConfirm.setEnabled(true);
-            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
-            btnConfirm.setVisibility(View.VISIBLE);
+        // Show Rating Section ONLY When Report is Resolved
+        if (complaint.getFormattedStatus().equals("RESOLVED")) {
+            if (complaint.getServiceRating() == null) {
+                // Not yet rated, show confirm/start rating flow
+                btnConfirm.setEnabled(true);
+                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
+                btnConfirm.setVisibility(View.VISIBLE);
+                ratingSection.setVisibility(View.GONE);
+            } else {
+                // Already rated, show read-only feedback
+                btnConfirm.setVisibility(View.GONE);
+                ratingSection.setVisibility(View.VISIBLE);
+                userRating.setRating(complaint.getServiceRating());
+                userRating.setIsIndicator(true); // read-only
+                submitRatingButton.setVisibility(View.GONE);
+                
+                String comment = complaint.getServiceComment();
+                if (comment != null && !comment.isEmpty()) {
+                    userComment.setText(comment);
+                    userComment.setFocusable(false);
+                    userComment.setClickable(false);
+                    userComment.setCursorVisible(false);
+                } else {
+                    userComment.setVisibility(View.GONE);
+                }
+            }
         } else {
-            btnConfirm.setEnabled(false);
-            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
             btnConfirm.setVisibility(View.GONE);
+            ratingSection.setVisibility(View.GONE);
         }
 
         // Approve — mark as resolved
@@ -246,28 +264,15 @@ public class StatusReport extends AppCompatActivity {
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(StatusReport.this, "Complaint marked as resolved!", Toast.LENGTH_SHORT).show();
-
-                                tilSatFeedback.setVisibility(View.GONE);
-                                btnSubmitSat.setVisibility(View.GONE);
-                                layoutInProgressSat.setVisibility(View.GONE);
-                                tvStatus.setText("RESOLVED");
-                                setStatusStyle(tvStatus, "resolved");
-                                btnConfirm.setEnabled(true);
-                                btnConfirm.setVisibility(View.VISIBLE);
+                                fetchComplaints(); // reload
                             } else {
-                                try {
-                                    String error = response.errorBody().string();
-                                    android.util.Log.e("API_ERROR", error);
-                                    Toast.makeText(StatusReport.this, error, Toast.LENGTH_LONG).show();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                Toast.makeText(StatusReport.this, "Failed to update status.", Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<MessageResponse> call, Throwable t) {
-                            Toast.makeText(StatusReport.this, "Failed to update status.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(StatusReport.this, "Network error.", Toast.LENGTH_SHORT).show();
                         }
                     });
         });
@@ -300,11 +305,7 @@ public class StatusReport extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             Toast.makeText(StatusReport.this, "Feedback sent! Complaint resubmitted.", Toast.LENGTH_SHORT).show();
-                            layoutInProgressSat.setVisibility(View.GONE);
-                            tvStatus.setText("PENDING");
-                            setStatusStyle(tvStatus, "pending");
-                            tilSatFeedback.setVisibility(View.GONE);
-                            btnSubmitSat.setVisibility(View.GONE);
+                            fetchComplaints();
                         }
 
                         @Override
@@ -316,32 +317,28 @@ public class StatusReport extends AppCompatActivity {
 
         btnConfirm.setOnClickListener(v -> {
             btnConfirm.setVisibility(View.GONE);
-            layoutRating.setVisibility(View.VISIBLE);
+            ratingSection.setVisibility(View.VISIBLE);
         });
 
-        btnSubmitRating.setOnClickListener(v -> {
-            int rating = (int) ratingBar.getRating();
+        submitRatingButton.setOnClickListener(v -> {
+            float rating = userRating.getRating();
+            String comment = userComment.getText().toString().trim();
+
             if (rating == 0) {
-                Toast.makeText(StatusReport.this, "Please select a rating.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            RetrofitClient.getApiService(StatusReport.this)
-                    .rateComplaint(complaint.getComplaintId(), new com.example.civireports.models.RatingRequest(rating))
+            RetrofitClient.getApiService(this)
+                    .rateComplaint(complaint.getComplaintId(), new RatingRequest((int) rating, comment))
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(StatusReport.this, "Thank you for your rating! ⭐", Toast.LENGTH_SHORT).show();
-                                layoutRating.setVisibility(View.GONE);
+                                fetchComplaints();
                             } else {
-                                try {
-                                    String error = response.errorBody().string();
-                                    Log.e("RATE_ERROR", error);
-                                    Toast.makeText(StatusReport.this, error, Toast.LENGTH_LONG).show();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                Toast.makeText(StatusReport.this, "Failed to submit rating.", Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -476,7 +473,11 @@ public class StatusReport extends AppCompatActivity {
             setStatusStyle(tvStatus, status);
 
             MaterialButton btnConfirm      = itemView.findViewById(R.id.btnConfirmFinished);
-            View layoutRating              = itemView.findViewById(R.id.layoutRating);
+            View ratingSection             = itemView.findViewById(R.id.ratingSection);
+            RatingBar userRating           = itemView.findViewById(R.id.userRating);
+            EditText userComment           = itemView.findViewById(R.id.userComment);
+            MaterialButton submitRatingButton = itemView.findViewById(R.id.submitRatingButton);
+
             View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);
             MaterialButton btnSatYes       = itemView.findViewById(R.id.btnSatisfiedYes);
             MaterialButton btnSatNo        = itemView.findViewById(R.id.btnSatisfiedNo);
@@ -518,7 +519,17 @@ public class StatusReport extends AppCompatActivity {
 
             btnConfirm.setOnClickListener(v -> {
                 btnConfirm.setVisibility(View.GONE);
-                layoutRating.setVisibility(View.VISIBLE);
+                ratingSection.setVisibility(View.VISIBLE);
+            });
+
+            submitRatingButton.setOnClickListener(v -> {
+                float rating = userRating.getRating();
+                if (rating == 0) {
+                    Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Toast.makeText(this, "Feedback submitted locally!", Toast.LENGTH_SHORT).show();
+                ratingSection.setVisibility(View.GONE);
             });
 
             ImageView ivUploadedFile = itemView.findViewById(R.id.ivUploadedFile);

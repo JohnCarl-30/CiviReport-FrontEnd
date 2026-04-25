@@ -30,7 +30,7 @@ public class HelpSupportActivity extends AppCompatActivity {
 
         // Tap Rate our Service → open Google Forms link
         findViewById(R.id.btnRateService).setOnClickListener(v -> {
-            String url = "https://forms.gle/example"; // Replace with your actual Google Form URL
+            String url = "https://docs.google.com/forms/d/e/1FAIpQLSfTHFD5aGscxzqVJN5ouxIDk-2w-g__aAVoIavxWraPj2MfPw/viewform?usp=sharing&ouid=103982556314572601117"; // Replace with your actual Google Form URL
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });

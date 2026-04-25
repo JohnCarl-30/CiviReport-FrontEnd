@@ -220,6 +220,7 @@
                     android:layout_marginBottom="16dp"/>
 
                 <TextView
+                    android:id="@+id/tvAdminUpdateTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Admin Update"
@@ -308,7 +309,7 @@
 
             <!-- Rating Section (Visible after finalized) -->
             <LinearLayout
-                android:id="@+id/layoutRating"
+                android:id="@+id/ratingSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -331,7 +332,7 @@
                     android:textStyle="bold" />
 
                 <RatingBar
-                    android:id="@+id/ratingBar"
+                    android:id="@+id/userRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:numStars="5"
@@ -340,8 +341,22 @@
                     style="?android:attr/ratingBarStyle"
                     android:layout_marginVertical="8dp" />
 
+                <EditText
+                    android:id="@+id/userComment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Optional"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:maxLines="4"
+                    android:background="@drawable/bg_spinner"
+                    android:padding="12dp"
+                    android:textSize="14sp"
+                    android:textColor="#1A3A6B"
+                    android:layout_marginBottom="12dp"/>
+
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSubmitRating"
+                    android:id="@+id/submitRatingButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
