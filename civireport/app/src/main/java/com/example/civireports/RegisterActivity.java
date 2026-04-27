@@ -179,28 +179,28 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (showPasswordBtn != null) {
             showPasswordBtn.setOnClickListener(v -> {
-                isPasswordVisible = !isPasswordVisible;
                 if (isPasswordVisible) {
-                    passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                    showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
-                } else {
                     passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                    showPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
+                    showPasswordBtn.setAlpha(0.5f);
+                } else {
+                    passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    showPasswordBtn.setAlpha(1.0f);
                 }
+                isPasswordVisible = !isPasswordVisible;
                 passwordInput.setSelection(passwordInput.getText().length());
             });
         }
 
         if (showConfirmPasswordBtn != null) {
             showConfirmPasswordBtn.setOnClickListener(v -> {
-                isConfirmPasswordVisible = !isConfirmPasswordVisible;
                 if (isConfirmPasswordVisible) {
-                    confirmPasswordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                    showConfirmPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
-                } else {
                     confirmPasswordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                    showConfirmPasswordBtn.setImageResource(android.R.drawable.ic_menu_view);
+                    showConfirmPasswordBtn.setAlpha(0.5f);
+                } else {
+                    confirmPasswordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    showConfirmPasswordBtn.setAlpha(1.0f);
                 }
+                isConfirmPasswordVisible = !isConfirmPasswordVisible;
                 confirmPasswordInput.setSelection(confirmPasswordInput.getText().length());
             });
         }

@@ -2,6 +2,8 @@ package com.example.civireports;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +26,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText etNewPassword, etConfirmPassword;
     private Button btnChangePassword;
     private String email, otp;
+    
+    private boolean isNewVisible = false;
+    private boolean isConfirmVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         setupPlaceholderBehavior(etNewPassword);
         setupPlaceholderBehavior(etConfirmPassword);
+        setupVisibilityToggles();
 
         btnBack.setOnClickListener(v -> finish());
 
@@ -48,6 +54,32 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 handleResetPassword();
             }
         });
+    }
+
+    private void setupVisibilityToggles() {
+        ImageView ivNew = findViewById(R.id.show_new_password);
+        ImageView ivConfirm = findViewById(R.id.show_confirm_password);
+
+        ivNew.setOnClickListener(v -> {
+            isNewVisible = !isNewVisible;
+            togglePasswordVisibility(etNewPassword, ivNew, isNewVisible);
+        });
+
+        ivConfirm.setOnClickListener(v -> {
+            isConfirmVisible = !isConfirmVisible;
+            togglePasswordVisibility(etConfirmPassword, ivConfirm, isConfirmVisible);
+        });
+    }
+
+    private void togglePasswordVisibility(EditText editText, ImageView imageView, boolean isVisible) {
+        if (isVisible) {
+            editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            imageView.setAlpha(1.0f);
+        } else {
+            editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            imageView.setAlpha(0.5f);
+        }
+        editText.setSelection(editText.getText().length());
     }
 
     private void handleResetPassword() {
