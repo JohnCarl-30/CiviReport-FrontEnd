@@ -86,7 +86,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="0dp"
-                        android:text="CiviReport:"
+                        android:text=" CiviReport:"
                         android:textColor="@color/black"
                         android:textSize="22sp"
                         android:textStyle="bold" />
@@ -95,7 +95,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="Barangay Issue"
+                        android:text=" Barangay Issue"
                         android:textColor="@color/black"
                         android:textSize="22sp"
                         android:textStyle="bold" />
@@ -104,7 +104,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="Tracking"
+                        android:text=" Tracking"
                         android:textColor="@color/black"
                         android:textSize="22sp"
                         android:textStyle="bold" />
@@ -113,7 +113,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="0dp"
-                        android:text="Platform"
+                        android:text=" Platform"
                         android:textColor="@color/black"
                         android:textSize="22sp"
                         android:textStyle="bold" />
