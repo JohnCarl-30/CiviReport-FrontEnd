@@ -34,6 +34,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.util.Log;
+import com.example.civireports.BuildConfig;
 
 public class StatusReport extends AppCompatActivity {
 
@@ -44,6 +45,16 @@ public class StatusReport extends AppCompatActivity {
     private MaterialButton btnBack;
 
     private boolean justSubmitted = false;
+
+    // Helper to fix 127.0.0.1 in URLs
+    private String fixUrl(String url) {
+        if (url == null || url.isEmpty()) return url;
+        String baseIp = BuildConfig.BASE_URL
+                .replace("http://", "")
+                .replace("/", "")
+                .split(":")[0];
+        return url.replace("127.0.0.1", baseIp);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,8 +154,8 @@ public class StatusReport extends AppCompatActivity {
         ImageView ivAdminProof      = itemView.findViewById(R.id.ivAdminProof);
 
         MaterialButton btnConfirm   = itemView.findViewById(R.id.btnConfirmFinished);
-        
-        // Rating Elements (STRICT camelCase)
+
+        // Rating Elements
         View ratingSection             = itemView.findViewById(R.id.ratingSection);
         RatingBar userRating           = itemView.findViewById(R.id.userRating);
         EditText userComment           = itemView.findViewById(R.id.userComment);
@@ -175,8 +186,8 @@ public class StatusReport extends AppCompatActivity {
         fetchAiRecommendation(complaint, tvAiRecommendation);
 
         // Populate Rejection Reason
-        if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) && 
-            complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
+        if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) &&
+                complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
             layoutRejection.setVisibility(View.VISIBLE);
             tvRejectionReason.setText(complaint.getRejectionReason());
         } else {
@@ -189,7 +200,7 @@ public class StatusReport extends AppCompatActivity {
 
         // Populate Admin Updates
         boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
-        String proofUrl = complaint.getResolutionImageUrl("http://10.0.2.2:8000");
+        String proofUrl = fixUrl(complaint.getResolutionImageUrl(BuildConfig.BASE_URL));
         boolean hasAdminProof = proofUrl != null;
         boolean isInProgress = reportStatus.equals("in_progress") || reportStatus.equals("processing");
 
@@ -227,25 +238,22 @@ public class StatusReport extends AppCompatActivity {
         // --- RATING & FEEDBACK PERSISTENCE LOGIC ---
         if (complaint.getFormattedStatus().equals("RESOLVED")) {
             ratingSection.setVisibility(View.VISIBLE);
-            
+
             if (complaint.getServiceRating() == null) {
-                // Not yet rated: Show input flow
                 btnConfirm.setVisibility(View.VISIBLE);
                 btnConfirm.setEnabled(true);
                 btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
-                
-                // Hide input fields until Confirm is clicked
+
                 userRating.setVisibility(View.GONE);
                 userComment.setVisibility(View.GONE);
                 submitRatingButton.setVisibility(View.GONE);
                 submitRatingButton.setEnabled(true);
                 submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1B2F5B")));
             } else {
-                // Already rated: Show READ-ONLY feedback and ensure it's never removed
                 btnConfirm.setVisibility(View.GONE);
                 userRating.setVisibility(View.VISIBLE);
                 userRating.setRating(complaint.getServiceRating());
-                userRating.setIsIndicator(true); // Locked
+                userRating.setIsIndicator(true);
 
                 String comment = complaint.getServiceComment();
                 if (comment != null && !comment.isEmpty()) {
@@ -255,12 +263,11 @@ public class StatusReport extends AppCompatActivity {
                     userComment.setFocusableInTouchMode(false);
                     userComment.setClickable(false);
                     userComment.setCursorVisible(false);
-                    userComment.setBackground(null); // Look like a TextView
+                    userComment.setBackground(null);
                 } else {
                     userComment.setVisibility(View.GONE);
                 }
-                
-                // Keep button visible but pale blue and disabled
+
                 submitRatingButton.setVisibility(View.VISIBLE);
                 submitRatingButton.setEnabled(false);
                 submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
@@ -346,14 +353,12 @@ public class StatusReport extends AppCompatActivity {
                 return;
             }
 
-            // Step 1: Submit rating first
             RetrofitClient.getApiService(this)
                     .rateComplaint(complaint.getComplaintId(), new RatingRequest((int) rating))
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
-                                // Step 2: Submit feedback if may comment
                                 if (!comment.isEmpty()) {
                                     RetrofitClient.getApiService(StatusReport.this)
                                             .submitFeedback(complaint.getComplaintId(), new FeedbackRequest(comment))
@@ -386,7 +391,8 @@ public class StatusReport extends AppCompatActivity {
                     });
         });
 
-        String imageUrl = complaint.getFirstImageUrl("http://10.0.2.2:8000");
+        // Fix complaint image URL
+        String imageUrl = fixUrl(complaint.getFirstImageUrl(BuildConfig.BASE_URL));
         if (imageUrl != null) {
             ivUploadedFile.setVisibility(View.VISIBLE);
             tvNoFile.setVisibility(View.GONE);
@@ -509,10 +515,10 @@ public class StatusReport extends AppCompatActivity {
             tvStatus.setText(status);
             setStatusStyle(tvStatus, status);
 
-            MaterialButton btnConfirm      = itemView.findViewById(R.id.btnConfirmFinished);
-            View ratingSection             = itemView.findViewById(R.id.ratingSection);
-            RatingBar userRating           = itemView.findViewById(R.id.userRating);
-            EditText userComment           = itemView.findViewById(R.id.userComment);
+            MaterialButton btnConfirm         = itemView.findViewById(R.id.btnConfirmFinished);
+            View ratingSection                = itemView.findViewById(R.id.ratingSection);
+            RatingBar userRating              = itemView.findViewById(R.id.userRating);
+            EditText userComment              = itemView.findViewById(R.id.userComment);
             MaterialButton submitRatingButton = itemView.findViewById(R.id.submitRatingButton);
 
             View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);

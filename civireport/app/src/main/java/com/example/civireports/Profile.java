@@ -39,6 +39,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import com.example.civireports.BuildConfig;
 
 public class Profile extends AppCompatActivity {
 
@@ -49,6 +50,16 @@ public class Profile extends AppCompatActivity {
     private ImageView verifiedBadge, profileImage, btnNotificationHeader;
     private SharedPreferences sharedPreferences;
     private CircleImageView dialogProfilePreview;
+
+    // Helper to fix 127.0.0.1 in URLs
+    private String fixUrl(String url) {
+        if (url == null || url.isEmpty()) return url;
+        String baseIp = BuildConfig.BASE_URL
+                .replace("http://", "")
+                .replace("/", "")
+                .split(":")[0];
+        return url.replace("127.0.0.1", baseIp);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +123,7 @@ public class Profile extends AppCompatActivity {
 
     private void uploadProfileImageToServer(Uri imageUri) {
         try {
-            String url = "http://10.0.2.2:8000/auth/upload-profile-picture";
+            String url = BuildConfig.BASE_URL + "auth/upload-profile-picture";
 
             OkHttpClient client = new OkHttpClient();
 
@@ -148,7 +159,8 @@ public class Profile extends AppCompatActivity {
                             org.json.JSONObject json = new org.json.JSONObject(responseBody);
                             String photoUrl = json.getString("file_path");
 
-                            photoUrl = photoUrl.replace("127.0.0.1", "10.0.2.2");
+                            // Fix #1 - after upload response
+                            photoUrl = fixUrl(photoUrl);
 
                             String finalPhotoUrl = photoUrl;
                             sharedPreferences.edit()
@@ -195,8 +207,8 @@ public class Profile extends AppCompatActivity {
         dialogProfilePreview = dialog.findViewById(R.id.preview_profile_image);
         FloatingActionButton btnEdit = dialog.findViewById(R.id.btn_edit_profile_pic);
 
-        String profileUrl = sharedPreferences.getString("profile_photo_path", "")
-                .replace("127.0.0.1", "10.0.2.2"); // <-- fix
+        // Fix #2 - dialog preview
+        String profileUrl = fixUrl(sharedPreferences.getString("profile_photo_path", ""));
         if (!profileUrl.isEmpty()) {
             Glide.with(this)
                     .load(profileUrl)
@@ -287,8 +299,9 @@ public class Profile extends AppCompatActivity {
     private void loadUserData() {
         String name = sharedPreferences.getString("full_name", "Juan Dela Cruz");
         String email = sharedPreferences.getString("email", "JuanDC@gmail.com");
-        String profileUrl = sharedPreferences.getString("profile_photo_path", "")
-                .replace("127.0.0.1", "10.0.2.2"); // <-- fix
+
+        // Fix #3 - load user data
+        String profileUrl = fixUrl(sharedPreferences.getString("profile_photo_path", ""));
 
         tvUserName.setText(name);
         tvUserEmail.setText(email);

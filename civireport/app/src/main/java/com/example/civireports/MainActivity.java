@@ -34,7 +34,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
+import com.example.civireports.BuildConfig;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button loginButton = findViewById(R.id.login_button);
-        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
+//        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
         loginButton.setOnClickListener(v -> {
          //Save a dummy token for "Stay Logged In" feature in demo mode
           getSharedPreferences("auth", MODE_PRIVATE)
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url("http://10.0.2.2:8000/auth/me")
+                .url(BuildConfig.BASE_URL+"/auth/me")
                 .get()
                 .addHeader("Authorization", "Bearer " + token)
                 .build();
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                         String fullName = json.optString("full_name", "");
                         String email = json.optString("email", "");
                         String photoUrl = json.optString("profile_photo_path", "")
-                                .replace("127.0.0.1", "10.0.2.2");
+                                .replace("127.0.0.1",  BuildConfig.BASE_URL);
 
                         getSharedPreferences("UserProfile", MODE_PRIVATE)
                                 .edit()

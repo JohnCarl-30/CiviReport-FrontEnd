@@ -4,16 +4,16 @@ import com.google.gson.annotations.SerializedName;
 
 public class Announcement {
 
-    @SerializedName("id")
+    @SerializedName("announcement_id")
     private int id;
 
-    @SerializedName("title")
+    @SerializedName("announcement_title")
     private String title;
 
-    @SerializedName("description")
+    @SerializedName("announcement_description")
     private String description;
 
-    @SerializedName("venue")
+    @SerializedName("announcement_venue")
     private String venue;
 
     @SerializedName("post_date")
@@ -25,9 +25,8 @@ public class Announcement {
     @SerializedName("who_will_attend")
     private String whoWillAttend;
 
-    @SerializedName("category")
+    @SerializedName("announcement_category")
     private String category;
-
 
     public int getId()               { return id; }
     public String getTitle()         { return title; }
@@ -36,6 +35,5 @@ public class Announcement {
     public String getPostDate()      { return postDate; }
     public String getEventDate()     { return eventDate; }
     public String getWhoWillAttend() { return whoWillAttend; }
-
-    public String getCategory() { return category != null ? category : ""; }
+    public String getCategory()      { return category != null ? category : ""; }
 }

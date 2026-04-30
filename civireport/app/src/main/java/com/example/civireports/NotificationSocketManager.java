@@ -59,7 +59,7 @@ public class NotificationSocketManager {
         shouldReconnect = true;
 
         // Android emulator -> use 10.0.2.2 instead of localhost
-        String wsUrl = "ws://10.0.2.2:8000/complaints/ws/status-updates?user_id=" + userId;
+        String wsUrl = "ws://" + BuildConfig.BASE_URL.replace("http://", "") + "complaints/ws/status-updates?user_id=" + userId;
         Log.d(TAG, "Connecting websocket: " + wsUrl);
 
         Request request = new Request.Builder().url(wsUrl).build();
