@@ -180,6 +180,7 @@
                     app:cardElevation="0dp">
 
                     <FrameLayout
+                        android:id="@+id/mediaPreview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
@@ -188,7 +189,25 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
+                            android:background="@drawable/rounded_corners"
+                            android:clipToOutline="true"
                             android:contentDescription="Report Image" />
+
+                        <ImageView
+                            android:id="@+id/videoThumbnail"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/rounded_corners"
+                            android:clipToOutline="true"
+                            android:visibility="gone"
+                            android:contentDescription="Video Thumbnail" />
+
+                        <VideoView
+                            android:id="@+id/videoView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone" />
 
                         <TextView
                             android:id="@+id/tvNoFile"
@@ -257,12 +276,36 @@
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="#F5F5F5"
                     android:visibility="gone">
-                    <ImageView
-                        android:id="@+id/ivAdminProof"
+
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="Resolution Proof" />
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:id="@+id/ivAdminProof"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/rounded_corners"
+                            android:clipToOutline="true"
+                            android:contentDescription="Resolution Proof" />
+
+                        <ImageView
+                            android:id="@+id/ivAdminProofVideoThumbnail"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/rounded_corners"
+                            android:clipToOutline="true"
+                            android:visibility="gone"
+                            android:contentDescription="Resolution Video Thumbnail" />
+
+                        <VideoView
+                            android:id="@+id/vvAdminProof"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone" />
+                    </FrameLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 

@@ -4,20 +4,25 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -56,21 +61,28 @@ public class Report extends AppCompatActivity {
     private CheckBox checkboxCertify;
     private Button btnCancel;
     private Button btnSubmit;
-    private LinearLayout btnUploadFile;
+    private View btnUploadFile;
+    private View uploadPlaceholder;
+    private TextView uploadMediaButton;
     private TextView tvUploadStatus;
     private EditText etAddress;
     private EditText etNotes;
 
-    private Uri selectedFileUri;
+    // Media Preview Components
+    private View mediaPreview;
+    private ImageView imageView;
+    private ImageView videoThumbnail;
+    private VideoView videoView;
+
+    private Uri mediaUri;
+    private String mediaType; // "image" or "video"
 
     // Gallery Launcher
-    private final ActivityResultLauncher<String> galleryLauncher = registerForActivityResult(
-            new ActivityResultContracts.GetContent(),
-            uri -> {
-                if (uri != null) {
-                    selectedFileUri = uri;
-                    String fileName = getFileName(uri);
-                    tvUploadStatus.setText("Selected: " + fileName);
+    private final ActivityResultLauncher<Intent> mediaLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    handleSelectedMedia(result.getData().getData());
                 }
             }
     );
@@ -80,20 +92,23 @@ public class Report extends AppCompatActivity {
             new ActivityResultContracts.TakePicturePreview(),
             bitmap -> {
                 if (bitmap != null) {
-                    selectedFileUri = saveBitmapToInternalStorage(bitmap);
+                    mediaUri = saveBitmapToInternalStorage(bitmap);
+                    mediaType = "image";
+                    showMediaPreview();
                     tvUploadStatus.setText("Captured: Photo from Camera");
                 }
             }
     );
 
-    // Permission Launcher for the upload feature
+    // Permission Launcher
     private final ActivityResultLauncher<String[]> uploadPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(),
             result -> {
                 boolean cameraGranted = Boolean.TRUE.equals(result.get(Manifest.permission.CAMERA));
                 boolean storageGranted;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    storageGranted = Boolean.TRUE.equals(result.get(Manifest.permission.READ_MEDIA_IMAGES));
+                    storageGranted = Boolean.TRUE.equals(result.get(Manifest.permission.READ_MEDIA_IMAGES)) ||
+                                     Boolean.TRUE.equals(result.get(Manifest.permission.READ_MEDIA_VIDEO));
                 } else {
                     storageGranted = Boolean.TRUE.equals(result.get(Manifest.permission.READ_EXTERNAL_STORAGE));
                 }
@@ -118,6 +133,145 @@ public class Report extends AppCompatActivity {
         setupCategorySpinner();
         setupButtons();
         setupPlaceholderBehaviors();
+        setupMediaControls();
+    }
+
+    private void handleSelectedMedia(Uri uri) {
+        if (uri == null) return;
+
+        // Check file size first
+        long fileSize = getFileSize(uri);
+        long maxSize = 200 * 1024 * 1024; // 200MB
+        if (fileSize > maxSize) {
+            Toast.makeText(this, "File is too large! Maximum size is 200MB.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        mediaUri = uri;
+        String mimeType = getContentResolver().getType(mediaUri);
+        
+        if (mimeType != null && mimeType.startsWith("image")) {
+            mediaType = "image";
+        } else if (mimeType != null && mimeType.startsWith("video")) {
+            mediaType = "video";
+        } else {
+            mediaUri = null;
+            mediaType = null;
+            Toast.makeText(this, "Unsupported media type", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        showMediaPreview();
+        tvUploadStatus.setText("Selected: " + getFileName(mediaUri));
+    }
+
+    private long getFileSize(Uri uri) {
+        try (android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex != -1) return cursor.getLong(sizeIndex);
+            }
+        }
+        return 0;
+    }
+
+    private void showMediaPreview() {
+        if (videoView.isPlaying()) {
+            videoView.stopPlayback();
+        }
+        
+        uploadPlaceholder.setVisibility(View.GONE);
+        mediaPreview.setVisibility(View.VISIBLE);
+        imageView.setVisibility(View.GONE);
+        videoThumbnail.setVisibility(View.GONE);
+        videoView.setVisibility(View.GONE);
+
+        if ("image".equals(mediaType)) {
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setImageURI(mediaUri);
+        } else if ("video".equals(mediaType)) {
+            videoThumbnail.setVisibility(View.VISIBLE);
+            try {
+                Bitmap thumbnail = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    thumbnail = getContentResolver().loadThumbnail(mediaUri, new android.util.Size(640, 480), null);
+                } else {
+                    String filePath = getRealPathFromURI(mediaUri);
+                    if (filePath != null) {
+                        thumbnail = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.MINI_KIND);
+                    }
+                }
+                if (thumbnail != null) {
+                    videoThumbnail.setImageBitmap(thumbnail);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void setupMediaControls() {
+        // Clicking preview triggers options (Play/Replace/Remove)
+        imageView.setOnClickListener(v -> showMediaOptionsDialog());
+        videoThumbnail.setOnClickListener(v -> showMediaOptionsDialog());
+
+        videoView.setOnClickListener(v -> {
+            if (videoView.isPlaying()) {
+                videoView.pause();
+            } else {
+                videoView.start();
+            }
+        });
+
+        // Long click video to replace directly
+        videoView.setOnLongClickListener(v -> {
+            showMediaOptionsDialog();
+            return true;
+        });
+    }
+
+    private void showMediaOptionsDialog() {
+        List<String> options = new ArrayList<>();
+        if ("video".equals(mediaType)) {
+            options.add("Play Video");
+        }
+        options.add("Replace Media");
+        options.add("Remove Media");
+        options.add("Cancel");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Media Options");
+        builder.setItems(options.toArray(new String[0]), (dialog, which) -> {
+            String selected = options.get(which);
+            if (selected.equals("Play Video")) {
+                playVideo();
+            } else if (selected.equals("Replace Media")) {
+                showUploadDialog();
+            } else if (selected.equals("Remove Media")) {
+                removeMedia();
+            } else {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
+    private void removeMedia() {
+        mediaUri = null;
+        mediaType = null;
+        if (videoView.isPlaying()) {
+            videoView.stopPlayback();
+        }
+        mediaPreview.setVisibility(View.GONE);
+        uploadPlaceholder.setVisibility(View.VISIBLE);
+        tvUploadStatus.setText("No file selected");
+    }
+
+    private void playVideo() {
+        videoThumbnail.setVisibility(View.GONE);
+        videoView.setVisibility(View.VISIBLE);
+        videoView.setVideoURI(mediaUri);
+        videoView.start();
     }
 
     private void handleComplaint(Button submit) {
@@ -128,12 +282,20 @@ public class Report extends AppCompatActivity {
         RequestBody rbNotes = RequestBody.create(MediaType.parse("text/plain"), etNotes.getText().toString().trim());
         RequestBody rbLocation = RequestBody.create(MediaType.parse("text/plain"), etAddress.getText().toString().trim());
 
-
         List<MultipartBody.Part> fileParts = new ArrayList<>();
-        if (selectedFileUri != null) {
-            File file = new File(selectedFileUri.getPath());
-            RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
-            fileParts.add(MultipartBody.Part.createFormData("files", file.getName(), fileBody));
+        if (mediaUri != null) {
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(mediaUri);
+                if (inputStream != null) {
+                    byte[] bytes = new byte[inputStream.available()];
+                    inputStream.read(bytes);
+                    inputStream.close();
+                    RequestBody fileBody = RequestBody.create(MediaType.parse(getContentResolver().getType(mediaUri)), bytes);
+                    fileParts.add(MultipartBody.Part.createFormData("files", getFileName(mediaUri), fileBody));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         RetrofitClient.getApiService(this).submitComplaint(rbType, rbSubtype, rbNotes, rbLocation, fileParts)
@@ -143,12 +305,7 @@ public class Report extends AppCompatActivity {
                         submit.setEnabled(true);
                         if (response.isSuccessful()) {
                             Toast.makeText(Report.this, "Complaint submitted!", Toast.LENGTH_SHORT).show();
-
-                            // Save locally as well for dashboard stats
                             saveToLocalStore();
-
-//                            startActivity(new Intent(Report.this, StatusReport.class));
-//                            finish();
                             Intent intent = new Intent(Report.this, StatusReport.class);
                             intent.putExtra("just_submitted", true);
                             startActivity(intent);
@@ -162,11 +319,7 @@ public class Report extends AppCompatActivity {
                     public void onFailure(Call<ComplaintResponse> call, Throwable t) {
                         submit.setEnabled(true);
                         Toast.makeText(Report.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-
-                        // Still save locally even if network fails (for testing/demo purposes)
                         saveToLocalStore();
-//                        startActivity(new Intent(Report.this, StatusReport.class));
-//                        finish();
                         Intent intent = new Intent(Report.this, StatusReport.class);
                         intent.putExtra("just_submitted", true);
                         startActivity(intent);
@@ -182,7 +335,6 @@ public class Report extends AppCompatActivity {
             specificIssue = etCustomSpecificIssue.getText().toString().trim();
         }
 
-        // Logic to determine priority based on category or issue
         String priority = "Nominal";
         if (selectedCategory.contains("Safety") || selectedCategory.contains("Health")) {
             priority = "Priority";
@@ -203,7 +355,7 @@ public class Report extends AppCompatActivity {
                 etAddress.getText().toString().trim(),
                 etNotes.getText().toString().trim(),
                 dateStr,
-                selectedFileUri
+                mediaUri
         );
 
         ReportDataStore.getInstance().addReport(newItem);
@@ -218,9 +370,16 @@ public class Report extends AppCompatActivity {
         btnCancel           = findViewById(R.id.btnCancel);
         btnSubmit           = findViewById(R.id.btnSubmit);
         btnUploadFile       = findViewById(R.id.btnUploadFile);
+        uploadPlaceholder   = findViewById(R.id.uploadPlaceholder);
+        uploadMediaButton   = findViewById(R.id.uploadMediaButton);
         tvUploadStatus      = findViewById(R.id.tvUploadStatus);
         etAddress           = findViewById(R.id.etAddress);
         etNotes             = findViewById(R.id.etNotes);
+
+        mediaPreview        = findViewById(R.id.mediaPreview);
+        imageView           = findViewById(R.id.imageView);
+        videoThumbnail      = findViewById(R.id.videoThumbnail);
+        videoView           = findViewById(R.id.videoView);
     }
 
     private void setupPlaceholderBehaviors() {
@@ -229,12 +388,8 @@ public class Report extends AppCompatActivity {
         setupPlaceholderBehavior(etNotes);
     }
 
-    /**
-     * Sets up a focus change listener to hide the placeholder when the EditText is focused.
-     */
     private void setupPlaceholderBehavior(EditText editText) {
         if (editText == null) return;
-
         final CharSequence originalHint = editText.getHint();
         editText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
@@ -340,10 +495,14 @@ public class Report extends AppCompatActivity {
         });
 
         btnUploadFile.setOnClickListener(v -> {
-            if (checkPermissions()) {
-                showUploadDialog();
+            if (mediaUri != null) {
+                showMediaOptionsDialog();
             } else {
-                requestUploadPermissions();
+                if (checkPermissions()) {
+                    showUploadDialog();
+                } else {
+                    requestUploadPermissions();
+                }
             }
         });
 
@@ -383,37 +542,6 @@ public class Report extends AppCompatActivity {
         });
     }
 
-    private Uri copyFileToInternalStorage(Uri uri) {
-        // If it's already an internal file URI (from camera), no need to copy
-        if (uri.toString().contains(getFilesDir().toString())) {
-            return uri;
-        }
-
-        try {
-            InputStream is = getContentResolver().openInputStream(uri);
-            if (is == null) return null;
-
-            String fileName = "report_" + System.currentTimeMillis() + ".jpg";
-            File file = new File(getFilesDir(), fileName);
-            FileOutputStream fos = new FileOutputStream(file);
-
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = is.read(buffer)) != -1) {
-                fos.write(buffer, 0, read);
-            }
-
-            is.close();
-            fos.flush();
-            fos.close();
-
-            return Uri.fromFile(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private Uri saveBitmapToInternalStorage(Bitmap bitmap) {
         try {
             String fileName = "captured_" + System.currentTimeMillis() + ".jpg";
@@ -429,13 +557,24 @@ public class Report extends AppCompatActivity {
         }
     }
 
+    private String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Video.Media.DATA };
+        android.database.Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        if (cursor == null) return null;
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+        cursor.moveToFirst();
+        String path = cursor.getString(column_index);
+        cursor.close();
+        return path;
+    }
+
     private boolean hasProgress() {
         boolean categorySelected  = spinnerCategory.getSelectedItemPosition() > 0;
         boolean issueSelected     = spinnerSpecificIssue.getSelectedItemPosition() > 0;
         boolean customIssueFilled = etCustomSpecificIssue != null && !etCustomSpecificIssue.getText().toString().trim().isEmpty();
         boolean addressFilled     = etAddress != null && !etAddress.getText().toString().trim().isEmpty();
         boolean notesFilled       = etNotes != null && !etNotes.getText().toString().trim().isEmpty();
-        boolean fileSelected      = selectedFileUri != null;
+        boolean fileSelected      = mediaUri != null;
 
         return categorySelected || issueSelected || customIssueFilled || addressFilled || notesFilled || fileSelected;
     }
@@ -471,7 +610,8 @@ public class Report extends AppCompatActivity {
         boolean cameraGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
         boolean storageGranted;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            storageGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
+            storageGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED;
         } else {
             storageGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         }
@@ -483,6 +623,7 @@ public class Report extends AppCompatActivity {
         permissions.add(Manifest.permission.CAMERA);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions.add(Manifest.permission.READ_MEDIA_IMAGES);
+            permissions.add(Manifest.permission.READ_MEDIA_VIDEO);
         } else {
             permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
@@ -497,7 +638,10 @@ public class Report extends AppCompatActivity {
             if (which == 0) {
                 cameraLauncher.launch(null);
             } else if (which == 1) {
-                galleryLauncher.launch("image/*");
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("*/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+                mediaLauncher.launch(intent);
             } else {
                 dialog.dismiss();
             }

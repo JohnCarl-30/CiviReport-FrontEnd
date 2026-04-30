@@ -215,50 +215,91 @@
                         android:padding="12dp"
                         android:layout_marginBottom="16dp"/>
 
-                    <!-- UPLOAD FILE -->
+                    <!-- UPLOAD MEDIA -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Upload File"
+                        android:text="Upload Media"
                         android:textColor="#1A3A6B"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="8dp"/>
 
                     <!-- Upload box -->
-                    <LinearLayout
+                    <FrameLayout
                         android:id="@+id/btnUploadFile"
                         android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:orientation="vertical"
-                        android:gravity="center"
+                        android:layout_height="200dp"
                         android:background="@drawable/bg_uploadbox"
                         android:layout_marginBottom="8dp"
                         android:clickable="true"
                         android:focusable="true">
 
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@drawable/ic_upload_icon"
-                            android:contentDescription="Upload Icon" />
+                        <LinearLayout
+                            android:id="@+id/uploadPlaceholder"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="CLICK TO UPLOAD FILE/S"
-                            android:textColor="#1A3A6B"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="8dp"/>
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:src="@drawable/ic_upload_icon"
+                                android:contentDescription="Upload Icon" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="JPG, PNG, MP3 FILE MAX 30MB"
-                            android:textColor="#1A3A6B"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                            <TextView
+                                android:id="@+id/uploadMediaButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="CLICK TO UPLOAD MEDIA"
+                                android:textColor="#1A3A6B"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="8dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="JPG, PNG, MP4"
+                                android:textColor="#1A3A6B"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <!-- Media Preview Area -->
+                        <FrameLayout
+                            android:id="@+id/mediaPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/imageView"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:background="@drawable/rounded_corners"
+                                android:clipToOutline="true"
+                                android:contentDescription="Image Preview"
+                                android:visibility="gone"/>
+
+                            <ImageView
+                                android:id="@+id/videoThumbnail"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:background="@drawable/rounded_corners"
+                                android:clipToOutline="true"
+                                android:visibility="gone"
+                                android:contentDescription="Video Thumbnail" />
+
+                            <VideoView
+                                android:id="@+id/videoView"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:visibility="gone" />
+                        </FrameLayout>
+                    </FrameLayout>
 
                     <!-- Upload status -->
                     <TextView

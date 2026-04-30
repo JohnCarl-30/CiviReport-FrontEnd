@@ -2,26 +2,29 @@ package com.example.civireports;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RatingBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.civireports.models.AiRecommendationResponse;
 import com.example.civireports.models.ComplaintStatusUpdate;
-import com.example.civireports.models.FeedbackRequest;
 import com.example.civireports.models.MessageResponse;
-import com.example.civireports.models.RatingRequest;
 import com.example.civireports.models.UserComplaint;
 import com.example.civireports.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
@@ -33,8 +36,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.example.civireports.models.ChatRequest;
+import com.example.civireports.models.ChatResponse;
 import android.util.Log;
-import com.example.civireports.BuildConfig;
 
 public class StatusReport extends AppCompatActivity {
 
@@ -45,16 +49,7 @@ public class StatusReport extends AppCompatActivity {
     private MaterialButton btnBack;
 
     private boolean justSubmitted = false;
-
-    // Helper to fix 127.0.0.1 in URLs
-    private String fixUrl(String url) {
-        if (url == null || url.isEmpty()) return url;
-        String baseIp = BuildConfig.BASE_URL
-                .replace("http://", "")
-                .replace("/", "")
-                .split(":")[0];
-        return url.replace("127.0.0.1", baseIp);
-    }
+    private static final String BASE_URL = "http://10.0.2.2:8000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +134,10 @@ public class StatusReport extends AppCompatActivity {
         TextView tvNotes            = itemView.findViewById(R.id.tvNotes);
         TextView tvDateReported     = itemView.findViewById(R.id.tvDateReported);
         TextView tvAiRecommendation = itemView.findViewById(R.id.tvAiRecommendation);
+        
         ImageView ivUploadedFile    = itemView.findViewById(R.id.ivUploadedFile);
+        ImageView videoThumbnail    = itemView.findViewById(R.id.videoThumbnail);
+        VideoView videoView         = itemView.findViewById(R.id.videoView);
         TextView tvNoFile           = itemView.findViewById(R.id.tvNoFile);
 
         // Rejection Reason Elements
@@ -152,13 +150,13 @@ public class StatusReport extends AppCompatActivity {
         TextView tvAttachedLabel    = itemView.findViewById(R.id.tvAttachedImageLabel);
         View cardAdminProof         = itemView.findViewById(R.id.cardAdminProof);
         ImageView ivAdminProof      = itemView.findViewById(R.id.ivAdminProof);
+        ImageView ivAdminProofVideoThumbnail = itemView.findViewById(R.id.ivAdminProofVideoThumbnail);
+        VideoView vvAdminProof      = itemView.findViewById(R.id.vvAdminProof);
 
         MaterialButton btnConfirm   = itemView.findViewById(R.id.btnConfirmFinished);
-
-        // Rating Elements
-        View ratingSection             = itemView.findViewById(R.id.ratingSection);
-        RatingBar userRating           = itemView.findViewById(R.id.userRating);
-        EditText userComment           = itemView.findViewById(R.id.userComment);
+        View ratingSection          = itemView.findViewById(R.id.ratingSection);
+        android.widget.RatingBar userRating = itemView.findViewById(R.id.userRating);
+        EditText userComment        = itemView.findViewById(R.id.userComment);
         MaterialButton submitRatingButton = itemView.findViewById(R.id.submitRatingButton);
 
         View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);
@@ -186,23 +184,56 @@ public class StatusReport extends AppCompatActivity {
         fetchAiRecommendation(complaint, tvAiRecommendation);
 
         // Populate Rejection Reason
-        if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) &&
-                complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
+        if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) && 
+            complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
             layoutRejection.setVisibility(View.VISIBLE);
             tvRejectionReason.setText(complaint.getRejectionReason());
         } else {
             layoutRejection.setVisibility(View.GONE);
         }
 
-        String reportStatus = normalizeStatus(complaint.getComplaintStatus());
+        String status = normalizeStatus(complaint.getComplaintStatus());
         tvStatus.setText(complaint.getFormattedStatus());
-        setStatusStyle(tvStatus, reportStatus);
+        setStatusStyle(tvStatus, status);
+
+        // Populate User Media
+        ivUploadedFile.setVisibility(View.GONE);
+        videoThumbnail.setVisibility(View.GONE);
+        videoView.setVisibility(View.GONE);
+        tvNoFile.setVisibility(View.VISIBLE);
+
+        if (complaint.getMedia() != null && !complaint.getMedia().isEmpty()) {
+            UserComplaint.Media firstMedia = complaint.getMedia().get(0);
+            String mediaUrl = BASE_URL + firstMedia.getFilePath();
+            tvNoFile.setVisibility(View.GONE);
+            if ("image".equals(firstMedia.getMediaType())) {
+                ivUploadedFile.setVisibility(View.VISIBLE);
+                Glide.with(this).load(mediaUrl).centerCrop().into(ivUploadedFile);
+            } else if ("video".equals(firstMedia.getMediaType())) {
+                videoThumbnail.setVisibility(View.VISIBLE);
+                Glide.with(this).asBitmap().load(mediaUrl).frame(1000000).centerCrop().into(videoThumbnail);
+                videoThumbnail.setOnClickListener(v -> {
+                    videoThumbnail.setVisibility(View.GONE);
+                    videoView.setVisibility(View.VISIBLE);
+                    videoView.setVideoURI(Uri.parse(mediaUrl));
+                    videoView.start();
+                });
+                videoView.setOnClickListener(v -> {
+                    if (videoView.isPlaying()) videoView.pause();
+                    else videoView.start();
+                });
+            }
+        }
 
         // Populate Admin Updates
+        boolean isInProgress = status.equals("in_progress") || status.equals("processing");
         boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
-        String proofUrl = fixUrl(complaint.getResolutionImageUrl(BuildConfig.BASE_URL));
-        boolean hasAdminProof = proofUrl != null;
-        boolean isInProgress = reportStatus.equals("in_progress") || reportStatus.equals("processing");
+        
+        UserComplaint.Media adminMedia = null;
+        if (complaint.getMedia() != null && complaint.getMedia().size() >= 2) {
+             adminMedia = complaint.getMedia().get(complaint.getMedia().size() - 1);
+        }
+        boolean hasAdminProof = adminMedia != null;
 
         if (hasAdminNotes || hasAdminProof || isInProgress) {
             layoutAdminUpdate.setVisibility(View.VISIBLE);
@@ -210,7 +241,7 @@ public class StatusReport extends AppCompatActivity {
                 tvAdminNotes.setText(complaint.getAdminNotes());
                 tvAdminNotes.setVisibility(View.VISIBLE);
             } else if (isInProgress) {
-                tvAdminNotes.setText("The admin has approved your report and is currently working on it. Check back later for specific updates.");
+                tvAdminNotes.setText("The admin has approved your report and is currently working on it.");
                 tvAdminNotes.setVisibility(View.VISIBLE);
             } else {
                 tvAdminNotes.setVisibility(View.GONE);
@@ -219,7 +250,28 @@ public class StatusReport extends AppCompatActivity {
             if (hasAdminProof) {
                 tvAttachedLabel.setVisibility(View.VISIBLE);
                 cardAdminProof.setVisibility(View.VISIBLE);
-                Glide.with(this).load(proofUrl).into(ivAdminProof);
+                String adminMediaUrl = BASE_URL + adminMedia.getFilePath();
+                ivAdminProof.setVisibility(View.GONE);
+                ivAdminProofVideoThumbnail.setVisibility(View.GONE);
+                vvAdminProof.setVisibility(View.GONE);
+
+                if ("image".equals(adminMedia.getMediaType())) {
+                    ivAdminProof.setVisibility(View.VISIBLE);
+                    Glide.with(this).load(adminMediaUrl).centerCrop().into(ivAdminProof);
+                } else if ("video".equals(adminMedia.getMediaType())) {
+                    ivAdminProofVideoThumbnail.setVisibility(View.VISIBLE);
+                    Glide.with(this).asBitmap().load(adminMediaUrl).frame(1000000).centerCrop().into(ivAdminProofVideoThumbnail);
+                    ivAdminProofVideoThumbnail.setOnClickListener(v -> {
+                        ivAdminProofVideoThumbnail.setVisibility(View.GONE);
+                        vvAdminProof.setVisibility(View.VISIBLE);
+                        vvAdminProof.setVideoURI(Uri.parse(adminMediaUrl));
+                        vvAdminProof.start();
+                    });
+                    vvAdminProof.setOnClickListener(v -> {
+                        if (vvAdminProof.isPlaying()) vvAdminProof.pause();
+                        else vvAdminProof.start();
+                    });
+                }
             } else {
                 tvAttachedLabel.setVisibility(View.GONE);
                 cardAdminProof.setVisibility(View.GONE);
@@ -229,52 +281,24 @@ public class StatusReport extends AppCompatActivity {
         }
 
         // Show satisfaction section only when in_progress
-        if (isInProgress) {
-            layoutInProgressSat.setVisibility(View.VISIBLE);
-        } else {
-            layoutInProgressSat.setVisibility(View.GONE);
-        }
+        layoutInProgressSat.setVisibility(isInProgress ? View.VISIBLE : View.GONE);
 
-        // --- RATING & FEEDBACK PERSISTENCE LOGIC ---
-        if (complaint.getFormattedStatus().equals("RESOLVED")) {
-            ratingSection.setVisibility(View.VISIBLE);
-
-            if (complaint.getServiceRating() == null) {
-                btnConfirm.setVisibility(View.VISIBLE);
-                btnConfirm.setEnabled(true);
-                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
-
-                userRating.setVisibility(View.GONE);
-                userComment.setVisibility(View.GONE);
-                submitRatingButton.setVisibility(View.GONE);
-                submitRatingButton.setEnabled(true);
-                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1B2F5B")));
-            } else {
-                btnConfirm.setVisibility(View.GONE);
-                userRating.setVisibility(View.VISIBLE);
-                userRating.setRating(complaint.getServiceRating());
-                userRating.setIsIndicator(true);
-
-                String comment = complaint.getServiceComment();
-                if (comment != null && !comment.isEmpty()) {
-                    userComment.setVisibility(View.VISIBLE);
-                    userComment.setText(comment);
-                    userComment.setFocusable(false);
-                    userComment.setFocusableInTouchMode(false);
-                    userComment.setClickable(false);
-                    userComment.setCursorVisible(false);
-                    userComment.setBackground(null);
-                } else {
-                    userComment.setVisibility(View.GONE);
-                }
-
-                submitRatingButton.setVisibility(View.VISIBLE);
-                submitRatingButton.setEnabled(false);
-                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
-            }
+        // Show confirm button only when resolved
+        if (status.equals("resolved") && complaint.getServiceRating() == null) {
+            btnConfirm.setEnabled(true);
+            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
+            btnConfirm.setVisibility(View.VISIBLE);
         } else {
             btnConfirm.setVisibility(View.GONE);
-            ratingSection.setVisibility(View.GONE);
+        }
+
+        if (complaint.getServiceRating() != null) {
+            ratingSection.setVisibility(View.VISIBLE);
+            userRating.setRating(complaint.getServiceRating());
+            userRating.setIsIndicator(true);
+            userComment.setText(complaint.getServiceComment());
+            userComment.setEnabled(false);
+            submitRatingButton.setVisibility(View.GONE);
         }
 
         // Approve — mark as resolved
@@ -286,124 +310,72 @@ public class StatusReport extends AppCompatActivity {
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(StatusReport.this, "Complaint marked as resolved!", Toast.LENGTH_SHORT).show();
-                                fetchComplaints();
-                            } else {
-                                Toast.makeText(StatusReport.this, "Failed to update status.", Toast.LENGTH_SHORT).show();
+                                layoutInProgressSat.setVisibility(View.GONE);
+                                tvStatus.setText("RESOLVED");
+                                setStatusStyle(tvStatus, "resolved");
+                                btnConfirm.setVisibility(View.VISIBLE);
+                                btnConfirm.setEnabled(true);
                             }
                         }
-
                         @Override
-                        public void onFailure(Call<MessageResponse> call, Throwable t) {
-                            Toast.makeText(StatusReport.this, "Network error.", Toast.LENGTH_SHORT).show();
-                        }
+                        public void onFailure(Call<MessageResponse> call, Throwable t) { }
                     });
         });
 
-        // Show feedback field
         btnSatNo.setOnClickListener(v -> {
             tilSatFeedback.setVisibility(View.VISIBLE);
             btnSubmitSat.setVisibility(View.VISIBLE);
         });
 
-        // Not satisfied — revert to pending + save feedback
         btnSubmitSat.setOnClickListener(v -> {
-            String feedback = "";
-            if (tilSatFeedback.getEditText() != null) {
-                feedback = tilSatFeedback.getEditText().getText().toString().trim();
-            }
-
+            String feedback = tilSatFeedback.getEditText() != null ? tilSatFeedback.getEditText().getText().toString().trim() : "";
             if (feedback.isEmpty()) {
-                tilSatFeedback.setError("Please tell admin why you are not satisfied.");
+                tilSatFeedback.setError("Required");
                 return;
             }
-
-            tilSatFeedback.setError(null);
-            final String finalFeedback = feedback;
-
             RetrofitClient.getApiService(this)
-                    .resolveComplaint(complaint.getComplaintId(),
-                            new ComplaintStatusUpdate("not_satisfied", finalFeedback))
+                    .resolveComplaint(complaint.getComplaintId(), new ComplaintStatusUpdate("not_satisfied", feedback))
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
-                            Toast.makeText(StatusReport.this, "Feedback sent! Complaint resubmitted.", Toast.LENGTH_SHORT).show();
-                            fetchComplaints();
+                            Toast.makeText(StatusReport.this, "Resubmitted", Toast.LENGTH_SHORT).show();
+                            layoutInProgressSat.setVisibility(View.GONE);
+                            tvStatus.setText("PENDING");
+                            setStatusStyle(tvStatus, "pending");
                         }
-
                         @Override
-                        public void onFailure(Call<MessageResponse> call, Throwable t) {
-                            Toast.makeText(StatusReport.this, "Failed to send feedback.", Toast.LENGTH_SHORT).show();
-                        }
+                        public void onFailure(Call<MessageResponse> call, Throwable t) { }
                     });
         });
 
         btnConfirm.setOnClickListener(v -> {
             btnConfirm.setVisibility(View.GONE);
-            userRating.setVisibility(View.VISIBLE);
-            userComment.setVisibility(View.VISIBLE);
-            submitRatingButton.setVisibility(View.VISIBLE);
+            ratingSection.setVisibility(View.VISIBLE);
         });
 
         submitRatingButton.setOnClickListener(v -> {
-            float rating = userRating.getRating();
+            int rating = (int) userRating.getRating();
             String comment = userComment.getText().toString().trim();
-
             if (rating == 0) {
-                Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Select rating", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             RetrofitClient.getApiService(this)
-                    .rateComplaint(complaint.getComplaintId(), new RatingRequest((int) rating))
+                    .rateComplaint(complaint.getComplaintId(), new com.example.civireports.models.RatingRequest(rating, comment))
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
-                                if (!comment.isEmpty()) {
-                                    RetrofitClient.getApiService(StatusReport.this)
-                                            .submitFeedback(complaint.getComplaintId(), new FeedbackRequest(comment))
-                                            .enqueue(new Callback<MessageResponse>() {
-                                                @Override
-                                                public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
-                                                    Toast.makeText(StatusReport.this, "Thank you for your rating and feedback! ⭐", Toast.LENGTH_SHORT).show();
-                                                    fetchComplaints();
-                                                }
-
-                                                @Override
-                                                public void onFailure(Call<MessageResponse> call, Throwable t) {
-                                                    Toast.makeText(StatusReport.this, "Rating saved but feedback failed.", Toast.LENGTH_SHORT).show();
-                                                    fetchComplaints();
-                                                }
-                                            });
-                                } else {
-                                    Toast.makeText(StatusReport.this, "Thank you for your rating! ⭐", Toast.LENGTH_SHORT).show();
-                                    fetchComplaints();
-                                }
-                            } else {
-                                Toast.makeText(StatusReport.this, "Failed to submit rating.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(StatusReport.this, "Thank you!", Toast.LENGTH_SHORT).show();
+                                submitRatingButton.setVisibility(View.GONE);
+                                userRating.setIsIndicator(true);
+                                userComment.setEnabled(false);
                             }
                         }
-
                         @Override
-                        public void onFailure(Call<MessageResponse> call, Throwable t) {
-                            Toast.makeText(StatusReport.this, "Network error.", Toast.LENGTH_SHORT).show();
-                        }
+                        public void onFailure(Call<MessageResponse> call, Throwable t) { }
                     });
         });
-
-        // Fix complaint image URL
-        String imageUrl = fixUrl(complaint.getFirstImageUrl(BuildConfig.BASE_URL));
-        if (imageUrl != null) {
-            ivUploadedFile.setVisibility(View.VISIBLE);
-            tvNoFile.setVisibility(View.GONE);
-            Glide.with(this)
-                    .load(imageUrl)
-                    .centerCrop()
-                    .into(ivUploadedFile);
-        } else {
-            ivUploadedFile.setVisibility(View.GONE);
-            tvNoFile.setVisibility(View.VISIBLE);
-        }
     }
 
     private String normalizeStatus(String status) {
@@ -515,12 +487,7 @@ public class StatusReport extends AppCompatActivity {
             tvStatus.setText(status);
             setStatusStyle(tvStatus, status);
 
-            MaterialButton btnConfirm         = itemView.findViewById(R.id.btnConfirmFinished);
-            View ratingSection                = itemView.findViewById(R.id.ratingSection);
-            RatingBar userRating              = itemView.findViewById(R.id.userRating);
-            EditText userComment              = itemView.findViewById(R.id.userComment);
-            MaterialButton submitRatingButton = itemView.findViewById(R.id.submitRatingButton);
-
+            MaterialButton btnConfirm      = itemView.findViewById(R.id.btnConfirmFinished);
             View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);
             MaterialButton btnSatYes       = itemView.findViewById(R.id.btnSatisfiedYes);
             MaterialButton btnSatNo        = itemView.findViewById(R.id.btnSatisfiedNo);
@@ -534,10 +501,10 @@ public class StatusReport extends AppCompatActivity {
             }
 
             if ("RESOLVED".equalsIgnoreCase(status)) {
-                ratingSection.setVisibility(View.VISIBLE);
+                btnConfirm.setEnabled(true);
+                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
                 btnConfirm.setVisibility(View.VISIBLE);
             } else {
-                ratingSection.setVisibility(View.GONE);
                 btnConfirm.setVisibility(View.GONE);
             }
 
@@ -556,26 +523,6 @@ public class StatusReport extends AppCompatActivity {
             btnSubmitSat.setOnClickListener(v -> {
                 Toast.makeText(this, "Thank you for your feedback.", Toast.LENGTH_SHORT).show();
                 layoutInProgressSat.setVisibility(View.GONE);
-            });
-
-            btnConfirm.setOnClickListener(v -> {
-                btnConfirm.setVisibility(View.GONE);
-                userRating.setVisibility(View.VISIBLE);
-                userComment.setVisibility(View.VISIBLE);
-                submitRatingButton.setVisibility(View.VISIBLE);
-            });
-
-            submitRatingButton.setOnClickListener(v -> {
-                float rating = userRating.getRating();
-                if (rating == 0) {
-                    Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                userRating.setIsIndicator(true);
-                submitRatingButton.setEnabled(false);
-                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
-                userComment.setEnabled(false);
-                Toast.makeText(this, "Feedback submitted locally!", Toast.LENGTH_SHORT).show();
             });
 
             ImageView ivUploadedFile = itemView.findViewById(R.id.ivUploadedFile);
