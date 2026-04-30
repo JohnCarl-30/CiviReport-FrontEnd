@@ -2,13 +2,9 @@ package com.example.civireports;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -38,6 +34,7 @@ import retrofit2.Response;
 
 import com.example.civireports.models.ChatRequest;
 import com.example.civireports.models.ChatResponse;
+import com.example.civireports.BuildConfig;
 import android.util.Log;
 
 public class StatusReport extends AppCompatActivity {
@@ -49,7 +46,16 @@ public class StatusReport extends AppCompatActivity {
     private MaterialButton btnBack;
 
     private boolean justSubmitted = false;
-    private static final String BASE_URL = "http://10.0.2.2:8000";
+
+    // Helper to fix 127.0.0.1 in URLs
+    private String fixUrl(String url) {
+        if (url == null || url.isEmpty()) return url;
+        String baseIp = BuildConfig.BASE_URL
+                .replace("http://", "")
+                .replace("/", "")
+                .split(":")[0];
+        return url.replace("127.0.0.1", baseIp);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,17 +140,15 @@ public class StatusReport extends AppCompatActivity {
         TextView tvNotes            = itemView.findViewById(R.id.tvNotes);
         TextView tvDateReported     = itemView.findViewById(R.id.tvDateReported);
         TextView tvAiRecommendation = itemView.findViewById(R.id.tvAiRecommendation);
-        
+
         ImageView ivUploadedFile    = itemView.findViewById(R.id.ivUploadedFile);
         ImageView videoThumbnail    = itemView.findViewById(R.id.videoThumbnail);
         VideoView videoView         = itemView.findViewById(R.id.videoView);
         TextView tvNoFile           = itemView.findViewById(R.id.tvNoFile);
 
-        // Rejection Reason Elements
         View layoutRejection        = itemView.findViewById(R.id.layoutRejection);
         TextView tvRejectionReason  = itemView.findViewById(R.id.tvRejectionReason);
 
-        // Admin Update View components
         View layoutAdminUpdate      = itemView.findViewById(R.id.layoutAdminUpdate);
         TextView tvAdminNotes       = itemView.findViewById(R.id.tvAdminNotes);
         TextView tvAttachedLabel    = itemView.findViewById(R.id.tvAttachedImageLabel);
@@ -183,9 +187,9 @@ public class StatusReport extends AppCompatActivity {
         tvDateReported.setText(formatDate(complaint.getComplaintDate()));
         fetchAiRecommendation(complaint, tvAiRecommendation);
 
-        // Populate Rejection Reason
-        if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) && 
-            complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
+        // Rejection Reason
+        if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) &&
+                complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
             layoutRejection.setVisibility(View.VISIBLE);
             tvRejectionReason.setText(complaint.getRejectionReason());
         } else {
@@ -196,7 +200,7 @@ public class StatusReport extends AppCompatActivity {
         tvStatus.setText(complaint.getFormattedStatus());
         setStatusStyle(tvStatus, status);
 
-        // Populate User Media
+        // User Media
         ivUploadedFile.setVisibility(View.GONE);
         videoThumbnail.setVisibility(View.GONE);
         videoView.setVisibility(View.GONE);
@@ -204,8 +208,10 @@ public class StatusReport extends AppCompatActivity {
 
         if (complaint.getMedia() != null && !complaint.getMedia().isEmpty()) {
             UserComplaint.Media firstMedia = complaint.getMedia().get(0);
-            String mediaUrl = BASE_URL + firstMedia.getFilePath();
+            String mediaUrl = fixUrl(firstMedia.getFilePath()); // ← fixed
+            Log.d("MEDIA_URL", "User media URL: " + mediaUrl);
             tvNoFile.setVisibility(View.GONE);
+
             if ("image".equals(firstMedia.getMediaType())) {
                 ivUploadedFile.setVisibility(View.VISIBLE);
                 Glide.with(this).load(mediaUrl).centerCrop().into(ivUploadedFile);
@@ -225,13 +231,13 @@ public class StatusReport extends AppCompatActivity {
             }
         }
 
-        // Populate Admin Updates
+        // Admin Updates
         boolean isInProgress = status.equals("in_progress") || status.equals("processing");
         boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
-        
+
         UserComplaint.Media adminMedia = null;
         if (complaint.getMedia() != null && complaint.getMedia().size() >= 2) {
-             adminMedia = complaint.getMedia().get(complaint.getMedia().size() - 1);
+            adminMedia = complaint.getMedia().get(complaint.getMedia().size() - 1);
         }
         boolean hasAdminProof = adminMedia != null;
 
@@ -250,7 +256,9 @@ public class StatusReport extends AppCompatActivity {
             if (hasAdminProof) {
                 tvAttachedLabel.setVisibility(View.VISIBLE);
                 cardAdminProof.setVisibility(View.VISIBLE);
-                String adminMediaUrl = BASE_URL + adminMedia.getFilePath();
+                String adminMediaUrl = fixUrl(adminMedia.getFilePath()); // ← fixed
+                Log.d("MEDIA_URL", "Admin media URL: " + adminMediaUrl);
+
                 ivAdminProof.setVisibility(View.GONE);
                 ivAdminProofVideoThumbnail.setVisibility(View.GONE);
                 vvAdminProof.setVisibility(View.GONE);
@@ -280,10 +288,10 @@ public class StatusReport extends AppCompatActivity {
             layoutAdminUpdate.setVisibility(View.GONE);
         }
 
-        // Show satisfaction section only when in_progress
+        // Satisfaction section
         layoutInProgressSat.setVisibility(isInProgress ? View.VISIBLE : View.GONE);
 
-        // Show confirm button only when resolved
+        // Confirm button
         if (status.equals("resolved") && complaint.getServiceRating() == null) {
             btnConfirm.setEnabled(true);
             btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
@@ -292,6 +300,7 @@ public class StatusReport extends AppCompatActivity {
             btnConfirm.setVisibility(View.GONE);
         }
 
+        // Already rated
         if (complaint.getServiceRating() != null) {
             ratingSection.setVisibility(View.VISIBLE);
             userRating.setRating(complaint.getServiceRating());
@@ -301,7 +310,7 @@ public class StatusReport extends AppCompatActivity {
             submitRatingButton.setVisibility(View.GONE);
         }
 
-        // Approve — mark as resolved
+        // Approve
         btnSatYes.setOnClickListener(v -> {
             RetrofitClient.getApiService(this)
                     .resolveComplaint(complaint.getComplaintId(), new ComplaintStatusUpdate("approve"))
@@ -328,7 +337,8 @@ public class StatusReport extends AppCompatActivity {
         });
 
         btnSubmitSat.setOnClickListener(v -> {
-            String feedback = tilSatFeedback.getEditText() != null ? tilSatFeedback.getEditText().getText().toString().trim() : "";
+            String feedback = tilSatFeedback.getEditText() != null
+                    ? tilSatFeedback.getEditText().getText().toString().trim() : "";
             if (feedback.isEmpty()) {
                 tilSatFeedback.setError("Required");
                 return;
@@ -494,11 +504,9 @@ public class StatusReport extends AppCompatActivity {
             TextInputLayout tilSatFeedback = itemView.findViewById(R.id.tilSatisfactionFeedback);
             MaterialButton btnSubmitSat    = itemView.findViewById(R.id.btnSubmitSatisfaction);
 
-            if ("IN PROGRESS".equalsIgnoreCase(status) || "PROCESSING".equalsIgnoreCase(status)) {
-                layoutInProgressSat.setVisibility(View.VISIBLE);
-            } else {
-                layoutInProgressSat.setVisibility(View.GONE);
-            }
+            layoutInProgressSat.setVisibility(
+                    "IN PROGRESS".equalsIgnoreCase(status) || "PROCESSING".equalsIgnoreCase(status)
+                            ? View.VISIBLE : View.GONE);
 
             if ("RESOLVED".equalsIgnoreCase(status)) {
                 btnConfirm.setEnabled(true);
@@ -509,17 +517,13 @@ public class StatusReport extends AppCompatActivity {
             }
 
             btnSatYes.setOnClickListener(v -> {
-                tilSatFeedback.setVisibility(View.GONE);
-                btnSubmitSat.setVisibility(View.GONE);
                 Toast.makeText(this, "Glad to hear you are satisfied!", Toast.LENGTH_SHORT).show();
                 layoutInProgressSat.setVisibility(View.GONE);
             });
-
             btnSatNo.setOnClickListener(v -> {
                 tilSatFeedback.setVisibility(View.VISIBLE);
                 btnSubmitSat.setVisibility(View.VISIBLE);
             });
-
             btnSubmitSat.setOnClickListener(v -> {
                 Toast.makeText(this, "Thank you for your feedback.", Toast.LENGTH_SHORT).show();
                 layoutInProgressSat.setVisibility(View.GONE);
@@ -556,9 +560,9 @@ public class StatusReport extends AppCompatActivity {
             case "solved":
             case "finished":
             case "completed":
-                tv.setBackgroundResource(R.drawable.bg_status_approve);  break;
+                tv.setBackgroundResource(R.drawable.bg_status_approve); break;
             default:
-                tv.setBackgroundResource(R.drawable.bg_status_pending);  break;
+                tv.setBackgroundResource(R.drawable.bg_status_pending); break;
         }
     }
 

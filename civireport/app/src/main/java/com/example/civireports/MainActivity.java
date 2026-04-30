@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,12 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import com.example.civireports.BuildConfig;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                 }
-
                 if (!allGranted) {
                     Toast.makeText(this, "Notifications are disabled. You might miss important updates.", Toast.LENGTH_SHORT).show();
                 }
@@ -92,29 +88,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button loginButton = findViewById(R.id.login_button);
-//        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
-        loginButton.setOnClickListener(v -> {
-         //Save a dummy token for "Stay Logged In" feature in demo mode
-          getSharedPreferences("auth", MODE_PRIVATE)
-                  .edit()
-                  .putString("token", "dummy_token_for_demo")
-                 .apply();
-         Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
-          startActivity(intent);
-          finish();
-        });
+        loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
 
         TextView forgotPassword = findViewById(R.id.forgot_password_textview);
-        forgotPassword.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
-        });
+        forgotPassword.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, ForgotPasswordActivity.class)));
 
         Button registerButton = findViewById(R.id.register_button);
-        registerButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
+        registerButton.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, RegisterActivity.class)));
 
         requestInitialPermissions();
     }
@@ -123,11 +105,8 @@ public class MainActivity extends AppCompatActivity {
         if (editText == null) return;
         String originalHint = editText.getHint() != null ? editText.getHint().toString() : "";
         editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                editText.setHint("");
-            } else {
-                editText.setHint(originalHint);
-            }
+            if (hasFocus) editText.setHint("");
+            else editText.setHint(originalHint);
         });
     }
 
@@ -185,11 +164,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private String fixUrl(String url) {
+        if (url == null || url.isEmpty()) return url;
+        String baseIp = BuildConfig.BASE_URL
+                .replace("http://", "")
+                .replace("/", "")
+                .split(":")[0];
+        return url.replace("127.0.0.1", baseIp);
+    }
+
     private void fetchUserProfile(String token) {
         OkHttpClient client = new OkHttpClient();
 
+        // No leading slash — BASE_URL already has trailing slash
+        String url = BuildConfig.BASE_URL + "auth/me";
+        Log.d("PROFILE_FETCH", "Fetching profile from: " + url);
+
         Request request = new Request.Builder()
-                .url(BuildConfig.BASE_URL+"/auth/me")
+                .url(url)
                 .get()
                 .addHeader("Authorization", "Bearer " + token)
                 .build();
@@ -197,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                Log.e("PROFILE_FETCH", "Failed: " + e.getMessage());
                 runOnUiThread(() -> {
                     startActivity(new Intent(MainActivity.this, DashboardActivity.class));
                     finish();
@@ -208,12 +201,15 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     try {
                         String body = response.body().string();
+                        Log.d("PROFILE_FETCH", "Response: " + body); // ← check logcat dito
+
                         org.json.JSONObject json = new org.json.JSONObject(body);
 
                         String fullName = json.optString("full_name", "");
-                        String email = json.optString("email", "");
-                        String photoUrl = json.optString("profile_photo_path", "")
-                                .replace("127.0.0.1",  BuildConfig.BASE_URL);
+                        String email    = json.optString("email", "");
+                        String photoUrl = fixUrl(json.optString("profile_photo_path", ""));
+
+                        Log.d("PROFILE_FETCH", "Photo URL after fix: " + photoUrl);
 
                         getSharedPreferences("UserProfile", MODE_PRIVATE)
                                 .edit()
@@ -223,8 +219,11 @@ public class MainActivity extends AppCompatActivity {
                                 .apply();
 
                     } catch (Exception e) {
+                        Log.e("PROFILE_FETCH", "Parse error: " + e.getMessage());
                         e.printStackTrace();
                     }
+                } else {
+                    Log.e("PROFILE_FETCH", "Server error: " + response.code());
                 }
 
                 runOnUiThread(() -> {
