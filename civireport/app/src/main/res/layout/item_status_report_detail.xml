@@ -346,7 +346,7 @@
                 android:textColor="@android:color/white"
                 android:textAllCaps="false"
                 android:textStyle="bold"
-                app:backgroundTint="#FBC02D"
+                app:backgroundTint="#1A3A6B"
                 app:cornerRadius="10dp"
                 android:visibility="gone" />
 
@@ -408,7 +408,7 @@
                     android:layout_marginTop="8dp"
                     android:text="Submit Feedback"
                     android:textAllCaps="false"
-                    app:backgroundTint="#FBC02D"
+                    app:backgroundTint="#1A3A6B"
                     app:cornerRadius="10dp" />
             </LinearLayout>
 
@@ -450,7 +450,7 @@
                         android:text="Approve"
                         android:textAllCaps="false"
                         android:layout_marginEnd="4dp"
-                        app:backgroundTint="#FBC02D"
+                        app:backgroundTint="#1A3A6B"
                         app:cornerRadius="10dp"/>
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSatisfiedNo"
