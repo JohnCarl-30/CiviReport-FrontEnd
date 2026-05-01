@@ -450,7 +450,7 @@
                         android:text="Approve"
                         android:textAllCaps="false"
                         android:layout_marginEnd="4dp"
-                        app:backgroundTint="#1A3A6B"
+                        app:backgroundTint="#003EAB"
                         app:cornerRadius="10dp"/>
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSatisfiedNo"

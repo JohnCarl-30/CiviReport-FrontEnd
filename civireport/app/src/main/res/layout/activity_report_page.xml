@@ -385,7 +385,7 @@ FFDE7">
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:textAllCaps="false"
-                            android:backgroundTint="#1A3A6B"
+                            android:backgroundTint="#003EAB"
                             app:cornerRadius="12dp" />
                     </LinearLayout>
 

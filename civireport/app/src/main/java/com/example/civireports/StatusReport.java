@@ -317,11 +317,11 @@ public class StatusReport extends AppCompatActivity {
 
         // ── In-progress satisfaction section ─────────────────────────────────
         layoutInProgressSat.setVisibility(isInProgress ? View.VISIBLE : View.GONE);
-
+        
         // ── Confirm / Finalize button (lumalabas kapag resolved, hindi pa nira-rate) ──
         if (status.equals("resolved") && complaint.getServiceRating() == null) {
             btnConfirm.setEnabled(true);
-            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D")));
+            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1A3A6B")));
             btnConfirm.setVisibility(View.VISIBLE);
         } else {
             btnConfirm.setVisibility(View.GONE);
@@ -334,7 +334,12 @@ public class StatusReport extends AppCompatActivity {
             userRating.setIsIndicator(true);
             userComment.setText(complaint.getServiceComment());
             userComment.setEnabled(false);
-            submitRatingButton.setVisibility(View.GONE);
+            
+            // Show disabled button in pale blue
+            submitRatingButton.setVisibility(View.VISIBLE);
+            submitRatingButton.setEnabled(false);
+            submitRatingButton.setText("Feedback Submitted");
+            submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
         }
 
         // ── Approve (satisfied) ───────────────────────────────────────────────
@@ -351,7 +356,7 @@ public class StatusReport extends AppCompatActivity {
                                 setStatusStyle(tvStatus, "resolved");
                                 btnConfirm.setVisibility(View.VISIBLE);
                                 btnConfirm.setEnabled(true);
-                                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D")));
+                                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1A3A6B")));
                             }
                         }
                         @Override
@@ -409,7 +414,9 @@ public class StatusReport extends AppCompatActivity {
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(StatusReport.this, "Thank you!", Toast.LENGTH_SHORT).show();
-                                submitRatingButton.setVisibility(View.GONE);
+                                submitRatingButton.setEnabled(false);
+                                submitRatingButton.setText("Feedback Submitted");
+                                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
                                 userRating.setIsIndicator(true);
                                 userComment.setEnabled(false);
                             }
@@ -530,19 +537,21 @@ public class StatusReport extends AppCompatActivity {
             setStatusStyle(tvStatus, status);
 
             MaterialButton btnConfirm      = itemView.findViewById(R.id.btnConfirmFinished);
-            View layoutInProgressSat       = itemView.findViewById(R.id.layoutInProgressSatisfaction);
+            View ratingSection             = itemView.findViewById(R.id.ratingSection);
             MaterialButton btnSatYes       = itemView.findViewById(R.id.btnSatisfiedYes);
             MaterialButton btnSatNo        = itemView.findViewById(R.id.btnSatisfiedNo);
             TextInputLayout tilSatFeedback = itemView.findViewById(R.id.tilSatisfactionFeedback);
             MaterialButton btnSubmitSat    = itemView.findViewById(R.id.btnSubmitSatisfaction);
+            MaterialButton submitRatingButton = itemView.findViewById(R.id.submitRatingButton);
 
+            View layoutInProgressSat = itemView.findViewById(R.id.layoutInProgressSatisfaction);
             layoutInProgressSat.setVisibility(
                     "IN PROGRESS".equalsIgnoreCase(status) || "PROCESSING".equalsIgnoreCase(status)
                             ? View.VISIBLE : View.GONE);
 
             if ("RESOLVED".equalsIgnoreCase(status)) {
                 btnConfirm.setEnabled(true);
-                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D")));
+                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1A3A6B")));
                 btnConfirm.setVisibility(View.VISIBLE);
             } else {
                 btnConfirm.setVisibility(View.GONE);
@@ -559,6 +568,17 @@ public class StatusReport extends AppCompatActivity {
             btnSubmitSat.setOnClickListener(v -> {
                 Toast.makeText(this, "Thank you for your feedback.", Toast.LENGTH_SHORT).show();
                 layoutInProgressSat.setVisibility(View.GONE);
+            });
+
+            btnConfirm.setOnClickListener(v -> {
+                btnConfirm.setVisibility(View.GONE);
+                ratingSection.setVisibility(View.VISIBLE);
+            });
+            
+            submitRatingButton.setOnClickListener(v -> {
+                submitRatingButton.setEnabled(false);
+                submitRatingButton.setText("Feedback Submitted");
+                submitRatingButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A8C2F8")));
             });
 
             ImageView ivUploadedFile = itemView.findViewById(R.id.ivUploadedFile);
