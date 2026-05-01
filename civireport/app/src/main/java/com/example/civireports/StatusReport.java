@@ -294,7 +294,7 @@ public class StatusReport extends AppCompatActivity {
         // Confirm button
         if (status.equals("resolved") && complaint.getServiceRating() == null) {
             btnConfirm.setEnabled(true);
-            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
+            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D"))); // Yellow
             btnConfirm.setVisibility(View.VISIBLE);
         } else {
             btnConfirm.setVisibility(View.GONE);
@@ -324,6 +324,7 @@ public class StatusReport extends AppCompatActivity {
                                 setStatusStyle(tvStatus, "resolved");
                                 btnConfirm.setVisibility(View.VISIBLE);
                                 btnConfirm.setEnabled(true);
+                                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D"))); // Yellow
                             }
                         }
                         @Override
@@ -510,7 +511,7 @@ public class StatusReport extends AppCompatActivity {
 
             if ("RESOLVED".equalsIgnoreCase(status)) {
                 btnConfirm.setEnabled(true);
-                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#003EAB")));
+                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D"))); // Yellow
                 btnConfirm.setVisibility(View.VISIBLE);
             } else {
                 btnConfirm.setVisibility(View.GONE);

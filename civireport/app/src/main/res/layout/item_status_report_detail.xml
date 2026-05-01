@@ -261,7 +261,7 @@
                     android:id="@+id/tvAttachedImageLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Attached Image"
+                    android:text="Resolution Proof Media"
                     android:textColor="#888888"
                     android:textSize="11sp"
                     android:textStyle="bold"
@@ -346,7 +346,7 @@
                 android:textColor="@android:color/white"
                 android:textAllCaps="false"
                 android:textStyle="bold"
-                app:backgroundTint="#4CAF50"
+                app:backgroundTint="#FBC02D"
                 app:cornerRadius="10dp"
                 android:visibility="gone" />
 
@@ -381,6 +381,9 @@
                     android:numStars="5"
                     android:stepSize="1"
                     android:rating="0"
+                    android:progressTint="#FFB300"
+                    android:secondaryProgressTint="#FFB300"
+                    android:progressBackgroundTint="#CCCCCC"
                     style="?android:attr/ratingBarStyle"
                     android:layout_marginVertical="8dp" />
 
@@ -405,7 +408,7 @@
                     android:layout_marginTop="8dp"
                     android:text="Submit Feedback"
                     android:textAllCaps="false"
-                    app:backgroundTint="#1A3A6B"
+                    app:backgroundTint="#FBC02D"
                     app:cornerRadius="10dp" />
             </LinearLayout>
 
@@ -425,6 +428,7 @@
                     android:layout_marginBottom="12dp"/>
 
                 <TextView
+                    android:id="@+id/tvSatisfactionTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Is the resolution satisfactory?"
@@ -446,7 +450,7 @@
                         android:text="Approve"
                         android:textAllCaps="false"
                         android:layout_marginEnd="4dp"
-                        app:backgroundTint="#1A3A6B"
+                        app:backgroundTint="#FBC02D"
                         app:cornerRadius="10dp"/>
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSatisfiedNo"
@@ -484,7 +488,7 @@
                     android:textAllCaps="false"
                     android:layout_marginTop="8dp"
                     android:visibility="gone"
-                    app:backgroundTint="#003EAB"
+                    app:backgroundTint="#FBC02D"
                     app:cornerRadius="10dp"/>
             </LinearLayout>
 

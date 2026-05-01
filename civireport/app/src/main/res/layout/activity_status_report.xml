@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F2F4F7">
+    android:background="#FFFDE7">
 
     <!-- ── HEADER ── -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:layout_alignParentTop="true"
         android:background="@android:color/white"
         android:elevation="4dp"
         android:gravity="center_vertical"
@@ -43,6 +44,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:contentDescription="Notifications"
+            android:elevation="8dp"
             android:focusable="true"
             android:scaleType="fitCenter"
             android:src="@drawable/notif"
@@ -65,13 +67,13 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- THANK YOU BANNER (Visible only when just submitted) -->
+            <!-- THANK YOU BANNER -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardThankYou"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="#0035A0"
+                app:cardBackgroundColor="#FBC02D"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
                 android:visibility="visible">
@@ -87,14 +89,13 @@
                     android:gravity="center" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Dynamically added report items will go here -->
+            <!-- Dynamically added report items -->
             <LinearLayout
                 android:id="@+id/reportsList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
-            <!-- Spacer to ensure content isn't covered by the floating button -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="100dp" />
@@ -127,7 +128,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="You haven't submitted any reports yet. Go to 'File a Report' to track your first complaint."
+            android:text="You haven't submitted any reports yet."
             android:textColor="#888888"
             android:textSize="14sp" />
     </LinearLayout>
@@ -145,7 +146,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:textAllCaps="false"
-        android:backgroundTint="#1A3A6B"
+        android:backgroundTint="#FBC02D"
         app:cornerRadius="28dp"
         android:insetTop="0dp"
         android:insetBottom="0dp"
