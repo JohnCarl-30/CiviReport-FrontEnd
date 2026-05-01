@@ -165,10 +165,11 @@
                             android:gravity="center"
                             android:layout_marginEnd="16dp">
                             <ImageView
-                                android:id="@+id/featureIcon"
+                                android:id="@+id/featureIcon1"
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
-                                android:src="@drawable/ic_feature_report" />
+                                android:src="@drawable/ic_feature_report"
+                                app:tint="#1B2F5B" />
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                             <TextView
@@ -204,10 +205,11 @@
                             android:gravity="center"
                             android:layout_marginEnd="16dp">
                             <ImageView
-                                android:id="@+id/featureIcon"
+                                android:id="@+id/featureIcon2"
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
-                                android:src="@drawable/ic_feature_status" />
+                                android:src="@drawable/ic_feature_status"
+                                app:tint="#1B2F5B" />
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                             <TextView
@@ -243,10 +245,11 @@
                             android:gravity="center"
                             android:layout_marginEnd="16dp">
                             <ImageView
-                                android:id="@+id/featureIcon"
+                                android:id="@+id/featureIcon3"
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
-                                android:src="@drawable/ic_feature_ai" />
+                                android:src="@drawable/ic_feature_ai"
+                                app:tint="#1B2F5B" />
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                             <TextView
@@ -282,10 +285,11 @@
                             android:gravity="center"
                             android:layout_marginEnd="16dp">
                             <ImageView
-                                android:id="@+id/featureIcon"
+                                android:id="@+id/featureIcon4"
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
-                                android:src="@drawable/ic_feature_notif" />
+                                android:src="@drawable/ic_feature_notif"
+                                app:tint="#1B2F5B" />
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                             <TextView
@@ -320,10 +324,11 @@
                             android:gravity="center"
                             android:layout_marginEnd="16dp">
                             <ImageView
-                                android:id="@+id/featureIcon"
+                                android:id="@+id/featureIcon5"
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
-                                android:src="@drawable/ic_feature_call" />
+                                android:src="@drawable/ic_feature_call"
+                                app:tint="#1B2F5B" />
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                             <TextView

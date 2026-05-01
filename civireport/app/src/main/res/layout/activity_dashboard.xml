@@ -331,7 +331,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Submit a new report"
-                                    android:textColor="#4B82FF"
+                                    android:textColor="#0045DC"
                                     android:textSize="14sp" />
                             </LinearLayout>
                         </LinearLayout>
@@ -394,7 +394,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Track your complaint progress"
-                                    android:textColor="#8B6B00"
+                                    android:textColor="#A88F00"
                                     android:textSize="14sp" />
                             </LinearLayout>
                         </LinearLayout>
