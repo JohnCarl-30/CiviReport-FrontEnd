@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.civireports.models.DeleteAccountResponse;
 import com.example.civireports.models.EditProfileRequest;
 import com.example.civireports.models.EditProfileResponse;
 import com.example.civireports.network.ApiService;
@@ -194,12 +195,37 @@ public class EditProfileActivity extends AppCompatActivity {
         if (btnDelete != null) {
             btnDelete.setOnClickListener(v -> {
                 dialog.dismiss();
-                sharedPreferences.edit().clear().apply();
-                Toast.makeText(this, "Account deleted", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
+
+                RetrofitClient.getApiService(EditProfileActivity.this)
+                        .deleteAccount()
+                        .enqueue(new Callback<DeleteAccountResponse>() {
+                            @Override
+                            public void onResponse(Call<DeleteAccountResponse> call, Response<DeleteAccountResponse> response) {
+                                // Punta sa login, clear backstack
+                                if (response.isSuccessful()) {
+                                    // Same ng logout — "auth" hindi "AuthPrefs"
+                                    getSharedPreferences("auth", MODE_PRIVATE).edit().clear().apply();
+                                    getSharedPreferences("UserProfile", MODE_PRIVATE).edit().clear().apply();
+
+                                    Toast.makeText(EditProfileActivity.this,
+                                            "Account deleted successfully", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(EditProfileActivity.this,
+                                            "Failed to delete account", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<DeleteAccountResponse> call, Throwable t) {
+                                Toast.makeText(EditProfileActivity.this,
+                                        "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
             });
         }
 

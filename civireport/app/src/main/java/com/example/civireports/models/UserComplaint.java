@@ -32,6 +32,9 @@ public class UserComplaint {
     @SerializedName("resolved_notes")
     private String adminNotes;
 
+    @SerializedName("resolved_media")
+    private String resolvedMedia;
+
     @SerializedName("rejection_reason")
     private String rejectionReason;
 
@@ -72,6 +75,7 @@ public class UserComplaint {
     public String getUrgencyLevel()      { return urgencyLevel != null ? urgencyLevel : "nominal"; }
     public String getComplaintDate()     { return complaintDate; }
     public String getAdminNotes()        { return adminNotes; }
+    public String getResolvedMedia() { return resolvedMedia; }
     public String getRejectionReason()   { return rejectionReason; }
     public List<Media> getMedia()        { return media; }
 

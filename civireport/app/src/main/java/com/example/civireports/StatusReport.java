@@ -169,8 +169,8 @@ public class StatusReport extends AppCompatActivity {
         TextInputLayout tilSatFeedback = itemView.findViewById(R.id.tilSatisfactionFeedback);
         MaterialButton btnSubmitSat    = itemView.findViewById(R.id.btnSubmitSatisfaction);
 
+        // ── Queue number + urgency color ──────────────────────────────────────
         tvQueueNumber.setText(complaint.getQueueNumber());
-
         String urgency = complaint.getUrgencyLevel();
         if ("emergency".equalsIgnoreCase(urgency) || "critical".equalsIgnoreCase(urgency)) {
             tvQueueNumber.setTextColor(Color.parseColor("#E53935"));
@@ -180,6 +180,7 @@ public class StatusReport extends AppCompatActivity {
             tvQueueNumber.setTextColor(Color.parseColor("#43A047"));
         }
 
+        // ── Basic fields ──────────────────────────────────────────────────────
         tvComplaintType.setText(complaint.getComplaintType());
         tvSpecificIssue.setText(complaint.getComplaintSubtype());
         tvAddress.setText(complaint.getComplaintLocation());
@@ -187,7 +188,7 @@ public class StatusReport extends AppCompatActivity {
         tvDateReported.setText(formatDate(complaint.getComplaintDate()));
         fetchAiRecommendation(complaint, tvAiRecommendation);
 
-        // Rejection Reason
+        // ── Rejection reason ──────────────────────────────────────────────────
         if ("rejected".equalsIgnoreCase(complaint.getComplaintStatus()) &&
                 complaint.getRejectionReason() != null && !complaint.getRejectionReason().trim().isEmpty()) {
             layoutRejection.setVisibility(View.VISIBLE);
@@ -196,11 +197,12 @@ public class StatusReport extends AppCompatActivity {
             layoutRejection.setVisibility(View.GONE);
         }
 
+        // ── Status badge ──────────────────────────────────────────────────────
         String status = normalizeStatus(complaint.getComplaintStatus());
         tvStatus.setText(complaint.getFormattedStatus());
         setStatusStyle(tvStatus, status);
 
-        // User Media
+        // ── User-uploaded media (first item in media list) ────────────────────
         ivUploadedFile.setVisibility(View.GONE);
         videoThumbnail.setVisibility(View.GONE);
         videoView.setVisibility(View.GONE);
@@ -208,7 +210,7 @@ public class StatusReport extends AppCompatActivity {
 
         if (complaint.getMedia() != null && !complaint.getMedia().isEmpty()) {
             UserComplaint.Media firstMedia = complaint.getMedia().get(0);
-            String mediaUrl = fixUrl(firstMedia.getFilePath()); // ← fixed
+            String mediaUrl = fixUrl(firstMedia.getFilePath());
             Log.d("MEDIA_URL", "User media URL: " + mediaUrl);
             tvNoFile.setVisibility(View.GONE);
 
@@ -231,18 +233,40 @@ public class StatusReport extends AppCompatActivity {
             }
         }
 
-        // Admin Updates
-        boolean isInProgress = status.equals("in_progress") || status.equals("processing");
-        boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
+        // ── Admin proof media (galing sa resolved_media column) ───────────────
+        // Dalawang possible na format sa DB:
+        //   1) filename lang  →  "resolution_18_1777454392_4cd51594.jpg"
+        //   2) full URL       →  "http://192.168.1.8:8000/uploads/..."
+        // ── Admin proof media ─────────────────────────────────────────────────
+        final String adminMediaUrl;
+        final String adminMediaType;
 
-        UserComplaint.Media adminMedia = null;
-        if (complaint.getMedia() != null && complaint.getMedia().size() >= 2) {
-            adminMedia = complaint.getMedia().get(complaint.getMedia().size() - 1);
+        String rawResolved = complaint.getResolvedMedia();
+        if (rawResolved != null && !rawResolved.isEmpty()) {
+            String base = BuildConfig.BASE_URL.endsWith("/")
+                    ? BuildConfig.BASE_URL : BuildConfig.BASE_URL + "/";
+            adminMediaUrl = fixUrl(rawResolved.startsWith("http")
+                    ? rawResolved
+                    : base + "uploads/" + rawResolved);
+            adminMediaType = (rawResolved.endsWith(".mp4") || rawResolved.endsWith(".mov") || rawResolved.endsWith(".avi"))
+                    ? "video" : "image";
+            Log.d("MEDIA_URL", "Admin proof URL: " + adminMediaUrl);
+        } else {
+            adminMediaUrl = null;
+            adminMediaType = "image";
         }
-        boolean hasAdminProof = adminMedia != null;
+
+
+
+        // ── Admin Update section ──────────────────────────────────────────────
+        boolean isInProgress  = status.equals("in_progress") || status.equals("processing");
+        boolean hasAdminNotes = complaint.getAdminNotes() != null && !complaint.getAdminNotes().trim().isEmpty();
+        boolean hasAdminProof = adminMediaUrl != null;
 
         if (hasAdminNotes || hasAdminProof || isInProgress) {
             layoutAdminUpdate.setVisibility(View.VISIBLE);
+
+            // Admin text notes
             if (hasAdminNotes) {
                 tvAdminNotes.setText(complaint.getAdminNotes());
                 tvAdminNotes.setVisibility(View.VISIBLE);
@@ -253,22 +277,25 @@ public class StatusReport extends AppCompatActivity {
                 tvAdminNotes.setVisibility(View.GONE);
             }
 
+            // Admin proof media
             if (hasAdminProof) {
                 tvAttachedLabel.setVisibility(View.VISIBLE);
                 cardAdminProof.setVisibility(View.VISIBLE);
-                String adminMediaUrl = fixUrl(adminMedia.getFilePath()); // ← fixed
-                Log.d("MEDIA_URL", "Admin media URL: " + adminMediaUrl);
 
                 ivAdminProof.setVisibility(View.GONE);
                 ivAdminProofVideoThumbnail.setVisibility(View.GONE);
                 vvAdminProof.setVisibility(View.GONE);
 
-                if ("image".equals(adminMedia.getMediaType())) {
+                if ("image".equals(adminMediaType)) {
                     ivAdminProof.setVisibility(View.VISIBLE);
                     Glide.with(this).load(adminMediaUrl).centerCrop().into(ivAdminProof);
-                } else if ("video".equals(adminMedia.getMediaType())) {
+                } else if ("video".equals(adminMediaType)) {
                     ivAdminProofVideoThumbnail.setVisibility(View.VISIBLE);
-                    Glide.with(this).asBitmap().load(adminMediaUrl).frame(1000000).centerCrop().into(ivAdminProofVideoThumbnail);
+                    Glide.with(this).asBitmap()
+                            .load(adminMediaUrl)
+                            .frame(1000000)
+                            .centerCrop()
+                            .into(ivAdminProofVideoThumbnail);
                     ivAdminProofVideoThumbnail.setOnClickListener(v -> {
                         ivAdminProofVideoThumbnail.setVisibility(View.GONE);
                         vvAdminProof.setVisibility(View.VISIBLE);
@@ -288,19 +315,19 @@ public class StatusReport extends AppCompatActivity {
             layoutAdminUpdate.setVisibility(View.GONE);
         }
 
-        // Satisfaction section
+        // ── In-progress satisfaction section ─────────────────────────────────
         layoutInProgressSat.setVisibility(isInProgress ? View.VISIBLE : View.GONE);
 
-        // Confirm button
+        // ── Confirm / Finalize button (lumalabas kapag resolved, hindi pa nira-rate) ──
         if (status.equals("resolved") && complaint.getServiceRating() == null) {
             btnConfirm.setEnabled(true);
-            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D"))); // Yellow
+            btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D")));
             btnConfirm.setVisibility(View.VISIBLE);
         } else {
             btnConfirm.setVisibility(View.GONE);
         }
 
-        // Already rated
+        // ── Kung naka-rate na, ipakita lang yung existing rating (read-only) ──
         if (complaint.getServiceRating() != null) {
             ratingSection.setVisibility(View.VISIBLE);
             userRating.setRating(complaint.getServiceRating());
@@ -310,10 +337,10 @@ public class StatusReport extends AppCompatActivity {
             submitRatingButton.setVisibility(View.GONE);
         }
 
-        // Approve
+        // ── Approve (satisfied) ───────────────────────────────────────────────
         btnSatYes.setOnClickListener(v -> {
             RetrofitClient.getApiService(this)
-                    .resolveComplaint(complaint.getComplaintId(), new ComplaintStatusUpdate("approve"))
+                    .resolveComplaint(complaint.getComplaintId(), new ComplaintStatusUpdate("approved"))
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
@@ -324,7 +351,7 @@ public class StatusReport extends AppCompatActivity {
                                 setStatusStyle(tvStatus, "resolved");
                                 btnConfirm.setVisibility(View.VISIBLE);
                                 btnConfirm.setEnabled(true);
-                                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D"))); // Yellow
+                                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D")));
                             }
                         }
                         @Override
@@ -332,6 +359,7 @@ public class StatusReport extends AppCompatActivity {
                     });
         });
 
+        // ── Not satisfied ─────────────────────────────────────────────────────
         btnSatNo.setOnClickListener(v -> {
             tilSatFeedback.setVisibility(View.VISIBLE);
             btnSubmitSat.setVisibility(View.VISIBLE);
@@ -359,11 +387,13 @@ public class StatusReport extends AppCompatActivity {
                     });
         });
 
+        // ── Finalize → show rating section ───────────────────────────────────
         btnConfirm.setOnClickListener(v -> {
             btnConfirm.setVisibility(View.GONE);
             ratingSection.setVisibility(View.VISIBLE);
         });
 
+        // ── Submit rating ─────────────────────────────────────────────────────
         submitRatingButton.setOnClickListener(v -> {
             int rating = (int) userRating.getRating();
             String comment = userComment.getText().toString().trim();
@@ -372,7 +402,8 @@ public class StatusReport extends AppCompatActivity {
                 return;
             }
             RetrofitClient.getApiService(this)
-                    .rateComplaint(complaint.getComplaintId(), new com.example.civireports.models.RatingRequest(rating, comment))
+                    .rateComplaint(complaint.getComplaintId(),
+                            new com.example.civireports.models.RatingRequest(rating, comment))
                     .enqueue(new Callback<MessageResponse>() {
                         @Override
                         public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
@@ -511,7 +542,7 @@ public class StatusReport extends AppCompatActivity {
 
             if ("RESOLVED".equalsIgnoreCase(status)) {
                 btnConfirm.setEnabled(true);
-                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D"))); // Yellow
+                btnConfirm.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FBC02D")));
                 btnConfirm.setVisibility(View.VISIBLE);
             } else {
                 btnConfirm.setVisibility(View.GONE);

@@ -8,6 +8,7 @@ import com.example.civireports.models.ChatResponse;
 import com.example.civireports.models.ComplaintRequest;
 import com.example.civireports.models.ComplaintResponse;
 import com.example.civireports.models.ComplaintStatusUpdate;
+import com.example.civireports.models.DeleteAccountResponse;
 import com.example.civireports.models.EditProfileRequest;
 import com.example.civireports.models.EditProfileResponse;
 import com.example.civireports.models.EmergencyListResponse;
@@ -28,6 +29,7 @@ import com.example.civireports.models.Announcement;
 import com.example.civireports.models.EmergencyRequest;
 import com.example.civireports.models.EmergencyResponse;
 
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 
 import java.util.List;
@@ -132,4 +134,7 @@ public interface ApiService {
             @retrofit2.http.Path("complaint_id") int complaintId,
             @Body FeedbackRequest payload
     );
+
+    @DELETE("auth/account")
+    Call<DeleteAccountResponse> deleteAccount();
 }

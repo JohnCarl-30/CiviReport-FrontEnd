@@ -236,7 +236,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 submitButton.setEnabled(true);
                 if (response.isSuccessful()) {
-                    Toast.makeText(RegisterActivity.this, "Registration successful! Please log in.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, "Registration successful! Your account is pending approval. You will be notified via email once approved.", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);

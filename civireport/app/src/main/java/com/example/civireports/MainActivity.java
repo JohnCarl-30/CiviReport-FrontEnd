@@ -89,6 +89,16 @@ public class MainActivity extends AppCompatActivity {
 
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(v -> handleLogin(loginButton, emailInput, passwordInput));
+//        loginButton.setOnClickListener(v -> {
+//            //Save a dummy token for "Stay Logged In" feature in demo mode
+//            getSharedPreferences("auth", MODE_PRIVATE)
+//                    .edit()
+//                    .putString("token", "dummy_token_for_demo")
+//                    .apply();
+//            Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
+//            startActivity(intent);
+//            finish();
+//        });
 
         TextView forgotPassword = findViewById(R.id.forgot_password_textview);
         forgotPassword.setOnClickListener(v ->
@@ -151,6 +161,11 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(MainActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
                     fetchUserProfile(token);
+                }else if (response.code() == 403) {
+                    // Pending account
+                    Toast.makeText(MainActivity.this,
+                            "Your account is pending approval. Please wait for admin verification.",
+                            Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Invalid email or password.", Toast.LENGTH_SHORT).show();
                 }
