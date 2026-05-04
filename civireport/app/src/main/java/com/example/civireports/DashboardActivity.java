@@ -81,7 +81,6 @@ public class DashboardActivity extends AppCompatActivity {
         initViews();
         restoreDashboardSnapshot();
         setupClickListeners();
-        checkFirstLogin();
         fetchAndSaveUserProfile();
         initNotificationSocket();
     }
@@ -560,6 +559,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                     tvWelcome.setText("Welcome, " + profile.getFullName() + "!");
                 }
+                checkFirstLogin();
             }
 
             @Override
@@ -569,6 +569,7 @@ public class DashboardActivity extends AppCompatActivity {
                 if (!savedName.isEmpty() && tvWelcome != null) {
                     tvWelcome.setText("Welcome, " + savedName + "!");
                 }
+                checkFirstLogin();
             }
         });
     }
@@ -592,6 +593,13 @@ public class DashboardActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView welcomeTitle = dialogView.findViewById(R.id.welcome_title);
+        String savedName = getSharedPreferences("UserProfile", MODE_PRIVATE)
+                .getString("full_name", "");
+        if (!savedName.isEmpty()) {
+            welcomeTitle.setText("Welcome, " + savedName + "!");
         }
 
         Button btnGetStarted = dialogView.findViewById(R.id.btn_get_started);
