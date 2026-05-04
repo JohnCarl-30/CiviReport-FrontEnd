@@ -78,11 +78,21 @@ public class NotificationSocketManager {
                 Log.d(TAG, "onMessage: " + text);
                 try {
                     JSONObject obj = new JSONObject(text);
-                    int complaintId = obj.optInt("complaint_id", -1);
-                    String status = obj.optString("status", "updated");
-                    String type = obj.optString("complaint_type", "Complaint");
+                    String msgType = obj.optString("type", "complaint");
 
-                    NotificationItem item = new NotificationItem(complaintId, status, type);
+                    NotificationItem item;
+                    if ("announcement".equals(msgType)) {
+                        String title = obj.optString("title", "New Announcement");
+                        String description = obj.optString("description", "");
+                        String eventDate = obj.optString("event_date", "");
+                        String venue = obj.optString("venue", "");
+                        item = new NotificationItem(title, description, eventDate, venue);
+                    } else {
+                        int complaintId = obj.optInt("complaint_id", -1);
+                        String status = obj.optString("status", "updated");
+                        String complaintType = obj.optString("complaint_type", "Complaint");
+                        item = new NotificationItem(complaintId, status, complaintType);
+                    }
 
                     activity.runOnUiThread(() -> {
                         addOrUpdateNotification(item);
@@ -139,7 +149,13 @@ public class NotificationSocketManager {
     private void addOrUpdateNotification(NotificationItem incoming) {
         for (int i = 0; i < notifList.size(); i++) {
             NotificationItem existing = notifList.get(i);
-            if (existing.complaintId == incoming.complaintId) {
+            // For complaints, update by complaintId. For announcements, update by title.
+            if (!incoming.isAnnouncement() && !existing.isAnnouncement() && existing.complaintId == incoming.complaintId) {
+                notifList.remove(i);
+                notifList.add(0, incoming);
+                return;
+            }
+            if (incoming.isAnnouncement() && existing.isAnnouncement() && incoming.title != null && incoming.title.equals(existing.title)) {
                 notifList.remove(i);
                 notifList.add(0, incoming);
                 return;
@@ -153,9 +169,14 @@ public class NotificationSocketManager {
         for (NotificationItem item : notifList) {
             JSONObject obj = new JSONObject();
             try {
+                obj.put("type", item.type);
                 obj.put("complaintId", item.complaintId);
                 obj.put("status", item.status);
                 obj.put("complaintType", item.complaintType);
+                obj.put("title", item.title);
+                obj.put("description", item.description);
+                obj.put("eventDate", item.eventDate);
+                obj.put("venue", item.venue);
                 obj.put("receivedAtMillis", item.receivedAtMillis);
                 items.put(obj);
             } catch (Exception e) {
@@ -178,12 +199,22 @@ public class NotificationSocketManager {
             JSONArray items = new JSONArray(raw);
             for (int i = 0; i < items.length(); i++) {
                 JSONObject obj = items.getJSONObject(i);
-                int complaintId = obj.optInt("complaintId", -1);
-                String status = obj.optString("status", "updated");
-                String complaintType = obj.optString("complaintType", "Complaint");
+                String type = obj.optString("type", "complaint");
                 long receivedAtMillis = obj.optLong("receivedAtMillis", System.currentTimeMillis());
-                if (complaintId > 0) {
-                    notifList.add(new NotificationItem(complaintId, status, complaintType, receivedAtMillis));
+
+                if ("announcement".equals(type)) {
+                    String title = obj.optString("title", "New Announcement");
+                    String description = obj.optString("description", "");
+                    String eventDate = obj.optString("eventDate", "");
+                    String venue = obj.optString("venue", "");
+                    notifList.add(new NotificationItem(title, description, eventDate, venue));
+                } else {
+                    int complaintId = obj.optInt("complaintId", -1);
+                    String status = obj.optString("status", "updated");
+                    String complaintType = obj.optString("complaintType", "Complaint");
+                    if (complaintId > 0) {
+                        notifList.add(new NotificationItem(complaintId, status, complaintType, receivedAtMillis));
+                    }
                 }
             }
         } catch (Exception e) {

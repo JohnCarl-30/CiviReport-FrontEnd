@@ -518,7 +518,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         modalNotifListContainer.removeAllViews();
         if (!hasNewNotification) {
-            modalEmptyNotif.setText("No in-progress or approved complaint updates yet");
+            modalEmptyNotif.setText("No notifications yet");
             modalEmptyNotif.setVisibility(View.VISIBLE);
             modalNotifListContainer.addView(modalEmptyNotif);
             return;

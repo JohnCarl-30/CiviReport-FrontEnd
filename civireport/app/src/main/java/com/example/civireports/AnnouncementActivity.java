@@ -51,6 +51,13 @@ public class AnnouncementActivity extends AppCompatActivity {
         fetchAnnouncements();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh announcements every time user comes back to this screen
+        fetchAnnouncements();
+    }
+
     private void initViews() {
         navHome         = findViewById(R.id.navHome);
         navHotlines     = findViewById(R.id.navHotlines);

@@ -3,41 +3,76 @@ package com.example.civireports.models;
 import java.util.Locale;
 
 public class NotificationItem {
+    public final String type;           // "complaint" or "announcement"
     public final int complaintId;
     public final String status;
     public final String complaintType;
+    public final String title;
+    public final String description;
+    public final String eventDate;
+    public final String venue;
     public final long receivedAtMillis;
 
+    // Constructor for complaint notifications
     public NotificationItem(int complaintId, String status, String complaintType) {
-        this(complaintId, status, complaintType, System.currentTimeMillis());
+        this("complaint", complaintId, status, complaintType, null, null, null, null, System.currentTimeMillis());
     }
 
     public NotificationItem(int complaintId, String status, String complaintType, long receivedAtMillis) {
+        this("complaint", complaintId, status, complaintType, null, null, null, null, receivedAtMillis);
+    }
+
+    // Constructor for announcement notifications
+    public NotificationItem(String title, String description, String eventDate, String venue) {
+        this("announcement", -1, null, null, title, description, eventDate, venue, System.currentTimeMillis());
+    }
+
+    public NotificationItem(String type, int complaintId, String status, String complaintType,
+                            String title, String description, String eventDate, String venue,
+                            long receivedAtMillis) {
+        this.type = type != null ? type : "complaint";
         this.complaintId = complaintId;
         this.status = status;
         this.complaintType = complaintType;
+        this.title = title;
+        this.description = description;
+        this.eventDate = eventDate;
+        this.venue = venue;
         this.receivedAtMillis = receivedAtMillis;
     }
 
+    public boolean isAnnouncement() {
+        return "announcement".equals(type);
+    }
+
     public String getDisplayText() {
+        if (isAnnouncement()) {
+            return title != null ? title : "New Announcement";
+        }
         return "Complaint #" + complaintId + " is now " + getStatusLabel() + " (" + complaintType + ")";
     }
 
     public boolean isInProgress() {
+        if (isAnnouncement()) return false;
         String normalized = status == null ? "" : status.trim().toLowerCase(Locale.US);
         return normalized.equals("in_progress") || normalized.equals("in progress");
     }
 
     public boolean isApproved() {
+        if (isAnnouncement()) return false;
         String normalized = status == null ? "" : status.trim().toLowerCase(Locale.US);
         return normalized.equals("approved");
     }
 
     public boolean shouldShowInModal() {
+        if (isAnnouncement()) return true;
         return isInProgress() || isApproved();
     }
 
     public String getModalBadgeText() {
+        if (isAnnouncement()) {
+            return "Announcement";
+        }
         if (isApproved()) {
             return "Approved";
         }
@@ -48,6 +83,21 @@ public class NotificationItem {
     }
 
     public String getAnnouncementText() {
+        if (isAnnouncement()) {
+            StringBuilder sb = new StringBuilder();
+            if (description != null && !description.isEmpty()) {
+                sb.append(description);
+            }
+            if (eventDate != null && !eventDate.isEmpty()) {
+                if (sb.length() > 0) sb.append("\n");
+                sb.append("Date: ").append(eventDate);
+            }
+            if (venue != null && !venue.isEmpty()) {
+                if (sb.length() > 0) sb.append("\n");
+                sb.append("Venue: ").append(venue);
+            }
+            return sb.length() > 0 ? sb.toString() : "New announcement posted";
+        }
         if (isApproved()) {
             return "Announcement: Complaint #" + complaintId + " (" + complaintType + ") has been approved.";
         }
@@ -58,6 +108,7 @@ public class NotificationItem {
     }
 
     public String getStatusLabel() {
+        if (isAnnouncement()) return "";
         if (isApproved()) {
             return "Approved";
         }
