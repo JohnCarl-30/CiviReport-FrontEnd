@@ -12,7 +12,7 @@ public class DashboardItem {
         this.id = id;
         this.displayId = displayId;
         this.title = title;
-        this.urgencyLevel = urgencyLevel;
+        this.urgencyLevel = urgencyLevel != null ? urgencyLevel.toLowerCase().trim() : "low";
         this.type = type;
         this.timeAgo = timeAgo;
     }

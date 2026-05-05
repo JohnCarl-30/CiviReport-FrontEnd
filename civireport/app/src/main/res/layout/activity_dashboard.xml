@@ -204,6 +204,20 @@
                                         android:textStyle="bold" />
 
                                     <TextView
+                                        android:id="@+id/tvUrgentCount"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="32dp"
+                                        android:layout_marginBottom="8dp"
+                                        android:background="@drawable/bg_badge_urgent"
+                                        android:gravity="start|center_vertical"
+                                        android:paddingStart="28dp"
+                                        android:paddingEnd="16dp"
+                                        android:text="0 Urgent"
+                                        android:textColor="@android:color/white"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
                                         android:id="@+id/tvPriorityCount"
                                         android:layout_width="match_parent"
                                         android:layout_height="32dp"

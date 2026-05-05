@@ -13,6 +13,9 @@ public class PendingComplaints {
     @SerializedName("urgency_level")
     private String urgencyLevel;
 
+    @SerializedName("ai_urgency")
+    private String aiUrgency;
+
     @SerializedName("complaint_date")
     private String complaintDate;
 
@@ -24,4 +27,10 @@ public class PendingComplaints {
     public String getUrgencyLevel() { return urgencyLevel; }
     public String getComplaintDate() { return complaintDate; }
     public String getComplaintStatus() { return complaintStatus; }
+    public String getEffectiveUrgency() {
+        if (aiUrgency != null && !aiUrgency.isEmpty()) {
+            return aiUrgency.toLowerCase().trim();
+        }
+        return urgencyLevel != null ? urgencyLevel.toLowerCase().trim() : "low";
+    }
 }

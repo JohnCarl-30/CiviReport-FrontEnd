@@ -237,11 +237,13 @@ public class AnnouncementActivity extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.announcement_detail);
 
+        TextView detailCategory    = dialog.findViewById(R.id.detailCategory); // ✅ ADDED
         TextView detailTitle       = dialog.findViewById(R.id.detailTitle);
         TextView detailDescription = dialog.findViewById(R.id.detailDescription);
         TextView detailDate        = dialog.findViewById(R.id.detailDate);
         TextView detailLocation    = dialog.findViewById(R.id.detailLocation);
 
+        detailCategory.setText(capitalize(a.getCategory())); // ✅ ADDED
         detailTitle.setText(a.getTitle());
         detailDescription.setText(a.getDescription());
         detailDate.setText(a.getEventDate());

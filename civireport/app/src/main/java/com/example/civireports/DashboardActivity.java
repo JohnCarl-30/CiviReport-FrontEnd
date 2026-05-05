@@ -38,15 +38,17 @@ public class DashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "DashboardActivity";
     private static final String DASHBOARD_CACHE_PREFS = "dashboard_cache";
-    private static final String KEY_TOTAL = "total";
-    private static final String KEY_EMERGENCY = "emergency";
-    private static final String KEY_PRIORITY = "priority";
-    private static final String KEY_NOMINAL = "nominal";
+    private static final String KEY_TOTAL     = "total";
+    private static final String KEY_CRITICAL  = "critical";
+    private static final String KEY_HIGH      = "high";
+    private static final String KEY_MEDIUM    = "medium";
+    private static final String KEY_LOW       = "low";
 
     private TextView tvTotalComplaints;
     private TextView tvEmergencyCount;
     private TextView tvPriorityCount;
     private TextView tvNominalCount;
+    private TextView tvUrgentCount; // new
     private TextView tvWelcome;
 
     private LinearLayout btnFileReport;
@@ -106,6 +108,7 @@ public class DashboardActivity extends AppCompatActivity {
         tvPriorityCount   = findViewById(R.id.tvPriorityCount);
         tvNominalCount    = findViewById(R.id.tvNominalCount);
         tvWelcome         = findViewById(R.id.tvWelcome);
+        tvUrgentCount = findViewById(R.id.tvUrgentCount);
 
         btnFileReport         = findViewById(R.id.btnFileReport);
         btnCheckStatus        = findViewById(R.id.btnCheckStatus);
@@ -138,11 +141,12 @@ public class DashboardActivity extends AppCompatActivity {
                     public void onResponse(Call<List<PendingComplaints>> call, Response<List<PendingComplaints>> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             for (PendingComplaints c : response.body()) {
+                                // Use ai_urgency via getEffectiveUrgency()
                                 allItems.add(new DashboardItem(
                                         c.getComplaintId(),
                                         "#" + String.format("%03d", c.getComplaintId()),
                                         c.getComplaintType(),
-                                        c.getUrgencyLevel().toLowerCase(),
+                                        c.getEffectiveUrgency(),
                                         "complaint",
                                         c.getComplaintDate()
                                 ));
@@ -152,11 +156,8 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                         callsCompleted[0]++;
                         if (callsCompleted[0] == 2) {
-                            updateDashboardIfCurrent(
-                                    requestVersion,
-                                    allItems,
-                                    complaintsFailed[0] || emergenciesFailed[0]
-                            );
+                            updateDashboardIfCurrent(requestVersion, allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]);
                         }
                     }
 
@@ -165,11 +166,8 @@ public class DashboardActivity extends AppCompatActivity {
                         complaintsFailed[0] = true;
                         callsCompleted[0]++;
                         if (callsCompleted[0] == 2) {
-                            updateDashboardIfCurrent(
-                                    requestVersion,
-                                    allItems,
-                                    complaintsFailed[0] || emergenciesFailed[0]
-                            );
+                            updateDashboardIfCurrent(requestVersion, allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]);
                         }
                     }
                 });
@@ -196,11 +194,8 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                         callsCompleted[0]++;
                         if (callsCompleted[0] == 2) {
-                            updateDashboardIfCurrent(
-                                    requestVersion,
-                                    allItems,
-                                    complaintsFailed[0] || emergenciesFailed[0]
-                            );
+                            updateDashboardIfCurrent(requestVersion, allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]);
                         }
                     }
 
@@ -209,83 +204,82 @@ public class DashboardActivity extends AppCompatActivity {
                         emergenciesFailed[0] = true;
                         callsCompleted[0]++;
                         if (callsCompleted[0] == 2) {
-                            updateDashboardIfCurrent(
-                                    requestVersion,
-                                    allItems,
-                                    complaintsFailed[0] || emergenciesFailed[0]
-                            );
+                            updateDashboardIfCurrent(requestVersion, allItems,
+                                    complaintsFailed[0] || emergenciesFailed[0]);
                         }
                     }
                 });
     }
 
     private void updateDashboardIfCurrent(int requestVersion, List<DashboardItem> items, boolean hasFailure) {
-        if (requestVersion != dashboardLoadVersion) {
-            return;
-        }
-        if (hasFailure) {
-            return;
-        }
+        if (requestVersion != dashboardLoadVersion) return;
+        if (hasFailure) return;
         updateDashboard(items);
     }
 
     private void updateDashboard(List<DashboardItem> items) {
-        // Sort: critical > medium > nominal
-        items.sort((a, b) -> {
-            int wa = getPriorityWeight(a.getUrgencyLevel());
-            int wb = getPriorityWeight(b.getUrgencyLevel());
-            return Integer.compare(wa, wb);
-        });
+        // Sort: critical > high > medium > low
+        items.sort((a, b) -> Integer.compare(
+                getPriorityWeight(a.getUrgencyLevel()),
+                getPriorityWeight(b.getUrgencyLevel())
+        ));
 
-        int emergency = 0, priority = 0, nominal = 0;
+        int critical = 0, high = 0, medium = 0, low = 0;
         for (DashboardItem item : items) {
             switch (item.getUrgencyLevel()) {
-                case "critical": emergency++; break;
-                case "medium":   priority++;  break;
-                default:         nominal++;   break;
+                case "critical": critical++; break;
+                case "high":     high++;     break;
+                case "medium":   medium++;   break;
+                default:         low++;      break;
             }
         }
 
-        tvTotalComplaints.setText(String.valueOf(items.size()));
-        tvEmergencyCount.setText(emergency + " Emergency");
-        tvPriorityCount.setText(priority + " Priority");
-        tvNominalCount.setText(nominal + " Nominal");
-        saveDashboardSnapshot(items.size(), emergency, priority, nominal);
+        int total = items.size();
+        tvTotalComplaints.setText(String.valueOf(total));
+        tvEmergencyCount.setText(critical + " Emergency");
+        tvPriorityCount.setText(medium + " Priority");
+        tvNominalCount.setText(low + " Nominal");
 
+
+         if (tvUrgentCount != null) tvUrgentCount.setText(high + " Urgent");
+
+        saveDashboardSnapshot(total, critical, high, medium, low);
         populateReportsList(items);
     }
 
     private void restoreDashboardSnapshot() {
         SharedPreferences prefs = getSharedPreferences(DASHBOARD_CACHE_PREFS, MODE_PRIVATE);
-        if (!prefs.contains(KEY_TOTAL)) {
-            return;
-        }
+        if (!prefs.contains(KEY_TOTAL)) return;
 
-        int total = prefs.getInt(KEY_TOTAL, 0);
-        int emergency = prefs.getInt(KEY_EMERGENCY, 0);
-        int priority = prefs.getInt(KEY_PRIORITY, 0);
-        int nominal = prefs.getInt(KEY_NOMINAL, 0);
+        int total    = prefs.getInt(KEY_TOTAL, 0);
+        int critical = prefs.getInt(KEY_CRITICAL, 0);
+        int medium   = prefs.getInt(KEY_MEDIUM, 0);
+        int low      = prefs.getInt(KEY_LOW, 0);
 
         tvTotalComplaints.setText(String.valueOf(total));
-        tvEmergencyCount.setText(emergency + " Emergency");
-        tvPriorityCount.setText(priority + " Priority");
-        tvNominalCount.setText(nominal + " Nominal");
+        tvEmergencyCount.setText(critical + " Emergency");
+        tvPriorityCount.setText(medium + " Priority");
+        tvNominalCount.setText(low + " Nominal");
     }
 
-    private void saveDashboardSnapshot(int total, int emergency, int priority, int nominal) {
+    private void saveDashboardSnapshot(int total, int critical, int high, int medium, int low) {
         getSharedPreferences(DASHBOARD_CACHE_PREFS, MODE_PRIVATE)
                 .edit()
-                .putInt(KEY_TOTAL, total)
-                .putInt(KEY_EMERGENCY, emergency)
-                .putInt(KEY_PRIORITY, priority)
-                .putInt(KEY_NOMINAL, nominal)
+                .putInt(KEY_TOTAL,    total)
+                .putInt(KEY_CRITICAL, critical)
+                .putInt(KEY_HIGH,     high)
+                .putInt(KEY_MEDIUM,   medium)
+                .putInt(KEY_LOW,      low)
                 .apply();
     }
+
+    // Priority weight: lower = higher priority
     private int getPriorityWeight(String urgency) {
         switch (urgency.toLowerCase()) {
             case "critical": return 0;
-            case "medium":   return 1;
-            default:         return 2;
+            case "high":     return 1;
+            case "medium":   return 2;
+            default:         return 3; // low
         }
     }
 
@@ -297,30 +291,66 @@ public class DashboardActivity extends AppCompatActivity {
             View itemView = inflater.inflate(R.layout.item_dashboard_report, reportsContainer, false);
 
             LinearLayout container = itemView.findViewById(R.id.reportItemContainer);
-            TextView tvQueue   = itemView.findViewById(R.id.tvQueueNumber);
-            TextView tvUrgency = itemView.findViewById(R.id.tvUrgencyLabel);
+            TextView tvQueue       = itemView.findViewById(R.id.tvQueueNumber);
+            TextView tvUrgency     = itemView.findViewById(R.id.tvUrgencyLabel);
+            TextView tvTime        = itemView.findViewById(R.id.tvReportTime);
 
             tvQueue.setText(item.getDisplayId());
+            tvTime.setText(formatTimeAgo(item.getTimeAgo()));
 
             String urgency = item.getUrgencyLevel();
-            if (urgency.equals("critical")) {
-                tvUrgency.setText("Emergency");
-                tvUrgency.setTextColor(Color.parseColor("#E53935"));
-                tvQueue.setBackgroundResource(R.drawable.bg_badge_emergency);
-                container.setBackgroundResource(R.drawable.bg_report_item_emergency);
-            } else if (urgency.equals("medium")) {
-                tvUrgency.setText("Priority");
-                tvUrgency.setTextColor(Color.parseColor("#FB8C00"));
-                tvQueue.setBackgroundResource(R.drawable.bg_badge_priority);
-                container.setBackgroundResource(R.drawable.bg_report_item_priority);
-            } else {
-                tvUrgency.setText("Nominal");
-                tvUrgency.setTextColor(Color.parseColor("#43A047"));
-                tvQueue.setBackgroundResource(R.drawable.bg_badge_nominal);
-                container.setBackgroundResource(R.drawable.bg_report_item_nominal);
+            switch (urgency) {
+                case "critical":
+                    tvUrgency.setText("Emergency");
+                    tvUrgency.setTextColor(Color.parseColor("#E53935"));
+                    tvQueue.setBackgroundResource(R.drawable.bg_badge_emergency);
+                    container.setBackgroundResource(R.drawable.bg_report_item_emergency);
+                    break;
+                case "high":
+                    tvUrgency.setText("Urgent");
+                    tvUrgency.setTextColor(Color.parseColor("#FF6F00"));
+                    tvQueue.setBackgroundResource(R.drawable.bg_badge_urgent);
+                    container.setBackgroundResource(R.drawable.bg_report_item_urgent);
+                    break;
+                case "medium":
+                    tvUrgency.setText("Priority");
+                    tvUrgency.setTextColor(Color.parseColor("#FB8C00"));
+                    tvQueue.setBackgroundResource(R.drawable.bg_badge_priority);
+                    container.setBackgroundResource(R.drawable.bg_report_item_priority);
+                    break;
+                default: // low
+                    tvUrgency.setText("Nominal");
+                    tvUrgency.setTextColor(Color.parseColor("#43A047"));
+                    tvQueue.setBackgroundResource(R.drawable.bg_badge_nominal);
+                    container.setBackgroundResource(R.drawable.bg_report_item_nominal);
+                    break;
             }
 
             reportsContainer.addView(itemView);
+        }
+    }
+
+    // Convert ISO datetime to "X min ago" etc.
+    private String formatTimeAgo(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return "";
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
+                    "yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault());
+            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            java.util.Date date = sdf.parse(dateStr);
+            if (date == null) return dateStr;
+
+            long diff = System.currentTimeMillis() - date.getTime();
+            long minutes = diff / 60000;
+            long hours   = minutes / 60;
+            long days    = hours / 24;
+
+            if (minutes < 1)   return "Just now";
+            if (minutes < 60)  return minutes + " min ago";
+            if (hours < 24)    return hours + " hr ago";
+            return days + " day" + (days > 1 ? "s" : "") + " ago";
+        } catch (Exception e) {
+            return dateStr;
         }
     }
 
@@ -388,13 +418,10 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         navHome.setOnClickListener(v -> { });
-
         navHotlines.setOnClickListener(v ->
                 startActivity(new Intent(this, hotlines.class)));
-
         navNotification.setOnClickListener(v ->
                 startActivity(new Intent(this, AnnouncementActivity.class)));
-
         navProfile.setOnClickListener(v ->
                 startActivity(new Intent(this, Profile.class)));
     }
@@ -473,20 +500,21 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void initNotificationSocket() {
-        notificationSocketManager = new NotificationSocketManager(this, new NotificationSocketManager.OnNotificationReceivedListener() {
-            @Override
-            public void onNotificationAdded(NotificationItem item, List<NotificationItem> notifications) {
-                refreshModalNotifications();
-                if (item.shouldShowInModal()) {
-                    showNotificationDialog(item);
-                }
-            }
+        notificationSocketManager = new NotificationSocketManager(this,
+                new NotificationSocketManager.OnNotificationReceivedListener() {
+                    @Override
+                    public void onNotificationAdded(NotificationItem item, List<NotificationItem> notifications) {
+                        refreshModalNotifications();
+                        if (item.shouldShowInModal()) {
+                            showNotificationDialog(item);
+                        }
+                    }
 
-            @Override
-            public void onSocketStateChanged(String state) {
-                Log.d(TAG, "Notification socket state: " + state);
-            }
-        });
+                    @Override
+                    public void onSocketStateChanged(String state) {
+                        Log.d(TAG, "Notification socket state: " + state);
+                    }
+                });
 
         int userId = getSharedPreferences("auth", MODE_PRIVATE).getInt("user_id", -1);
         if (userId > 0) {
@@ -497,9 +525,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void refreshModalNotifications() {
-        if (modalNotifCount == null || modalNotifListContainer == null || modalEmptyNotif == null) {
-            return;
-        }
+        if (modalNotifCount == null || modalNotifListContainer == null || modalEmptyNotif == null) return;
 
         List<NotificationItem> allNotifications = notificationSocketManager != null
                 ? notificationSocketManager.getNotifList()
@@ -507,17 +533,15 @@ public class DashboardActivity extends AppCompatActivity {
 
         List<NotificationItem> notifications = new ArrayList<>();
         for (NotificationItem item : allNotifications) {
-            if (item.shouldShowInModal()) {
-                notifications.add(item);
-            }
+            if (item.shouldShowInModal()) notifications.add(item);
         }
 
-        boolean hasNewNotification = !notifications.isEmpty();
-        modalNotifCount.setVisibility(hasNewNotification ? View.VISIBLE : View.GONE);
-        modalNotifCount.setText(hasNewNotification ? notifications.size() + " new" : "0");
+        boolean hasNew = !notifications.isEmpty();
+        modalNotifCount.setVisibility(hasNew ? View.VISIBLE : View.GONE);
+        modalNotifCount.setText(hasNew ? notifications.size() + " new" : "0");
 
         modalNotifListContainer.removeAllViews();
-        if (!hasNewNotification) {
+        if (!hasNew) {
             modalEmptyNotif.setText("No notifications yet");
             modalEmptyNotif.setVisibility(View.VISIBLE);
             modalNotifListContainer.addView(modalEmptyNotif);
@@ -548,7 +572,6 @@ public class DashboardActivity extends AppCompatActivity {
             public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     UserProfileResponse profile = response.body();
-
                     getSharedPreferences("UserProfile", MODE_PRIVATE)
                             .edit()
                             .putString("full_name", profile.getFullName())
@@ -556,7 +579,6 @@ public class DashboardActivity extends AppCompatActivity {
                             .putString("contact", profile.getContactNum())
                             .putString("address", profile.getAddress())
                             .apply();
-
                     tvWelcome.setText("Welcome, " + profile.getFullName() + "!");
                 }
                 checkFirstLogin();
@@ -577,7 +599,6 @@ public class DashboardActivity extends AppCompatActivity {
     private void checkFirstLogin() {
         SharedPreferences prefs = getSharedPreferences("CiviReportPrefs", MODE_PRIVATE);
         boolean isFirstLogin = prefs.getBoolean("isFirstLogin", true);
-
         if (isFirstLogin) {
             showWelcomeDialog();
             prefs.edit().putBoolean("isFirstLogin", false).apply();

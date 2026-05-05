@@ -76,6 +76,7 @@ public class Report extends AppCompatActivity {
 
     private Uri mediaUri;
     private String mediaType; // "image" or "video"
+    private Uri cameraImageUri;
 
     // Gallery Launcher
     private final ActivityResultLauncher<Intent> mediaLauncher = registerForActivityResult(
@@ -88,11 +89,11 @@ public class Report extends AppCompatActivity {
     );
 
     // Camera Launcher
-    private final ActivityResultLauncher<Void> cameraLauncher = registerForActivityResult(
-            new ActivityResultContracts.TakePicturePreview(),
-            bitmap -> {
-                if (bitmap != null) {
-                    mediaUri = saveBitmapToInternalStorage(bitmap);
+    private final ActivityResultLauncher<Uri> cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            success -> {
+                if (success && cameraImageUri != null) {
+                    mediaUri = cameraImageUri;
                     mediaType = "image";
                     showMediaPreview();
                     tvUploadStatus.setText("Captured: Photo from Camera");
@@ -636,7 +637,19 @@ public class Report extends AppCompatActivity {
         builder.setTitle("Select Attachment Source");
         builder.setItems(options, (dialog, which) -> {
             if (which == 0) {
-                cameraLauncher.launch(null);
+                try {
+                    File photoFile = new File(getFilesDir(),
+                            "captured_" + System.currentTimeMillis() + ".jpg");
+                    cameraImageUri = androidx.core.content.FileProvider.getUriForFile(
+                            this,
+                            getPackageName() + ".fileprovider",
+                            photoFile
+                    );
+                    cameraLauncher.launch(cameraImageUri);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Camera error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             } else if (which == 1) {
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("*/*");

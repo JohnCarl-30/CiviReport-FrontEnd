@@ -19,7 +19,7 @@ public class HelpSupportActivity extends AppCompatActivity {
         // Tap email → open mail app
         findViewById(R.id.btnEmail).setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("mailto:civireport@gmail.com"));
+            intent.setData(Uri.parse("mailto:barangaycivireport@gmail.com"));
             intent.putExtra(Intent.EXTRA_SUBJECT, "Help & Support");
             try {
                 startActivity(intent);
